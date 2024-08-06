@@ -1,14 +1,14 @@
 {
     "color_map": {
       "0": "red",
-      "1": "yellow",
+      "1": "green",
       "2": "blue",
       "3": "purple",
       "4": "orange",
-      "5": "green",
+      "5": "olivedrab",
       "6": "indigo",
-      "7": "pink",
+      "7": "deeppink",
       "8": "brown",
-      "9": "grey"
+      "9": "deepskyblue"
     }
   }
