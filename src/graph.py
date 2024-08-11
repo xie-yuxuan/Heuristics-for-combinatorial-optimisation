@@ -2,6 +2,7 @@ import json
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 
 def load_json_graph(json_file):
@@ -132,8 +133,7 @@ def draw_graph(graph, graph_name, iteration_count, pos):
     plt.savefig(graph_name)
     plt.show()
 
-
-
+# Animtation functions
 
 if __name__ == '__main__':
     # Graph and color map paths
