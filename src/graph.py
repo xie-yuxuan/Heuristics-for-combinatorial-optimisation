@@ -22,6 +22,26 @@ def load_json_graph(json_file):
 
     return graph, graph_name
 
+def load_color_map(color_map_file):
+    '''
+    Load the color map from a JSON file.
+    '''
+    with open(color_map_file, 'r') as f:
+        data = json.load(f)
+    return data['color_map']
+
+
+def calc_cost(graph):
+    cost = 0
+    
+    vertex_colors = nx.get_node_attributes(graph, 'color')
+    
+    for u, v, data in graph.edges(data=True):
+        if vertex_colors.get(u) == vertex_colors.get(v):  # Check if connected vertices have the same color
+            cost += data.get('weight')
+
+    return cost
+
 def draw_graph(graph, graph_name):
     '''
     Draw the graph using Graphviz and save to an image file.
@@ -45,17 +65,26 @@ def draw_graph(graph, graph_name):
     nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=500, edge_color='black', font_color='white', font_size=10)
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False)
 
+    cost = calc_cost(graph)
+
+    plt.text(
+        0.95, 0.05, f'Cost: {cost}', 
+        horizontalalignment='right',
+        verticalalignment='center', 
+        transform=plt.gca().transAxes,
+        fontsize=12, 
+        bbox=dict(facecolor='white', alpha=0.5, edgecolor='none')
+        )
+
     plt.title(graph_name)
     plt.savefig(graph_name)
     plt.show()
 
-def load_color_map(color_map_file):
-    '''
-    Load the color map from a JSON file.
-    '''
-    with open(color_map_file, 'r') as f:
-        data = json.load(f)
-    return data['color_map']
+def greedy(graph):
+    pass
+
+def reluctant(graph):
+    pass
 
 
 if __name__ == '__main__':
@@ -68,3 +97,6 @@ if __name__ == '__main__':
     color_map = load_color_map(color_map_path)
 
     draw_graph(graph_1, graph_1_name)
+    
+    # cost = calc_cost(graph_1)
+    # print("Cost of the graph:", cost)
