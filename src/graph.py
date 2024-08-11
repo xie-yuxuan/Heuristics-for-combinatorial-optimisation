@@ -152,7 +152,7 @@ if __name__ == '__main__':
     # pos = nx.spectral_layout(graph) # use eigenvectors of graph Laplacian matrix
     # pos = nx.draw_planar(graph) # planar graph
 
-    # Analysis
+    # Apply optimising algorithm
     # graph_1_greedy, cost, iterations_taken = greedy(graph_1, 3, 6)
 
     # Animation
