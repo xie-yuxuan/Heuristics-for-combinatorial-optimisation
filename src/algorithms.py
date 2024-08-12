@@ -4,7 +4,7 @@ def naive_greedy(graph, color_set_size, iterations):
     # Initialise cost and color set
     cur_cost = calc_cost(graph)
     color_set = list(range(color_set_size))
-    itertions_taken = 0
+    iterations_taken = 0
     
     # Naive greedy algo, for loop based on fixed no. of iterations
     for i in range(iterations):
@@ -37,15 +37,17 @@ def naive_greedy(graph, color_set_size, iterations):
         # Recoloring 
         graph.nodes[vertex_choice]['color'] = color_choice
         cur_cost -= max_cost_reduction
+        iterations_taken = i + 1
 
-    return graph, cur_cost, itertions_taken
+    return graph, cur_cost, iterations_taken
 
 def animate_naive_greedy(graph, color_set_size, iterations):
     cur_cost = calc_cost(graph)
     color_set = list(range(color_set_size))
     iterations_taken = 0
+    recolored_node = None
 
-    yield graph, cur_cost, iterations_taken # Yield initial state
+    yield graph, cur_cost, iterations_taken, None # Yield initial state
 
     for i in range(iterations):
         vertex_choice = None
@@ -69,9 +71,12 @@ def animate_naive_greedy(graph, color_set_size, iterations):
         # Recoloring 
         graph.nodes[vertex_choice]['color'] = color_choice
         cur_cost -= max_cost_reduction
+        recolored_node = vertex_choice
+
         iterations_taken = i + 1
 
-        yield graph, cur_cost, iterations_taken # Yield updated state
+        yield graph, cur_cost, iterations_taken, recolored_node
+    yield graph, cur_cost, iterations_taken, None
 
 def reluctant(graph, color_set_size, iterations):
     pass
