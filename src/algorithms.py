@@ -5,6 +5,12 @@ def naive_greedy(graph, color_set_size, iterations):
     cur_cost = calc_cost(graph)
     color_set = list(range(color_set_size))
     iterations_taken = 0
+
+    # Collect data for cost plot
+    cost_data = {
+        'iterations': [],
+        'costs': []
+    }
     
     # Naive greedy algo, for loop based on fixed no. of iterations
     for i in range(iterations):
@@ -39,7 +45,12 @@ def naive_greedy(graph, color_set_size, iterations):
         cur_cost -= max_cost_reduction
         iterations_taken = i + 1
 
-    return graph, cur_cost, iterations_taken
+        cost_data['iterations'].append(iterations_taken)
+        cost_data['costs'].append(cur_cost)
+
+    # print((cost_data['iterations'], cost_data['costs']))
+
+    return graph, cur_cost, iterations_taken, (cost_data['iterations'], cost_data['costs'])
 
 def animate_naive_greedy(graph, color_set_size, iterations):
     cur_cost = calc_cost(graph)
