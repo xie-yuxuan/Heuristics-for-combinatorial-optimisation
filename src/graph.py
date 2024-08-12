@@ -22,7 +22,7 @@ def load_json_graph(json_file):
 
 def load_color_map(color_map_file):
     '''
-    Load the color map from a JSON file.
+    Load the color map from a JSON file
     '''
     with open(color_map_file, 'r') as f:
         data = json.load(f)

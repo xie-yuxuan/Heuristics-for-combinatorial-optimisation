@@ -3,23 +3,24 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 from graph import load_color_map, load_json_graph
-from algorithms import greedy, animate_greedy
+from algorithms import naive_greedy, animate_naive_greedy
 from utils import calc_cost
 
-def draw_graph(graph, pos, graph_name, iteration_count):
+def draw_graph(graph, pos, graph_name):
     '''
-    Draw the graph using Graphviz on the given axis
+    Draw graph on a given axis
     '''
+    fig, ax = plt.subplots(figsize=(6, 6))
 
     vertex_colors = [color_map.get(str(graph.nodes[node].get('color', 0)), 'gray') for node in graph.nodes]
 
     edge_weights = nx.get_edge_attributes(graph, 'weight')
 
-    nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=500, edge_color='black', font_color='white', font_size=10)
-    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False)
+    nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=500, edge_color='black', font_color='white', font_size=10, ax=ax)
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, ax=ax)
 
-    plt.text(
-        0.95, 0.1, f'Iterations: {iteration_count}\nCost: {calc_cost(graph)}\nColors used: {len(set(nx.get_node_attributes(graph, "color").values()))}', 
+    ax.text(
+        0.95, 0.1, f'Iterations: None\nCost: {calc_cost(graph)}\nColors used: {len(set(nx.get_node_attributes(graph, "color").values()))}', 
         horizontalalignment='right',
         verticalalignment='center', 
         transform=plt.gca().transAxes,
@@ -27,15 +28,20 @@ def draw_graph(graph, pos, graph_name, iteration_count):
         bbox=dict(facecolor='white', alpha=0.5, edgecolor='none')
         )
 
-    plt.title(graph_name)
+    ax.set_title(graph_name)
+
     plt.savefig(graph_name)
     plt.show()
 
-def animate(graph, color_set_size, iterations, pos, graph_name):
+def animate(graph, color_set_size, iterations, pos, graph_name, algo):
+    """
+    Animate graph coloring for a specific optimisation algo
+    """
     fig, ax = plt.subplots(figsize=(6, 6))
 
     def update(frame_data):
         graph, cur_cost, iteration_count = frame_data
+
         ax.clear()
 
         vertex_colors = [color_map.get(str(graph.nodes[node].get('color', 0)), 'gray') for node in graph.nodes]
@@ -55,10 +61,11 @@ def animate(graph, color_set_size, iterations, pos, graph_name):
 
         ax.set_title(graph_name)
 
-    # Create an animation using the greedy function as a generator
-    ani = animation.FuncAnimation(
-        fig, update, frames=animate_greedy(graph, color_set_size, iterations), interval=1000, repeat=False
-    )
+    if algo == 'naive greedy':
+        # Create an animation
+        ani = animation.FuncAnimation(
+            fig, update, frames=animate_naive_greedy(graph, color_set_size, iterations), interval=500, repeat=False
+        )
     plt.show()
 
 if __name__ == '__main__':
@@ -83,9 +90,9 @@ if __name__ == '__main__':
     max_iterations = 10
     color_set_size = 3
 
-    # Apply optimising algorithm
-    # graph_1_greedy, cost, iterations_taken = greedy(graph_1, color_set_size, max_iterations)
-    # draw_graph(graph_1_greedy, pos, graph_1_name, None)
+    # Apply optimisation algo
+    # graph_1_naive_greedy, cost, iterations_taken = naive_greedy(graph_1, color_set_size, max_iterations)
+    # draw_graph(graph_1_naive_greedy, pos, graph_1_name)
 
-    # Animation
-    animate(graph_1, color_set_size, max_iterations, pos, graph_1_name)
+    # Animate optimisation algo
+    animate(graph_1, color_set_size, max_iterations, pos, graph_1_name, 'naive greedy')
