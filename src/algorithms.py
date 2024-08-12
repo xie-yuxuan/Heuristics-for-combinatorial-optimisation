@@ -1,14 +1,14 @@
 from utils import calc_cost, calc_delta_cost
 
-def greedy(graph, color_set_size, iterations):
+def naive_greedy(graph, color_set_size, iterations):
     # Initialise cost and color set
     cur_cost = calc_cost(graph)
     color_set = list(range(color_set_size))
     itertions_taken = 0
     
-    # Greedy algo for loop based on fixed no. of iterations
+    # Naive greedy algo, for loop based on fixed no. of iterations
     for i in range(iterations):
-        # Initialise choice combination, determined by largest cost reduction
+        # Determine choice combination by largest cost reduction
         vertex_choice = None
         color_choice = None
         max_cost_reduction = 0
@@ -37,19 +37,15 @@ def greedy(graph, color_set_size, iterations):
         # Recoloring 
         graph.nodes[vertex_choice]['color'] = color_choice
         cur_cost -= max_cost_reduction
-        iterations_taken = i + 1
-
-        # Plot graph to show recoloring 
-        # draw_graph(graph, pos, graph_name, iterations_taken)
 
     return graph, cur_cost, itertions_taken
 
-def animate_greedy(graph, color_set_size, iterations):
+def animate_naive_greedy(graph, color_set_size, iterations):
     cur_cost = calc_cost(graph)
     color_set = list(range(color_set_size))
     iterations_taken = 0
 
-    yield graph, cur_cost, iterations_taken # yield initial state
+    yield graph, cur_cost, iterations_taken # Yield initial state
 
     for i in range(iterations):
         vertex_choice = None
@@ -75,8 +71,7 @@ def animate_greedy(graph, color_set_size, iterations):
         cur_cost -= max_cost_reduction
         iterations_taken = i + 1
 
-        yield graph, cur_cost, iterations_taken # yield updated state
-
+        yield graph, cur_cost, iterations_taken # Yield updated state
 
 def reluctant(graph, color_set_size, iterations):
     pass

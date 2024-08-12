@@ -7,7 +7,7 @@ def calc_cost(graph):
     vertex_colors = nx.get_node_attributes(graph, 'color')
     
     for vertex_1, vertex_2, edge_data in graph.edges(data=True):
-        if vertex_colors.get(vertex_1) == vertex_colors.get(vertex_2):  # Check if connected vertices have the same color
+        if vertex_colors.get(vertex_1) == vertex_colors.get(vertex_2): # Check if connected vertices have the same color
             cost += edge_data.get('weight')
 
     return cost
