@@ -128,7 +128,7 @@ def animate(graph, color_set_size, iterations, pos, graph_name, algo):
     # writer = animation.PillowWriter(fps=10,
     #                             metadata=dict(artist='Me'),
     #                             bitrate=1800)
-    # ani.save('random_graph_naive_reluctant.gif', writer=writer)
+    # ani.save('random_graph_naive_greedy.gif', writer=writer)
 
     fig.tight_layout()
     plt.show()
@@ -156,14 +156,14 @@ if __name__ == '__main__':
     # pos = nx.spectral_layout(graph) # use eigenvectors of graph Laplacian matrix
     # pos = nx.draw_planar(graph) # planar graph
 
-    max_iterations = 20
+    max_iterations = 100
     color_set_size = 4
 
     # Apply optimisation algo ------------------------------------------------
 
     # Graph 1
 
-    pos = nx.spring_layout(graph_1, seed=4)
+    # pos = nx.spring_layout(graph_1, seed=4)
     
     # Naive greedy
     # graph_1_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(graph_1, color_set_size, max_iterations)
