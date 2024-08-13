@@ -1,6 +1,6 @@
 # Heuristics-for-combinatorial-optimisation
 
-This is my IIB project at the University of Cambridge as I specialise in Information and Computer Engineering. 
+This is my IIB project at the University of Cambridge. My specialisation is in Information and Computer Engineering. 
 
 ### Objectives 
 - Explore reluctant vs greedy algo for graph coloring optimisation
