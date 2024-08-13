@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 from graph import load_color_map, load_json_graph
-from algorithms import naive_greedy, animate_naive_greedy
+from algorithms import naive_greedy, animate_naive_greedy, naive_reluctant, animate_naive_reluctant
 from utils import calc_cost
 
 def draw_graph(graph, pos, graph_name, iterations_taken, cost_data):
@@ -12,12 +12,14 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data):
     '''
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
 
+    num_nodes = len(graph.nodes) # Calc number of nodes to scale size of font and node proportionately
+
     vertex_colors = [color_map.get(str(graph.nodes[node].get('color', 0)), 'gray') for node in graph.nodes]
 
     edge_weights = nx.get_edge_attributes(graph, 'weight')
 
-    nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=500, edge_color='black', font_color='white', font_size=10, ax=ax[0])
-    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=10, ax=ax[0])
+    nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=5000/num_nodes, edge_color='black', font_color='white', font_size=100/num_nodes, ax=ax[0])
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=100/num_nodes, ax=ax[0])
 
     ax[0].text(
         0.95, 0.05, f'Iterations: {iterations_taken}\nCost: {calc_cost(graph)}\nColors used: {len(set(nx.get_node_attributes(graph, "color").values()))}', 
@@ -86,8 +88,10 @@ def animate(graph, color_set_size, iterations, pos, graph_name, algo):
         
         edge_weights = nx.get_edge_attributes(graph, 'weight')
 
-        nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=500, edge_color=edge_colors, font_color='white', font_size=10, ax=ax[0])
-        nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=10, ax=ax[0])
+        num_nodes = len(graph.nodes) # Calc number of nodes to scale size of font and node proportionately
+
+        nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=5000/num_nodes, edge_color=edge_colors, font_color='white', font_size=100/num_nodes, ax=ax[0])
+        nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=100/num_nodes, ax=ax[0])
 
         ax[0].text(
             0.95, 0.05, f'Iterations: {iteration_count}\nCost: {calc_cost(graph)}\nColors used: {len(set(nx.get_node_attributes(graph, "color").values()))}', 
@@ -114,12 +118,17 @@ def animate(graph, color_set_size, iterations, pos, graph_name, algo):
         ani = animation.FuncAnimation(
             fig, update, frames=animate_naive_greedy(graph, color_set_size, iterations), interval=5, repeat=False
         )
+    elif algo == 'naive reluctant':
+        # Create an animation
+        ani = animation.FuncAnimation(
+            fig, update, frames=animate_naive_reluctant(graph, color_set_size, iterations), interval=5, repeat=False
+        )
     
     # Save animation as a gif
-    # writer = animation.PillowWriter(fps=7,
+    # writer = animation.PillowWriter(fps=10,
     #                             metadata=dict(artist='Me'),
     #                             bitrate=1800)
-    # ani.save('random_graph_naive_greedy.gif', writer=writer)
+    # ani.save('random_graph_naive_reluctant.gif', writer=writer)
 
     fig.tight_layout()
     plt.show()
@@ -139,7 +148,7 @@ if __name__ == '__main__':
 
     # Initialise parameters
     # Define layout for graph visualiation, set vertex positions
-    pos = nx.spring_layout(graph_1, seed=4) # force-directed algo
+    # pos = nx.spring_layout(graph_1, seed=4) # force-directed algo
     # pos = nx.circular_layout(graph) # circle
     # pos = nx.random_layout(graph)
     # pos = nx.shell_layout(graph) # vertices arranged in concentric circles
@@ -147,20 +156,38 @@ if __name__ == '__main__':
     # pos = nx.spectral_layout(graph) # use eigenvectors of graph Laplacian matrix
     # pos = nx.draw_planar(graph) # planar graph
 
-    max_iterations = 10
-    color_set_size = 3
+    max_iterations = 20
+    color_set_size = 4
 
-    # Apply optimisation algo
-    graph_1_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(graph_1, color_set_size, max_iterations)
-    draw_graph(graph_1_naive_greedy, pos, graph_1_name, iterations_taken, cost_data)
+    # Apply optimisation algo ------------------------------------------------
 
-    # Animate optimisation algo
+    # Graph 1
+
+    pos = nx.spring_layout(graph_1, seed=4)
+    
+    # Naive greedy
+    # graph_1_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(graph_1, color_set_size, max_iterations)
+    # draw_graph(graph_1_naive_greedy, pos, graph_1_name, iterations_taken, cost_data)
+
     # animate(graph_1, color_set_size, max_iterations, pos, graph_1_name, algo='naive greedy')
 
+    # Naive reluctant
+    # graph_1_naive_reluctant, final_cost, iterations_taken, cost_data = naive_reluctant(graph_1, color_set_size, max_iterations)
+    # draw_graph(graph_1_naive_reluctant, pos, graph_1_name, iterations_taken, cost_data)
+    
+    # animate(graph_1, color_set_size, max_iterations, pos, graph_1_name, algo='naive reluctant')
+
     # Random graph
+
+    # pos = nx.spring_layout(random_graph, seed=0)
 
     # random_graph_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(random_graph, color_set_size, max_iterations)
     # draw_graph(random_graph_naive_greedy, pos, random_graph_name, iterations_taken, cost_data)
 
     # animate(random_graph, color_set_size, max_iterations, pos, random_graph_name, algo='naive greedy')
+
+    # random_graph_naive_reluctant, final_cost, iterations_taken, cost_data = naive_reluctant(random_graph, color_set_size, max_iterations)
+    # draw_graph(random_graph_naive_reluctant, pos, random_graph_name, iterations_taken, cost_data)
+
+    # animate(random_graph, color_set_size, max_iterations, pos, random_graph_name, algo='naive reluctant')
 
