@@ -20,22 +20,15 @@ def naive_greedy(graph, color_set_size, iterations):
         max_cost_reduction = 0
 
         for vertex in graph.nodes: # graph.nodes is a list of all nodes
-            # print(f'vertex {vertex}')
             ori_color = graph.nodes[vertex]['color']
 
             for color in color_set:
-                # print(f'color {color}')
                 delta_cost = calc_delta_cost(graph, vertex, ori_color, color)
-                # print(f'delta_cost {delta_cost}')
 
                 if delta_cost > max_cost_reduction:
                     max_cost_reduction = delta_cost
                     vertex_choice = vertex
                     color_choice = color
-                    
-        # print(f'max_cost_reduc {max_cost_reduction}')
-        # print(f'vertex_choice {vertex_choice}')
-        # print(f'color_choice {color_choice}')
 
         if max_cost_reduction == 0:
             break
@@ -47,8 +40,6 @@ def naive_greedy(graph, color_set_size, iterations):
 
         cost_data['iterations'].append(iterations_taken)
         cost_data['costs'].append(cur_cost)
-
-    # print((cost_data['iterations'], cost_data['costs']))
 
     return graph, cur_cost, iterations_taken, (cost_data['iterations'], cost_data['costs'])
 

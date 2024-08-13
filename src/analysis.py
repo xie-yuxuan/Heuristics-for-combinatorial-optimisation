@@ -16,8 +16,8 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data):
 
     edge_weights = nx.get_edge_attributes(graph, 'weight')
 
-    nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=100, edge_color='black', font_color='white', font_size=2, ax=ax[0])
-    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=2, ax=ax[0])
+    nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=500, edge_color='black', font_color='white', font_size=10, ax=ax[0])
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=10, ax=ax[0])
 
     ax[0].text(
         0.95, 0.05, f'Iterations: {iterations_taken}\nCost: {calc_cost(graph)}\nColors used: {len(set(nx.get_node_attributes(graph, "color").values()))}', 
@@ -86,8 +86,8 @@ def animate(graph, color_set_size, iterations, pos, graph_name, algo):
         
         edge_weights = nx.get_edge_attributes(graph, 'weight')
 
-        nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=100, edge_color=edge_colors, font_color='white', font_size=2, ax=ax[0])
-        nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=2, ax=ax[0])
+        nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=500, edge_color=edge_colors, font_color='white', font_size=10, ax=ax[0])
+        nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=10, ax=ax[0])
 
         ax[0].text(
             0.95, 0.05, f'Iterations: {iteration_count}\nCost: {calc_cost(graph)}\nColors used: {len(set(nx.get_node_attributes(graph, "color").values()))}', 
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
     # Initialise parameters
     # Define layout for graph visualiation, set vertex positions
-    pos = nx.spring_layout(random_graph, seed=0) # force-directed algo
+    pos = nx.spring_layout(graph_1, seed=4) # force-directed algo
     # pos = nx.circular_layout(graph) # circle
     # pos = nx.random_layout(graph)
     # pos = nx.shell_layout(graph) # vertices arranged in concentric circles
@@ -147,18 +147,20 @@ if __name__ == '__main__':
     # pos = nx.spectral_layout(graph) # use eigenvectors of graph Laplacian matrix
     # pos = nx.draw_planar(graph) # planar graph
 
-    max_iterations = 150
-    color_set_size = 5
+    max_iterations = 10
+    color_set_size = 3
 
     # Apply optimisation algo
-    # graph_1_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(graph_1, color_set_size, max_iterations)
-    # draw_graph(graph_1_naive_greedy, pos, graph_1_name, iterations_taken, cost_data)
+    graph_1_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(graph_1, color_set_size, max_iterations)
+    draw_graph(graph_1_naive_greedy, pos, graph_1_name, iterations_taken, cost_data)
 
     # Animate optimisation algo
     # animate(graph_1, color_set_size, max_iterations, pos, graph_1_name, algo='naive greedy')
 
+    # Random graph
+
     # random_graph_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(random_graph, color_set_size, max_iterations)
     # draw_graph(random_graph_naive_greedy, pos, random_graph_name, iterations_taken, cost_data)
 
-    animate(random_graph, color_set_size, max_iterations, pos, random_graph_name, algo='naive greedy')
+    # animate(random_graph, color_set_size, max_iterations, pos, random_graph_name, algo='naive greedy')
 
