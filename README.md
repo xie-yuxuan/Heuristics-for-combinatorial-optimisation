@@ -7,8 +7,8 @@ This is my IIB project at the University of Cambridge. My specialisation is in I
 - Explore heuristics of approaches
 
 ### To do 
-1. Graph representation (DONE)
-2. Greedy and Reluctant algo 
+1. Graph representation (done)
+2. Greedy and Reluctant algo (done)
 3. Optimisation iteration 
 4. Validation and visualisation
 
