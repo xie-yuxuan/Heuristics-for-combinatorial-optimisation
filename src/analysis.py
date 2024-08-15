@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from matplotlib.animation import PillowWriter
 
 from graph import load_color_map, load_json_graph
 from algorithms import naive_greedy, animate_naive_greedy, naive_reluctant, animate_naive_reluctant
@@ -123,27 +124,28 @@ def animate(graph, color_set_size, iterations, pos, graph_name, algo):
         ani = animation.FuncAnimation(
             fig, update, frames=animate_naive_reluctant(graph, color_set_size, iterations), interval=5, repeat=False
         )
+
+    fig.tight_layout()
     
     # Save animation as a gif
     # writer = animation.PillowWriter(fps=10,
     #                             metadata=dict(artist='Me'),
     #                             bitrate=1800)
-    # ani.save('random_graph_naive_greedy.gif', writer=writer)
-
-    fig.tight_layout()
+    # ani.save('random_graph_naive_reluctant.gif', writer=writer)
+    
     plt.show()
 
 if __name__ == '__main__':
     # Graph and color map paths
-    graph_1_json_path = 'C:/Users/Yuxuan Xie/Desktop/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/graph1.json'
-    color_map_path = 'C:/Users/Yuxuan Xie/Desktop/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
+    graph_1_json_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/graph1.json'
+    color_map_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
 
     # Load graph and color map
     graph_1, graph_1_name = load_json_graph(graph_1_json_path)
     color_map = load_color_map(color_map_path)
 
     # Random graph
-    random_graph_path = 'C:/Users/Yuxuan Xie/Desktop/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/random_graph.json'
+    random_graph_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/random_graph.json'
     random_graph, random_graph_name = load_json_graph(random_graph_path)
 
     # Initialise parameters
@@ -156,14 +158,14 @@ if __name__ == '__main__':
     # pos = nx.spectral_layout(graph) # use eigenvectors of graph Laplacian matrix
     # pos = nx.draw_planar(graph) # planar graph
 
-    max_iterations = 100
-    color_set_size = 4
+    max_iterations = 20
+    color_set_size = 3
 
     # Apply optimisation algo ------------------------------------------------
 
     # Graph 1
 
-    # pos = nx.spring_layout(graph_1, seed=4)
+    pos = nx.spring_layout(graph_1, seed=4)
     
     # Naive greedy
     # graph_1_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(graph_1, color_set_size, max_iterations)
