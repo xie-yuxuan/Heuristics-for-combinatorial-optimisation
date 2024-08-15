@@ -128,10 +128,10 @@ def animate(graph, color_set_size, iterations, pos, graph_name, algo):
     fig.tight_layout()
     
     # Save animation as a gif
-    # writer = animation.PillowWriter(fps=10,
-    #                             metadata=dict(artist='Me'),
-    #                             bitrate=1800)
-    # ani.save('random_graph_naive_reluctant.gif', writer=writer)
+    writer = animation.PillowWriter(fps=10,
+                                metadata=dict(artist='Me'),
+                                bitrate=1800)
+    ani.save('random_graph_naive_reluctant.gif', writer=writer)
     
     plt.show()
 
@@ -158,8 +158,8 @@ if __name__ == '__main__':
     # pos = nx.spectral_layout(graph) # use eigenvectors of graph Laplacian matrix
     # pos = nx.draw_planar(graph) # planar graph
 
-    max_iterations = 20
-    color_set_size = 3
+    max_iterations = 200
+    color_set_size = 4
 
     # Apply optimisation algo ------------------------------------------------
 
@@ -181,7 +181,7 @@ if __name__ == '__main__':
 
     # Random graph
 
-    # pos = nx.spring_layout(random_graph, seed=0)
+    pos = nx.spring_layout(random_graph, seed=0)
 
     # random_graph_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(random_graph, color_set_size, max_iterations)
     # draw_graph(random_graph_naive_greedy, pos, random_graph_name, iterations_taken, cost_data)
@@ -191,5 +191,5 @@ if __name__ == '__main__':
     # random_graph_naive_reluctant, final_cost, iterations_taken, cost_data = naive_reluctant(random_graph, color_set_size, max_iterations)
     # draw_graph(random_graph_naive_reluctant, pos, random_graph_name, iterations_taken, cost_data)
 
-    # animate(random_graph, color_set_size, max_iterations, pos, random_graph_name, algo='naive reluctant')
+    animate(random_graph, color_set_size, max_iterations, pos, random_graph_name, algo='naive reluctant')
 
