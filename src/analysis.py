@@ -148,6 +148,10 @@ if __name__ == '__main__':
     random_graph_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/random_graph.json'
     random_graph, random_graph_name = load_json_graph(random_graph_path)
 
+    # Random1 graph
+    random1_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/random1.json'
+    random1, random1_name = load_json_graph(random1_path)
+
     # Initialise parameters
     # Define layout for graph visualiation, set vertex positions
     # pos = nx.spring_layout(graph_1, seed=4) # force-directed algo
@@ -165,7 +169,7 @@ if __name__ == '__main__':
 
     # Graph 1
 
-    pos = nx.spring_layout(graph_1, seed=4)
+    # pos = nx.spring_layout(graph_1, seed=4)
     
     # Naive greedy
     # graph_1_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(graph_1, color_set_size, max_iterations)
@@ -181,7 +185,7 @@ if __name__ == '__main__':
 
     # Random graph
 
-    pos = nx.spring_layout(random_graph, seed=0)
+    # pos = nx.spring_layout(random_graph, seed=0)
 
     # random_graph_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(random_graph, color_set_size, max_iterations)
     # draw_graph(random_graph_naive_greedy, pos, random_graph_name, iterations_taken, cost_data)
@@ -191,5 +195,18 @@ if __name__ == '__main__':
     # random_graph_naive_reluctant, final_cost, iterations_taken, cost_data = naive_reluctant(random_graph, color_set_size, max_iterations)
     # draw_graph(random_graph_naive_reluctant, pos, random_graph_name, iterations_taken, cost_data)
 
-    animate(random_graph, color_set_size, max_iterations, pos, random_graph_name, algo='naive reluctant')
+    # animate(random_graph, color_set_size, max_iterations, pos, random_graph_name, algo='naive reluctant')
 
+    # Random1 graph
+
+    pos = nx.spring_layout(random1, seed=0)
+
+    # random1_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(random1, color_set_size, max_iterations)
+    # draw_graph(random1_naive_greedy, pos, random1_name, iterations_taken, cost_data)
+
+    animate(random1, color_set_size, max_iterations, pos, random1_name, algo='naive greedy')
+
+    # random1_naive_reluctant, final_cost, iterations_taken, cost_data = naive_reluctant(random1, color_set_size, max_iterations)
+    # draw_graph(random1_naive_reluctant, pos, random1_name, iterations_taken, cost_data)
+
+    # animate(random1, color_set_size, max_iterations, pos, random1_name, algo='naive reluctant')

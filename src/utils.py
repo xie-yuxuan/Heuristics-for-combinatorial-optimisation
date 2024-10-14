@@ -127,7 +127,8 @@ def generate_random_random_graph(num_vertices, num_edges, color_set_size, parame
         G.add_edge(u, v, weight=random.randint(1, 10)) 
     
     # nx.set_node_attributes(G, 0, 'color') # Set initial node colors to red (0)
-    nx.set_node_attributes(G, random.sample(range(color_set_size), num_vertices), 'color') # Randomise initial node colors 
+    node_colors = {i: random.randint(0, color_set_size - 1) for i in G.nodes()}
+    nx.set_node_attributes(G, node_colors, 'color') # Randomise initial node colors 
     
     adjacency_matrix = nx.to_numpy_array(G).tolist()  # Creates a list of lists
 
@@ -142,18 +143,15 @@ def generate_random_random_graph(num_vertices, num_edges, color_set_size, parame
         "vertex_colors": vertex_colors
     }
     
-    # with open('random_graph.json', 'w') as f:
-    #     json_string = json.dumps(graph_data, indent=2)
-    #     json_string = json_string.replace('[\n        ', '[')
-    #     json_string = json_string.replace('\n      ],', '],')
-        
-    #     f.write(json_string)
+    with open('random1.json', 'w') as f:
+        json.dump(graph_data, f, indent=2, separators=(',', ': '))
     
     return G
 
 if __name__ == '__main__':
 
     # Example usage
-    num_vertices = 10
-    num_edges = 15
-    graph = generate_random_graph(num_vertices, num_edges, 4)
+    num_vertices = 100
+    num_edges = 150
+    graph = generate_random_random_graph(num_vertices, num_edges, 4)
+    # generate_random_graph(num_vertices,num_edges)
