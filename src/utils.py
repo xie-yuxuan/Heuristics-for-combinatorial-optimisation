@@ -3,6 +3,13 @@ import numpy as np
 import json
 import random
 
+"""
+Utility functions including:
+- calc_cost
+- calc_delta_cost
+- generate_random_graph
+"""
+
 def calc_cost(graph):
     cost = 0
     
@@ -16,7 +23,7 @@ def calc_cost(graph):
 
 def calc_delta_cost(graph, vertex, ori_color, new_color):
     """
-    Calc change in cost (delta) when a vertex is recolored
+    Calc cost savings (delta) when a vertex is recolored
     """
     delta = 0
 
