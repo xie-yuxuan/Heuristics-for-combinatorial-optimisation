@@ -9,8 +9,8 @@ This is my IIB project at the University of Cambridge. My specialisation is in I
 ### To do 
 1. Graph representation (done)
 2. Greedy and Reluctant algo (done)
-3. Optimisation iteration 
-4. Validation and visualisation
+3. Optimisation iteration (done)
+4. Validation and visualisation (done)
 
 ### Methods to reduce complexity
 - Calculating change (delta) in cost for a recoloring rather than calculating the whole cost of the graph for each iteration
