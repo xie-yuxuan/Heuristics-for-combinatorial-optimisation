@@ -15,7 +15,13 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data):
 
     num_nodes = len(graph.nodes) # Calc number of nodes to scale size of font and node proportionately
 
+
+    color_map_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
+    color_map = load_color_map(color_map_path)
+
+
     vertex_colors = [color_map.get(str(graph.nodes[node].get('color', 0)), 'gray') for node in graph.nodes]
+    print(color_map)
 
     edge_weights = nx.get_edge_attributes(graph, 'weight')
 
