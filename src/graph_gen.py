@@ -16,8 +16,7 @@ def generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_me
     # specifying seed for reproducibility of random results
     graph = nx.random_regular_graph(degree, num_nodes, seed=seed)
 
-    for u,v in graph.edges():
-        # u, v are the nodes connected by each edge
+    for u,v in graph.edges(): # u, v are the nodes connected by each edge
         edge_weight = np.random.normal(gaussian_mean, gaussian_variance)
         graph[u][v]['weight'] = edge_weight
 
@@ -51,7 +50,7 @@ if __name__ == '__main__':
         "gaussian_variance" : gaussian_variance,
     }
 
-    graph_data = json_graph.node_link_data(graph)
+    graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialieed to JSON
     graph_data['attributes'] = attributes
     graph_data['name'] = graph_name
     # print(graph_data)
