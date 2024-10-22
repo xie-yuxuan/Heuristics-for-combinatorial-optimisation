@@ -1,12 +1,17 @@
 {
   "graph_name": "test3",
+  "degree": 5,
+  "num_nodes": 10,
+  "color_set_size": 4,
+  "gaussian_mean": 0,
+  "gaussian_variance": 1,
   "graph_data": {
     "directed": false,
     "multigraph": false,
     "graph": {},
     "nodes": [
       {
-        "color": 0,
+        "color": 1,
         "id": 3
       },
       {
@@ -14,7 +19,7 @@
         "id": 4
       },
       {
-        "color": 2,
+        "color": 3,
         "id": 9
       },
       {
@@ -22,11 +27,11 @@
         "id": 5
       },
       {
-        "color": 0,
+        "color": 3,
         "id": 7
       },
       {
-        "color": 1,
+        "color": 0,
         "id": 8
       },
       {
@@ -34,149 +39,144 @@
         "id": 0
       },
       {
-        "color": 0,
+        "color": 2,
         "id": 1
       },
       {
-        "color": 0,
+        "color": 2,
         "id": 6
       },
       {
-        "color": 2,
+        "color": 0,
         "id": 2
       }
     ],
     "links": [
       {
-        "weight": -0.4682444617443576,
+        "weight": -1.711923649070877,
         "source": 3,
         "target": 4
       },
       {
-        "weight": -0.4062577085754839,
+        "weight": 0.4164596946755848,
         "source": 3,
         "target": 6
       },
       {
-        "weight": 0.7506210516449107,
+        "weight": 1.0465068443649383,
         "source": 3,
         "target": 5
       },
       {
-        "weight": -1.1843204186402843,
+        "weight": -0.24417671051862752,
         "source": 3,
         "target": 0
       },
       {
-        "weight": -1.5715081671727136,
+        "weight": -0.488815483413245,
         "source": 3,
         "target": 2
       },
       {
-        "weight": 1.5422702032912983,
+        "weight": -1.1035866872741695,
         "source": 4,
         "target": 9
       },
       {
-        "weight": -1.499165849263947,
+        "weight": 0.6012410282516178,
         "source": 4,
         "target": 8
       },
       {
-        "weight": -0.42740720575722063,
+        "weight": 0.5470027972142946,
         "source": 4,
         "target": 2
       },
       {
-        "weight": -1.7736325668448787,
+        "weight": 1.1393863291406863,
         "source": 4,
         "target": 1
       },
       {
-        "weight": -0.49457434891635654,
+        "weight": 0.5167413532116145,
         "source": 9,
         "target": 8
       },
       {
-        "weight": 0.6532931285991291,
+        "weight": 0.045311458878314025,
         "source": 9,
         "target": 1
       },
       {
-        "weight": 2.7662000150641415,
+        "weight": -0.8578204060012459,
         "source": 9,
         "target": 7
       },
       {
-        "weight": 0.5069949902630109,
+        "weight": 0.08087497367234399,
         "source": 9,
         "target": 0
       },
       {
-        "weight": 1.2064820742798947,
+        "weight": 3.0121814019551443,
         "source": 5,
         "target": 7
       },
       {
-        "weight": 0.3511469162629775,
+        "weight": 0.0001546832568116247,
         "source": 5,
         "target": 0
       },
       {
-        "weight": -0.8117113617688676,
+        "weight": 0.6365625572114422,
         "source": 5,
         "target": 6
       },
       {
-        "weight": 0.5556844814607659,
+        "weight": -0.9888759825977739,
         "source": 5,
         "target": 8
       },
       {
-        "weight": -0.7278519577148561,
+        "weight": -0.08657454529276146,
         "source": 7,
         "target": 2
       },
       {
-        "weight": 0.10863154338752953,
+        "weight": 0.04293249451694573,
         "source": 7,
         "target": 6
       },
       {
-        "weight": -0.5807960089689118,
+        "weight": 0.6871007454030229,
         "source": 7,
         "target": 8
       },
       {
-        "weight": 0.44437438955732045,
+        "weight": -0.4617393073163515,
         "source": 8,
         "target": 0
       },
       {
-        "weight": -0.8918498049300694,
+        "weight": 0.6701852986142968,
         "source": 0,
         "target": 1
       },
       {
-        "weight": 0.28769642069481477,
+        "weight": -2.2223797817806683,
         "source": 1,
         "target": 6
       },
       {
-        "weight": -0.8586028400545849,
+        "weight": 1.4368570405100445,
         "source": 1,
         "target": 2
       },
       {
-        "weight": 0.871394536307065,
+        "weight": 1.359906885316924,
         "source": 6,
         "target": 2
       }
     ]
-  },
-  "degree": 5,
-  "num_nodes": 10,
-  "color_set_size": 4,
-  "gaussian_mean": 0,
-  "gaussian_variance": 1
+  }
 }
