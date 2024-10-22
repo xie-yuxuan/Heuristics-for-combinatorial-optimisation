@@ -20,14 +20,6 @@ def load_json_graph(json_file):
 
     return graph, graph_name
 
-def load_color_map(color_map_file):
-    '''
-    Load the color map from a JSON file
-    '''
-    with open(color_map_file, 'r') as f:
-        data = json.load(f)
-    return data['color_map']
-
 
 
 
