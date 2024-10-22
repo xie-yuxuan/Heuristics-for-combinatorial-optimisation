@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 from networkx.readwrite import json_graph
 
-from analysis import draw_graph
+from visualisation import draw_graph
 from graph import load_color_map
 
 """
@@ -27,18 +27,18 @@ def generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_me
 
 if __name__ == '__main__':
     # set parameters
-    degree = 3
+    degree = 5
     num_nodes = 10
     color_set_size = 4
     gaussian_mean = 0
     gaussian_variance = 1
     seed = 1
-    graph_name = "test2"
+    graph_name = "test3"
 
     graph = generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance, seed)
 
     # Uncomment line below to view graphs before saving
-    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name="test", iterations_taken=0, cost_data=None)
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None)
 
     graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
 
