@@ -4,6 +4,7 @@ import networkx as nx
 from graph import load_color_map, load_json_graph
 from algorithms import naive_greedy, animate_naive_greedy, naive_reluctant, animate_naive_reluctant
 from utils import calc_cost
+from visualisation import animate
 
 
 if __name__ == '__main__':

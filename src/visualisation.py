@@ -1,9 +1,10 @@
 import networkx as nx
+import json
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.animation import PillowWriter
 
-from graph import load_color_map, load_json_graph
+from graph import load_json_graph
 from algorithms import naive_greedy, animate_naive_greedy, naive_reluctant, animate_naive_reluctant
 from utils import calc_cost
 
@@ -17,8 +18,8 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data):
 
 
     color_map_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
-    color_map = load_color_map(color_map_path)
-
+    with open(color_map_path, 'r') as f:
+        color_map = json.load(f)['color_map']
 
     vertex_colors = [color_map.get(str(graph.nodes[node].get('color', 0)), 'gray') for node in graph.nodes]
     print(color_map)
@@ -78,7 +79,8 @@ def animate(graph, color_set_size, iterations, pos, graph_name, algo):
         ax[1].clear()
 
         color_map_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
-        color_map = load_color_map(color_map_path)
+        with open(color_map_path, 'r') as f:
+            color_map = json.load(f)['color_map']
 
         vertex_colors = [color_map.get(str(graph.nodes[node].get('color', 0)), 'gray') for node in graph.nodes]
         edge_colors = ['black'] * len(graph.edges)
