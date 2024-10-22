@@ -26,22 +26,24 @@ def generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_me
 
 if __name__ == '__main__':
     # set parameters
-    degree = 5
-    num_nodes = 10
+    degree = 2
+    num_nodes = 5
     color_set_size = 4
     gaussian_mean = 0
     gaussian_variance = 1
     seed = 1
-    graph_name = "test3"
+    graph_name = "test4"
 
     graph = generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance, seed)
+
+    # TODO: sort node label in ascending order, cur is random order, impt becos this will affect final color arrangement
 
     # uncomment to view graphs before saving
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None)
 
     graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
 
-    graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialieed to JSON
+    graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialised to JSON
     # print(graph_data)
 
     data = {

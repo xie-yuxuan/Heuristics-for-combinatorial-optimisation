@@ -1,0 +1,62 @@
+{
+  "graph_name": "test4",
+  "degree": 2,
+  "num_nodes": 5,
+  "color_set_size": 4,
+  "gaussian_mean": 0,
+  "gaussian_variance": 1,
+  "graph_data": {
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+      {
+        "color": 3,
+        "id": 2
+      },
+      {
+        "color": 3,
+        "id": 4
+      },
+      {
+        "color": 3,
+        "id": 1
+      },
+      {
+        "color": 0,
+        "id": 0
+      },
+      {
+        "color": 0,
+        "id": 3
+      }
+    ],
+    "links": [
+      {
+        "weight": -1.2386981999772617,
+        "source": 2,
+        "target": 4
+      },
+      {
+        "weight": -0.6502103658451762,
+        "source": 2,
+        "target": 1
+      },
+      {
+        "weight": 0.3542695711385973,
+        "source": 4,
+        "target": 0
+      },
+      {
+        "weight": -0.4674774841657455,
+        "source": 1,
+        "target": 3
+      },
+      {
+        "weight": 0.2305380174312469,
+        "source": 0,
+        "target": 3
+      }
+    ]
+  }
+}

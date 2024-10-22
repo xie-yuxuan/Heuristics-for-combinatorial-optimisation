@@ -19,7 +19,7 @@ def calc_cost(graph):
 
 def calc_delta_cost(graph, vertex, ori_color, new_color):
     """
-    Calc cost savings (delta) when a vertex is recolored
+    Calc cost reduction (delta) when a vertex is recolored, +ve means cost is reduced
     """
     delta = 0
 

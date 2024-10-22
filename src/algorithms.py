@@ -1,4 +1,49 @@
+import heapq
+
 from utils import calc_cost, calc_delta_cost
+
+def optimise(graph, color_set_size, algo):
+    # Initialise cost, iteration count
+    cur_cost = calc_cost(graph)
+    iterations_taken = 0
+
+    sorted_cost_list = []
+
+    for node in graph.nodes:
+        current_color = graph.nodes[node]['color']
+        for color in range(color_set_size):
+            if color != current_color: # to only consider other color choices
+                delta_cost = calc_delta_cost(graph, node, current_color, color)
+                heapq.heappush(sorted_cost_list, (-delta_cost, node, color)) # list of cost change, first choice for greedy
+
+    while sorted_cost_list:
+        i = 0
+        delta_cost, node, new_color = heapq.heappop(sorted_cost_list)
+        delta_cost = -delta_cost # change back to +ve, represent cost reduction
+
+        if delta_cost <= 0:
+            # reach convergence, no more choice that will res in cost reduction
+            break
+
+        if i == 5:
+            # to avoid infinite loop, for now
+            break
+        
+        # recolor
+        current_color = graph.nodes[node]['color']
+        graph.nodes[node]['color'] = new_color
+        cur_cost -= delta_cost
+        iterations_taken += 1
+
+        # TODO
+        # recompute cost reductions for itself when changing to other colors and update list, cost reduction computes for all edges
+        # recompute cost reductions for neighbour and update list, cost reduction computes for only one edge
+        
+        # use sortedlist instead of heapq to allow discarding, at any one time length of list is the same
+
+        # put greedy and reluctant in same fn, if statements
+
+    return sorted_cost_list
 
 def naive_greedy(graph, color_set_size, iterations):
     # Initialise cost and color set
