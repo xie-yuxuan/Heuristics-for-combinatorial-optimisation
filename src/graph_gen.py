@@ -6,7 +6,6 @@ import os
 from networkx.readwrite import json_graph
 
 from visualisation import draw_graph
-from graph import load_color_map
 
 """
 Run this script to generate and save random graphs based on specified parameters. Uncomment draw_graph() to view graphs before saving. 
@@ -42,21 +41,20 @@ if __name__ == '__main__':
 
     graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
 
-    attributes = {
+    graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialieed to JSON
+    # print(graph_data)
+
+    data = {
+        "graph_name": graph_name,
         "degree" : degree,
         "num_nodes" : num_nodes,
         "color_set_size" : color_set_size,
         "gaussian_mean" : gaussian_mean,
         "gaussian_variance" : gaussian_variance,
+        "graph_data": graph_data
     }
 
-    graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialieed to JSON
-    graph_data['attributes'] = attributes
-    graph_data['name'] = graph_name
-    # print(graph_data)
-
     with open(os.path.join(graphs_path, f"{graph_name}.json"), 'w') as f:
-        json.dump(graph_data, f, indent = 2)
+        json.dump(data, f, indent = 2)
 
     print(f"Saved graph to {graphs_path}/{graph_name}.json")
-
