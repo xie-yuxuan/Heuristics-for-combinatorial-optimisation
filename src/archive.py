@@ -53,3 +53,26 @@
 #         json.dump(graph_data, f, indent=2, separators=(',', ': '))
     
 #     return G
+
+# ---------------------------------------------------------------------
+
+# def load_json_graph(json_file):
+#     '''
+#     construct graph from adj matrix in the json file. Update vertex colors
+#     '''
+#     with open(json_file, 'r') as f:
+#         data = json.load(f)
+    
+#     adj_matrix = np.array(data['adjacency_matrix'])
+#     graph = nx.from_numpy_array(adj_matrix)
+
+#     vertex_colors = data.get('vertex_colors')
+#     vertex_colors = {int(k):v for k, v in vertex_colors.items()}
+#     nx.set_node_attributes(graph, vertex_colors, 'color')
+
+#     graph_name = data.get('name')
+
+#     return graph, graph_name
+
+# ---------------------------------------------------------------------
+

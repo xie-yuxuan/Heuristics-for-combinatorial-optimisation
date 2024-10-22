@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.animation import PillowWriter
 
-from graph import load_json_graph
 from algorithms import naive_greedy, animate_naive_greedy, naive_reluctant, animate_naive_reluctant
 from utils import calc_cost
 
@@ -22,7 +21,6 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data):
         color_map = json.load(f)['color_map']
 
     vertex_colors = [color_map.get(str(graph.nodes[node].get('color', 0)), 'gray') for node in graph.nodes]
-    print(color_map)
 
     edge_weights = nx.get_edge_attributes(graph, 'weight')
 
