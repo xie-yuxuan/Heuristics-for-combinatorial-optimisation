@@ -34,6 +34,18 @@ def calc_delta_cost(graph, vertex, ori_color, new_color):
 
     return delta
 
+def calc_delta_cost_edge(graph, node, node_color_bef, node_color_aft, neighbor_node, neighbor_color_bef, neighbor_color_aft):
+
+    edge_weight = graph[node][neighbor_node].get('weight')
+
+    if node_color_bef == neighbor_color_bef and node_color_aft == neighbor_color_aft:
+        return 0
+    elif node_color_bef == neighbor_color_bef and node_color_aft != neighbor_color_aft:
+        return edge_weight
+    elif node_color_bef != neighbor_color_bef and node_color_aft == neighbor_color_aft:
+        return -edge_weight
+    else:
+        return 0
 
 
 if __name__ == '__main__':

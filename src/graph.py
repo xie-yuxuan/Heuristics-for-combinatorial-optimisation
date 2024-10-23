@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # uncomment to visualise graph plot
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None)
 
-    print(optimise(graph, color_set_size, 'naive_greedy'))
+    graph, graph, cur_cost, iterations_taken = optimise(graph, color_set_size, algo = 'naive_greedy')
 
 
 
