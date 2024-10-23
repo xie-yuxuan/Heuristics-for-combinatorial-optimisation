@@ -36,8 +36,6 @@ if __name__ == '__main__':
 
     graph = generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance, seed)
 
-    # TODO: sort node label in ascending order, cur is random order, impt becos this will affect final color arrangement
-
     # uncomment to view graphs before saving
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None)
 
