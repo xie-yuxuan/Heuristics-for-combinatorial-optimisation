@@ -35,18 +35,25 @@ def calc_delta_cost(graph, vertex, ori_color, new_color):
     return delta
 
 def calc_delta_cost_edge(graph, node, node_color_bef, node_color_aft, neighbor_node, neighbor_color_bef, neighbor_color_aft):
+    """
+    calc cost reduction for neighbor when a node is recolored, just calculating the difference by one edge connected to node
+    possible Cases:
+    1. same color before and same color after: Add 2 * edge cost
+    2. same color before, different color after: Add edge cost
+    3. different color before, same color after: Subtract edge cost
+    4. different color before and different color after: Subtract 2 * edge cost
+    """
 
     edge_weight = graph[node][neighbor_node].get('weight')
 
     if node_color_bef == neighbor_color_bef and node_color_aft == neighbor_color_aft:
-        return 0
+        return 2 * edge_weight
     elif node_color_bef == neighbor_color_bef and node_color_aft != neighbor_color_aft:
         return edge_weight
     elif node_color_bef != neighbor_color_bef and node_color_aft == neighbor_color_aft:
         return -edge_weight
     else:
-        return 0
-
+        return - 2 * edge_weight
 
 if __name__ == '__main__':
 
