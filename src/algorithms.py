@@ -22,12 +22,16 @@ def optimise(graph, color_set_size, algo):
                 delta_cost = calc_delta_cost(graph, node, current_color, color)
                 sorted_cost_list.add([-delta_cost, node, color]) # add is O(logn), using a list of lists to make cost of neighbors mutable
 
+    i = 0
+    
     while sorted_cost_list:
+        print(sorted_cost_list)
+        
         if algo == 'greedy':
-            delta_cost, node, new_color = sorted_cost_list[0] # get first entry
+            delta_cost, node, new_color = sorted_cost_list[0] # get first entry, lookup is O(logn)
         elif algo == 'reluctant':
             # get index of last entry that is still < 0
-            for i in range(len(sorted_cost_list) - 1, -1, -1): # loop from end of the list backwards
+            for i in range(len(sorted_cost_list) - 1, -1, -1): # loop from end of the list backwards, traversal O(n)
                 if sorted_cost_list[i][0] < 0:
                     reluctant_choice_index = i
                     break
@@ -35,11 +39,14 @@ def optimise(graph, color_set_size, algo):
                 reluctant_choice_index = 0
             delta_cost, node, new_color = sorted_cost_list[reluctant_choice_index]
 
-        # print(delta_cost, node, new_color)
+        print('recoloring')
+        print(delta_cost, node, new_color)
         delta_cost = -delta_cost # change back to +ve, represent cost reduction
 
         if delta_cost <= 0:
             # reach convergence, no more choice that will res in cost reduction
+            break
+        if i == 2:
             break
 
         # recolor
@@ -49,33 +56,41 @@ def optimise(graph, color_set_size, algo):
         cur_cost -= delta_cost
         iterations_taken += 1
 
+        print(cur_cost)
+        print(calc_cost(graph))
+
         # update cost data
         cost_data['iterations'].append(iterations_taken)
         cost_data['costs'].append(cur_cost)
 
+        
         # update sortedlist for node itself after recoloring
         # step 1: remove old entries related to this node
-        to_remove = [[delta, n, c] for [delta, n, c] in sorted_cost_list if n == node] # remove requires entries to be present, as opposed to discard, O(logn)
+        to_remove = [[delta, n, c] for [delta, n, c] in sorted_cost_list if n == node] # traversal O(n)
+
+
         
         for [delta, n, c] in to_remove:
-            sorted_cost_list.remove([delta, n, c])
+            sorted_cost_list.remove([delta, n, c]) # remove requires entries to be present, as opposed to discard, O(logn)
 
         # step 2: recalculate cost reductions for itself when changing to other colors and update list    
         for color in range(color_set_size):
             if color != current_color: # to only consider other color choices
                 delta_cost = calc_delta_cost(graph, node, current_color, color) 
-                sorted_cost_list.add([-delta_cost, node, color]) # add is O(logn)
+                sorted_cost_list.add([-delta_cost, node, color]) # add is O(logn) 
+
+        
 
         # update sortedlist for neighbors after recoloring, cost reduction computes for only one edge, update previous cost reduction
         # step 1: remove old entries of neighbors
         neighbor_entries = []
         neighbor_indices = []
         
-        for neighbor in graph.neighbors(node):
-            for index, entry in enumerate(sorted_cost_list):
-                if entry[1] == neighbor:
-                    neighbor_entries.append(entry)
-                    neighbor_indices.append(index)
+        # TODO: reduce complexity here O(knc)
+        for index, entry in enumerate(sorted_cost_list):
+            if entry[1] in graph.neighbors(node):
+                neighbor_entries.append(entry)
+                neighbor_indices.append(index)
                     
         for index in sorted(neighbor_indices, reverse=True):  # remove in reverse order to avoid index issues
             sorted_cost_list.pop(index)
@@ -83,15 +98,23 @@ def optimise(graph, color_set_size, algo):
         # step 2: recalculate cost reductions for neighbors by only calculating impact of one edge
         for entry in neighbor_entries:
             neighbor = entry[1]
+            # print('entry 0')
+            # print(entry[0])
             entry[0] += calc_delta_cost_edge(graph, node, 
                                                 node_color_bef = color_bef, 
                                                 node_color_aft = new_color, 
                                                 neighbor_node = neighbor, 
                                                 neighbor_color_bef = graph.nodes[neighbor]['color'], 
                                                 neighbor_color_aft = entry[2])
+            # print(entry[0], neighbor, entry[2])
             sorted_cost_list.add(entry)
 
+        i += 1
+
+
     return graph, cur_cost, iterations_taken, (cost_data['iterations'], cost_data['costs'])
+
+# --------------------------------------------------------------
 
 def naive_greedy(graph, color_set_size, iterations):
     # Initialise cost and color set

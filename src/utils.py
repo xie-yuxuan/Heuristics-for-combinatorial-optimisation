@@ -46,14 +46,26 @@ def calc_delta_cost_edge(graph, node, node_color_bef, node_color_aft, neighbor_n
 
     edge_weight = graph[node][neighbor_node].get('weight')
 
-    if node_color_bef == neighbor_color_bef and node_color_aft == neighbor_color_aft:
+    if node_color_bef == neighbor_color_bef and node_color_bef != neighbor_color_aft and node_color_aft != node_color_bef and node_color_aft == neighbor_color_aft:
         return 2 * edge_weight
-    elif node_color_bef == neighbor_color_bef and node_color_aft != neighbor_color_aft:
+    elif node_color_bef == neighbor_color_bef and node_color_bef != neighbor_color_aft and node_color_aft != neighbor_color_bef and node_color_aft != neighbor_color_aft:
         return edge_weight
-    elif node_color_bef != neighbor_color_bef and node_color_aft == neighbor_color_aft:
+    elif node_color_bef != neighbor_color_bef and node_color_bef == neighbor_color_aft and node_color_aft == neighbor_color_bef and node_color_aft != neighbor_color_aft:
+        return -2 * edge_weight
+    elif node_color_bef != neighbor_color_bef and node_color_bef != neighbor_color_aft and node_color_aft == neighbor_color_bef and node_color_aft != neighbor_color_aft:
+        return -edge_weight  
+    elif node_color_bef != neighbor_color_bef and node_color_bef == neighbor_color_aft and node_color_aft != neighbor_color_bef and node_color_aft != neighbor_color_aft:
         return -edge_weight
-    else:
-        return - 2 * edge_weight
+    elif node_color_bef != neighbor_color_bef and node_color_bef != neighbor_color_aft and node_color_aft != neighbor_color_bef and node_color_aft == neighbor_color_aft:
+        return edge_weight
+    elif node_color_bef != neighbor_color_bef and node_color_bef != neighbor_color_aft and node_color_aft != neighbor_color_bef and node_color_aft != neighbor_color_aft:
+        return 0
+    
+    # print(node_color_bef, node_color_aft, neighbor_color_bef, neighbor_color_aft)
+    # print(node_color_bef == neighbor_color_bef)
+    # print(node_color_bef != neighbor_color_aft)
+    # print(node_color_aft != neighbor_color_bef)
+    # print(node_color_aft != neighbor_color_aft)
 
 if __name__ == '__main__':
 

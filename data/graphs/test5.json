@@ -1,0 +1,157 @@
+{
+  "graph_name": "test5",
+  "degree": 4,
+  "num_nodes": 10,
+  "color_set_size": 4,
+  "gaussian_mean": 0,
+  "gaussian_variance": 1,
+  "graph_data": {
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+      {
+        "color": 2,
+        "id": 3
+      },
+      {
+        "color": 0,
+        "id": 4
+      },
+      {
+        "color": 3,
+        "id": 5
+      },
+      {
+        "color": 2,
+        "id": 7
+      },
+      {
+        "color": 0,
+        "id": 8
+      },
+      {
+        "color": 3,
+        "id": 9
+      },
+      {
+        "color": 0,
+        "id": 0
+      },
+      {
+        "color": 0,
+        "id": 1
+      },
+      {
+        "color": 1,
+        "id": 6
+      },
+      {
+        "color": 0,
+        "id": 2
+      }
+    ],
+    "links": [
+      {
+        "weight": -0.48726087791797046,
+        "source": 3,
+        "target": 4
+      },
+      {
+        "weight": -0.21102635561950808,
+        "source": 3,
+        "target": 1
+      },
+      {
+        "weight": 1.4096880935106095,
+        "source": 3,
+        "target": 9
+      },
+      {
+        "weight": -0.04692030757823873,
+        "source": 3,
+        "target": 0
+      },
+      {
+        "weight": 0.47726364356122164,
+        "source": 4,
+        "target": 8
+      },
+      {
+        "weight": 0.04912614215608879,
+        "source": 4,
+        "target": 2
+      },
+      {
+        "weight": -0.46742956026727783,
+        "source": 4,
+        "target": 0
+      },
+      {
+        "weight": 0.25062180412218393,
+        "source": 5,
+        "target": 7
+      },
+      {
+        "weight": -0.2963404657322773,
+        "source": 5,
+        "target": 0
+      },
+      {
+        "weight": -1.8356771199738307,
+        "source": 5,
+        "target": 2
+      },
+      {
+        "weight": -0.4386515418918733,
+        "source": 5,
+        "target": 6
+      },
+      {
+        "weight": -0.5345773883048988,
+        "source": 7,
+        "target": 9
+      },
+      {
+        "weight": 0.9148354938939657,
+        "source": 7,
+        "target": 6
+      },
+      {
+        "weight": 0.6483461088137246,
+        "source": 7,
+        "target": 8
+      },
+      {
+        "weight": -0.2406595144847215,
+        "source": 8,
+        "target": 9
+      },
+      {
+        "weight": 0.3964908244676646,
+        "source": 8,
+        "target": 1
+      },
+      {
+        "weight": 0.3613282289187082,
+        "source": 9,
+        "target": 2
+      },
+      {
+        "weight": -1.4624755077401874,
+        "source": 0,
+        "target": 6
+      },
+      {
+        "weight": 0.09169611637708408,
+        "source": 1,
+        "target": 6
+      },
+      {
+        "weight": 0.8778476347813495,
+        "source": 1,
+        "target": 2
+      }
+    ]
+  }
+}
