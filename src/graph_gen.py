@@ -26,13 +26,13 @@ def generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_me
 
 if __name__ == '__main__':
     # set parameters
-    degree = 2
-    num_nodes = 5
-    color_set_size = 4
+    degree = 6
+    num_nodes = 100
+    color_set_size = 10
     gaussian_mean = 0
     gaussian_variance = 1
     seed = 1
-    graph_name = "test4"
+    graph_name = "test6"
 
     graph = generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance, seed)
 
