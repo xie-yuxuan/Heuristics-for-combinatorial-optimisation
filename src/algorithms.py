@@ -46,8 +46,8 @@ def optimise(graph, color_set_size, algo):
         if delta_cost <= 0:
             # reach convergence, no more choice that will res in cost reduction
             break
-        if i == 2:
-            break
+        # if i == 2:
+        #     break
 
         # recolor
         color_bef = graph.nodes[node]['color']
