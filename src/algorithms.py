@@ -6,7 +6,7 @@ from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge
 def optimise2(graph, color_set_size, algo):
     # initialise cost, iteration count
     cur_cost = calc_cost(graph)
-    print(cur_cost)
+    # print(cur_cost)
     iterations_taken = 0
     # collect data for cost plot
     cost_data = {
@@ -28,11 +28,12 @@ def optimise2(graph, color_set_size, algo):
 
     print(cost_change_matrix)
 
-    # list of cost change, first choice for greedy
-    sorted_cost_list = SortedList()
 
-    for x in range(1):
+    while True:
+    # for x in range(10):
         if algo == 'greedy':
+            # list of cost change, first choice for greedy
+            sorted_cost_list = SortedList()
             # find index of the most negative (minimum) value in each row, best color change choice for that node
             min_indices = np.argmin(cost_change_matrix, axis=1)
             
@@ -42,10 +43,51 @@ def optimise2(graph, color_set_size, algo):
             # populate the sorted list
             for node, (cost_change, best_color) in enumerate(zip(min_values, min_indices)): # pair 1st item in one iterable with 1st item of another iterable
                 sorted_cost_list.add((cost_change, node, best_color))
+            print(sorted_cost_list)
 
             delta_cost, node, new_color = sorted_cost_list[0] # greedy choice
         elif algo == 'reluctant':
             print("RELUCTANT ERROR")
+            # replace all 0s of cost change matrix with -ifty 
+            # take reciprocal over all elements of the cost change matrix
+            # find index of most negative number in each row of the cost change matrix (same as greedy)
+            # add to sorted list 
+            # pop from sorted list to get the reluctant choice, take reciprocal of it and negative to get the delta  
+            
+            # create a temporary reciprocal matrix for reluctant calculation
+            # reciprocal_cost_change_matrix = np.where(cost_change_matrix == 0, -np.inf, 1 / cost_change_matrix)
+            # reciprocal_cost_change_matrix = 1 / cost_change_matrix
+            # reciprocal_cost_change_matrix = np.where(reciprocal_cost_change_matrix == np.inf, 0)
+
+            # Take reciprocal first, infinities will appear where there were originally zeros
+            reciprocal_cost_change_matrix = 1 / cost_change_matrix # warning error as I am dividing by 0
+
+            # Replace positive and negative infinities with 0
+            reciprocal_cost_change_matrix[np.isinf(reciprocal_cost_change_matrix)] = 0
+            # print(cost_change_matrix)
+            print(reciprocal_cost_change_matrix)
+
+            # list of cost change, first choice for greedy
+            sorted_cost_list = SortedList()
+            # find index of the most negative (minimum) value in each row, best color change choice for that node
+            min_indices = np.argmin(reciprocal_cost_change_matrix, axis=1)
+            print(min_indices)
+            
+            # retrieve the minimum values based on the indices
+            min_values = reciprocal_cost_change_matrix[np.arange(reciprocal_cost_change_matrix.shape[0]), min_indices]
+            
+            # populate the sorted list
+            for node, (cost_change, best_color) in enumerate(zip(min_values, min_indices)): # pair 1st item in one iterable with 1st item of another iterable
+
+                sorted_cost_list.add((cost_change, node, best_color))
+            print("sorted cost list")
+            print(sorted_cost_list)
+
+            delta_cost, node, new_color = sorted_cost_list[0] # reluctant choice bef reciprocal of delta_cost
+            delta_cost = 1/delta_cost
+
+
+
 
         print('recoloring')
         print(delta_cost, node, new_color)
@@ -77,11 +119,10 @@ def optimise2(graph, color_set_size, algo):
             for color in range(color_set_size): # looping over col
                 # step 1: node row update, then update each col correctly, will be updated every iteration
                 node_delta_update = edge_weight * (
-                      int(color == neighbor_color_bef) # int() to convert np bool to int
-                    - int(new_color == neighbor_color_bef) 
-                    - int(new_color == neighbor_color_bef) 
-                    + int(node_color_bef == neighbor_color_bef)
+                      int(node_color_bef == neighbor_color_bef) # int() to convert np bool to int
+                    - int(new_color == neighbor_color_bef)
                 )
+            
                 cost_change_matrix[node][color] += node_delta_update # update cost change in node row 
 
                 # step 2: neighbor row update, then update each col correctly, will only be updated once
@@ -92,8 +133,11 @@ def optimise2(graph, color_set_size, algo):
                     + int(node_color_bef == neighbor_color_bef)
                 )
                 cost_change_matrix[neighbor][color] += neighbor_delta_update
+
+                # replace very small number in the cost_change_matrix with 0
+                cost_change_matrix[np.abs(cost_change_matrix) < 1e-10] = 0
         
-    print(sorted_cost_list)
+    print(cost_change_matrix)
     
     return graph, cur_cost, iterations_taken, (cost_data['iterations'], cost_data['costs'])
 
