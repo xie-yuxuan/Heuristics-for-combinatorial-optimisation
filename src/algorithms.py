@@ -69,6 +69,10 @@ def optimise2(graph, color_set_size, algo):
         cost_data['iterations'].append(iterations_taken)
         cost_data['costs'].append(cur_cost)
 
+        # update cost matrix by looping through neighbors of the recolored node
+        # step 1: node, choose correct row, then update each row correctly, will be updated every iteration
+        # step 2: neighbor, choose correct row, then update each row correctly, will only be updated once
+
 
 
 
