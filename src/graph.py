@@ -38,4 +38,4 @@ if __name__ == '__main__':
 
     # uncomment to visualise graph plot aft optimisation
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=iterations_taken, cost_data=cost_data)
-    draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None)
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None)
