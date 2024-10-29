@@ -1,6 +1,89 @@
+import numpy as np
 from sortedcontainers import SortedList
 
 from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge
+
+def optimise2(graph, color_set_size, algo):
+    # initialise cost, iteration count
+    cur_cost = calc_cost(graph)
+    print(cur_cost)
+    iterations_taken = 0
+    # collect data for cost plot
+    cost_data = {
+        'iterations': [0],
+        'costs': [cur_cost]
+    }
+
+    # initialise cost matrix, row is node, col is color, each element is cost change for that node and color
+    cost_change_matrix = np.zeros((len(graph.nodes), color_set_size))
+    # print(cost_matrix) 
+    # print(cost_matrix.shape) # rows are nodes, cols are colors
+
+    for node in graph.nodes:
+        current_color = graph.nodes[node]['color']
+        for color in range(color_set_size):
+            if color != current_color: # to only consider other color choices
+                delta_cost = calc_delta_cost(graph, node, current_color, color)
+                cost_change_matrix[node][color] = -delta_cost
+
+    print(cost_change_matrix)
+
+    # list of cost change, first choice for greedy
+    sorted_cost_list = SortedList()
+
+    for x in range(1):
+        if algo == 'greedy':
+            # find index of the most negative (minimum) value in each row, best color change choice for that node
+            min_indices = np.argmin(cost_change_matrix, axis=1)
+            
+            # retrieve the minimum values based on the indices
+            min_values = cost_change_matrix[np.arange(cost_change_matrix.shape[0]), min_indices]
+            
+            # populate the sorted list
+            for node, (cost_change, best_color) in enumerate(zip(min_values, min_indices)): # pair 1st item in one iterable with 1st item of another iterable
+                sorted_cost_list.add((cost_change, node, best_color))
+
+            delta_cost, node, new_color = sorted_cost_list[0] # greedy choice
+        elif algo == 'reluctant':
+            print("RELUCTANT ERROR")
+
+        print('recoloring')
+        print(delta_cost, node, new_color)
+        delta_cost = -delta_cost # change back to +ve, represent cost reduction
+
+        if delta_cost <= 0:
+            # reach convergence, no more choice that will res in cost reduction
+            break
+
+        # recolor the node
+        color_bef = graph.nodes[node]['color']
+        graph.nodes[node]['color'] = new_color
+        current_color = new_color
+        cur_cost -= delta_cost
+        iterations_taken += 1
+
+        print(cur_cost)
+        print(calc_cost(graph))
+
+        # update cost data
+        cost_data['iterations'].append(iterations_taken)
+        cost_data['costs'].append(cur_cost)
+
+
+
+
+
+        
+    print(sorted_cost_list)
+    return graph, cur_cost, iterations_taken, (cost_data['iterations'], cost_data['costs'])
+
+        
+
+
+
+
+
+
 
 def optimise(graph, color_set_size, algo):
     # initialise cost, iteration count
