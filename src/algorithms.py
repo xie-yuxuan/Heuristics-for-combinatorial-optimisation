@@ -56,7 +56,7 @@ def optimise2(graph, color_set_size, algo):
             break
 
         # recolor the node
-        color_bef = graph.nodes[node]['color']
+        node_color_bef = graph.nodes[node]['color']
         graph.nodes[node]['color'] = new_color
         current_color = new_color
         cur_cost -= delta_cost
@@ -69,16 +69,32 @@ def optimise2(graph, color_set_size, algo):
         cost_data['iterations'].append(iterations_taken)
         cost_data['costs'].append(cur_cost)
 
-        # update cost matrix by looping through neighbors of the recolored node
-        # step 1: node, choose correct row, then update each row correctly, will be updated every iteration
-        # step 2: neighbor, choose correct row, then update each row correctly, will only be updated once
+        # # update cost matrix by looping through neighbors of the recolored node
+        for neighbor in graph.neighbors(node):
+            edge_weight = graph[node][neighbor].get('weight')
+            neighbor_color_bef = graph.nodes[neighbor]['color']
+            
+            for color in range(color_set_size): # looping over col
+                # step 1: node row update, then update each col correctly, will be updated every iteration
+                node_delta_update = edge_weight * (
+                      int(color == neighbor_color_bef) # int() to convert np bool to int
+                    - int(new_color == neighbor_color_bef) 
+                    - int(new_color == neighbor_color_bef) 
+                    + int(node_color_bef == neighbor_color_bef)
+                )
+                cost_change_matrix[node][color] += node_delta_update # update cost change in node row 
 
-
-
-
-
+                # step 2: neighbor row update, then update each col correctly, will only be updated once
+                neighbor_delta_update = edge_weight * (
+                      int(new_color == color) 
+                    - int(new_color == neighbor_color_bef) 
+                    - int(node_color_bef == color) 
+                    + int(node_color_bef == neighbor_color_bef)
+                )
+                cost_change_matrix[neighbor][color] += neighbor_delta_update
         
     print(sorted_cost_list)
+    
     return graph, cur_cost, iterations_taken, (cost_data['iterations'], cost_data['costs'])
 
         
