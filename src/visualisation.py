@@ -7,14 +7,16 @@ from matplotlib.animation import PillowWriter
 from algorithms import naive_greedy, animate_naive_greedy, naive_reluctant, animate_naive_reluctant
 from utils import calc_cost
 
-def draw_graph(graph, pos, graph_name, iterations_taken, cost_data):
+def draw_graph(graph, pos, graph_name, iterations_taken, cost_data, 
+               color_set_size, 
+               degree, 
+               num_nodes, 
+               gaussian_mean, 
+               gaussian_variance):
     '''
     Draw graph on a given axis
     '''
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
-
-    num_nodes = len(graph.nodes) # Calc number of nodes to scale size of font and node proportionately
-
 
     color_map_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
     with open(color_map_path, 'r') as f:
@@ -28,7 +30,15 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data):
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=100/num_nodes, ax=ax[0])
 
     ax[0].text(
-        0.95, 0.05, f'Iterations: {iterations_taken}\nCost: {calc_cost(graph)}\nColors used: {len(set(nx.get_node_attributes(graph, "color").values()))}', 
+        0.98, 0.0, 
+        f'Iterations: {iterations_taken}\n'
+        f'Cost: {calc_cost(graph)}\n'
+        f'Colors used: {len(set(nx.get_node_attributes(graph, "color").values()))}\n'
+        f'Degree: {degree}\n'
+        f'Number of nodes: {num_nodes}\n'
+        f'Color set size: {color_set_size}\n'
+        f'Gaussian Mean: {gaussian_mean}\n'
+        f'Gaussian Variance: {gaussian_variance}\n',
         horizontalalignment='right',
         verticalalignment='bottom', 
         transform=ax[0].transAxes,
