@@ -6,7 +6,7 @@ from networkx.readwrite import json_graph
 
 
 from visualisation import draw_graph
-from algorithms import optimise, optimise2
+from algorithms import optimise, optimise2, optimise3
 
 def load_graph_from_json(file_path):
     with open(file_path, 'r') as f:
@@ -32,7 +32,7 @@ def load_graph_from_json(file_path):
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\test6.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\test4.json"
     graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance = load_graph_from_json(file_path)
     # uncomment to visualise graph plot bef optimisation\
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
@@ -49,7 +49,23 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # graph, final_cost, iterations_taken, cost_data = optimise(graph, color_set_size, algo = 'reluctant')
-    graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'greedy')
+    # graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'greedy')
+    
+    fg = lambda x: x # greedy transforamtion to cost change matrix
+    def fr(x):
+        # Check if x is a NumPy array
+        if isinstance(x, np.ndarray):
+            # Vectorize for arrays
+            vectorized_func = np.vectorize(lambda x: 0.0 if x == 0 else 1.0 / x)
+            return vectorized_func(x)
+        else:
+            # Apply directly for scalars
+            return 0.0 if x == 0 else 1.0 / x
+    # fr = np.vectorize(lambda x: 0.0 if x == 0 else 1.0 / float(x)) # reluctant transformation to cost change matrix, np vectorisation to handle each ele individually
+
+    graph, final_cost, iterations_taken, cost_data = optimise3(graph, color_set_size, algo_func=fr) 
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
     # uncomment to visualise graph plot aft optimisation
     draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
@@ -63,4 +79,4 @@ if __name__ == '__main__':
                gaussian_variance=gaussian_variance
                )
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    
