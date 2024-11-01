@@ -32,7 +32,7 @@ def load_graph_from_json(file_path):
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\test4.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\test7.json"
     graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance = load_graph_from_json(file_path)
     # uncomment to visualise graph plot bef optimisation\
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # graph, final_cost, iterations_taken, cost_data = optimise(graph, color_set_size, algo = 'reluctant')
-    # graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'greedy')
+    # graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'reluctant')
     
     fg = lambda x: x # greedy transforamtion to cost change matrix
     def fr(x):

@@ -1,0 +1,87 @@
+{
+  "graph_name": "test7",
+  "degree": 4,
+  "num_nodes": 5,
+  "color_set_size": 4,
+  "gaussian_mean": 0,
+  "gaussian_variance": 1,
+  "graph_data": {
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+      {
+        "color": 1,
+        "id": 0
+      },
+      {
+        "color": 1,
+        "id": 1
+      },
+      {
+        "color": 1,
+        "id": 2
+      },
+      {
+        "color": 3,
+        "id": 4
+      },
+      {
+        "color": 0,
+        "id": 3
+      }
+    ],
+    "links": [
+      {
+        "weight": 0.8256811036014641,
+        "source": 0,
+        "target": 1
+      },
+      {
+        "weight": 0.2515956221387378,
+        "source": 0,
+        "target": 4
+      },
+      {
+        "weight": -0.13225629912460882,
+        "source": 0,
+        "target": 3
+      },
+      {
+        "weight": -0.1967888830003714,
+        "source": 0,
+        "target": 2
+      },
+      {
+        "weight": -0.41373816162512633,
+        "source": 1,
+        "target": 2
+      },
+      {
+        "weight": 0.15327663447766982,
+        "source": 1,
+        "target": 4
+      },
+      {
+        "weight": 0.4324637158262982,
+        "source": 1,
+        "target": 3
+      },
+      {
+        "weight": -1.7045905195939348,
+        "source": 2,
+        "target": 4
+      },
+      {
+        "weight": 0.06218441391876078,
+        "source": 2,
+        "target": 3
+      },
+      {
+        "weight": -1.0880265230219839,
+        "source": 4,
+        "target": 3
+      }
+    ]
+  }
+}
