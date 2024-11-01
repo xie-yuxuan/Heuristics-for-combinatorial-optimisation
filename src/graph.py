@@ -2,9 +2,10 @@ import json
 import numpy as np
 import networkx as nx
 import time
+import copy
 from networkx.readwrite import json_graph
 
-from visualisation import draw_graph
+from visualisation import draw_graph, plot_cost_data
 from algorithms import optimise, optimise2, optimise3
 
 def load_graph_from_json(file_path):
@@ -57,21 +58,32 @@ if __name__ == '__main__':
             return 0.0 if x == 0 else 1.0 / x
 
     # graph, final_cost, iterations_taken, cost_data = optimise(graph, color_set_size, algo = 'reluctant')
-    graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'reluctant')  
-    # graph, final_cost, iterations_taken, cost_data = optimise3(graph, color_set_size, algo_func=fr) 
+    # graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'reluctant')  
+    graph_copy = copy.deepcopy(graph)
+    graph1, final_cost1, iterations_taken1, cost_data1 = optimise3(graph, color_set_size, algo_func=fg) 
+    
+    graph2, final_cost2, iterations_taken2, cost_data2 = optimise3(graph_copy, color_set_size, algo_func=fr) 
+
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
     # uncomment to visualise graph plot aft optimisation
-    draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
-               graph_name=graph_name, 
-               iterations_taken=iterations_taken, 
-               cost_data=cost_data,
-               color_set_size=color_set_size, 
-               degree=degree, 
-               num_nodes=num_nodes, 
-               gaussian_mean=gaussian_mean, 
-               gaussian_variance=gaussian_variance
-               )
+    # draw_graph(graph2, pos=nx.spring_layout(graph2, seed=1), 
+    #            graph_name=graph_name, 
+    #            iterations_taken=iterations_taken2, 
+    #            cost_data=cost_data2,
+    #            color_set_size=color_set_size, 
+    #            degree=degree, 
+    #            num_nodes=num_nodes, 
+    #            gaussian_mean=gaussian_mean, 
+    #            gaussian_variance=gaussian_variance
+    #            )
+
+    plot_cost_data( # comparison btw greedy and reluctant results
+        cost_data1, iterations_taken1, final_cost1, 
+        cost_data2, iterations_taken2, final_cost2,
+        graph_name
+        )
+    
 
     

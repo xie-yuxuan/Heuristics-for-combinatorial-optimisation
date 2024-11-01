@@ -67,6 +67,44 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
     # plt.savefig(graph_name)
     plt.show()
 
+
+def plot_cost_data(cost_data_fg, total_iterations_fg, final_cost_fg, 
+                   cost_data_fr, total_iterations_fr, final_cost_fr,
+                   graph_name):
+    plt.figure(figsize=(10, 6))
+
+    # # Plot for "Greedy" (fg)
+    iterations_fg, costs_fg = cost_data_fg
+    iterations_fr, costs_fr = cost_data_fr
+
+    plt.plot(iterations_fg, costs_fg, label="Greedy", color="blue")
+    plt.scatter(total_iterations_fg, final_cost_fg, color="red", s=50, label="Greedy Convergence")
+
+    # # Plot for "Reluctant" (fr)
+    plt.plot(iterations_fr, costs_fr, label="Reluctant", color="green")
+    plt.scatter(total_iterations_fr, final_cost_fr, color="orange", s=50, label="Reluctant Convergence")
+
+    if total_iterations_fg < total_iterations_fr:
+        plt.hlines(final_cost_fg, total_iterations_fg, total_iterations_fr, colors="blue", linestyles="dashed")
+
+    # Annotate the convergence points
+    plt.annotate(f'Iter: {total_iterations_fg}\nCost: {final_cost_fg}', 
+                 (total_iterations_fg, final_cost_fg), textcoords="offset points", 
+                 xytext=(-10,10), ha='center', color="red")
+    plt.annotate(f'Iter: {total_iterations_fr}\nCost: {final_cost_fr}', 
+                 (total_iterations_fr, final_cost_fr), textcoords="offset points", 
+                 xytext=(-10,10), ha='center', color="orange")
+
+    # Labels and legend
+    plt.xlabel("Iterations")
+    plt.ylabel("Cost")
+    plt.title("Cost vs Iterations for Greedy and Reluctant Algorithms on " + graph_name)
+    plt.legend()
+    plt.grid()
+
+    # Show plot
+    plt.show()
+
 def animate(graph, color_set_size, iterations, pos, graph_name, algo):
     """
     Animate graph coloring for a specific optimization algorithm.
