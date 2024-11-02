@@ -70,7 +70,7 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
 
 def plot_cost_data(cost_data_fg, total_iterations_fg, final_cost_fg, 
                    cost_data_fr, total_iterations_fr, final_cost_fr,
-                   graph_name):
+                   graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance):
     plt.figure(figsize=(10, 6))
 
     # # Plot for "Greedy" (fg)
@@ -94,6 +94,16 @@ def plot_cost_data(cost_data_fg, total_iterations_fg, final_cost_fg,
     plt.annotate(f'Iter: {total_iterations_fr}\nCost: {final_cost_fr}', 
                  (total_iterations_fr, final_cost_fr), textcoords="offset points", 
                  xytext=(-10,10), ha='center', color="orange")
+    
+    # Text box with graph parameters
+    param_text = (f"Color Set Size: {color_set_size}\n"
+                  f"Degree: {degree}\n"
+                  f"Number of Nodes: {num_nodes}\n"
+                  f"Gaussian Mean: {gaussian_mean}\n"
+                  f"Gaussian Variance: {gaussian_variance}")
+    
+    # Place the text box on the plot
+    plt.gcf().text(0.7, 0.56, param_text, fontsize=10, bbox=dict(facecolor='white', alpha=0.5))
 
     # Labels and legend
     plt.xlabel("Iterations")

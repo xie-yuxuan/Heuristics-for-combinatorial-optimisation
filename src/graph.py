@@ -1,4 +1,5 @@
 import json
+import os
 import numpy as np
 import networkx as nx
 import time
@@ -7,6 +8,9 @@ from networkx.readwrite import json_graph
 
 from visualisation import draw_graph, plot_cost_data
 from algorithms import optimise, optimise2, optimise3
+from graph_gen import generate_random_regular_graph
+
+
 
 def load_graph_from_json(file_path):
     with open(file_path, 'r') as f:
@@ -28,62 +32,90 @@ def load_graph_from_json(file_path):
     
     return graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance
 
-
+fg = lambda x: x # greedy transforamtion to cost change matrix
+def fr(x): # reluctant transformation to cost change matrix
+    # check if x is a np array
+    if isinstance(x, np.ndarray):
+        vectorized_func = np.vectorize(lambda x: 0.0 if x == 0 else 1.0 / x) # vectorize to handle each ele individually
+        return vectorized_func(x)
+    else:
+        return 0.0 if x == 0 else 1.0 / x
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\test6.json"
-    graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance = load_graph_from_json(file_path)
-    # uncomment to visualise graph plot bef optimisation\
-    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
-    #            graph_name=graph_name, 
-    #            iterations_taken=0, 
-    #            cost_data=None,
-    #            color_set_size=color_set_size, 
-    #            degree=degree, 
-    #            num_nodes=num_nodes, 
-    #            gaussian_mean=gaussian_mean, 
-    #            gaussian_variance=gaussian_variance
-    #            )
+    # # uncomment below to view aggegate results for one graph combination ----------------------------------------------
 
-    start_time = time.time()
-    
-    fg = lambda x: x # greedy transforamtion to cost change matrix
-    def fr(x): # reluctant transformation to cost change matrix
-        # check if x is a np array
-        if isinstance(x, np.ndarray):
-            vectorized_func = np.vectorize(lambda x: 0.0 if x == 0 else 1.0 / x) # vectorize to handle each ele individually
-            return vectorized_func(x)
+    comparison_results = []
+
+    # set parameters
+    degree = 3
+    num_nodes = 100
+    color_set_size = 3
+    gaussian_mean = 0
+    gaussian_variance = 1
+    seed = 1
+    graph_name = "test8"
+
+
+    for x in range(100):
+        graph = generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance, seed)
+
+        graph_copy = copy.deepcopy(graph)
+        graph1, final_cost1, iterations_taken1, cost_data1 = optimise3(graph, color_set_size, algo_func=fg) 
+        graph2, final_cost2, iterations_taken2, cost_data2 = optimise3(graph_copy, color_set_size, algo_func=fr) 
+
+        if final_cost1 < final_cost2:
+            comparison_results.append("greedy")
         else:
-            return 0.0 if x == 0 else 1.0 / x
+            comparison_results.append("reluctant")
+        
+    print(comparison_results)
+    print(comparison_results.count("greedy"))
 
-    # graph, final_cost, iterations_taken, cost_data = optimise(graph, color_set_size, algo = 'reluctant')
-    # graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'reluctant')  
-    graph_copy = copy.deepcopy(graph)
-    graph1, final_cost1, iterations_taken1, cost_data1 = optimise3(graph, color_set_size, algo_func=fg) 
+
+    # # Uncomment below to view graph plot comparison between greedy and reluctant --------------------------------------------
+
+
+    # file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\test8.json"
+    # graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance = load_graph_from_json(file_path)
+    # # uncomment to visualise graph plot bef optimisation\
+    # # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
+    # #            graph_name=graph_name, 
+    # #            iterations_taken=0, 
+    # #            cost_data=None,
+    # #            color_set_size=color_set_size, 
+    # #            degree=degree, 
+    # #            num_nodes=num_nodes, 
+    # #            gaussian_mean=gaussian_mean, 
+    # #            gaussian_variance=gaussian_variance
+    # #            )
+
+    # # start_time = time.time()
+
+    # # graph, final_cost, iterations_taken, cost_data = optimise(graph, color_set_size, algo = 'reluctant')
+    # # graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'reluctant')  
+    # graph_copy = copy.deepcopy(graph)
+    # graph1, final_cost1, iterations_taken1, cost_data1 = optimise3(graph, color_set_size, algo_func=fg) 
+    # graph2, final_cost2, iterations_taken2, cost_data2 = optimise3(graph_copy, color_set_size, algo_func=fr) 
     
-    graph2, final_cost2, iterations_taken2, cost_data2 = optimise3(graph_copy, color_set_size, algo_func=fr) 
 
+    # # print("--- %s seconds ---" % (time.time() - start_time))
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    # # uncomment to visualise graph plot aft optimisation
+    # # draw_graph(graph2, pos=nx.spring_layout(graph2, seed=1), 
+    # #            graph_name=graph_name, 
+    # #            iterations_taken=iterations_taken2, 
+    # #            cost_data=cost_data2,
+    # #            color_set_size=color_set_size, 
+    # #            degree=degree, 
+    # #            num_nodes=num_nodes, 
+    # #            gaussian_mean=gaussian_mean, 
+    # #            gaussian_variance=gaussian_variance
+    # #            )
 
-    # uncomment to visualise graph plot aft optimisation
-    # draw_graph(graph2, pos=nx.spring_layout(graph2, seed=1), 
-    #            graph_name=graph_name, 
-    #            iterations_taken=iterations_taken2, 
-    #            cost_data=cost_data2,
-    #            color_set_size=color_set_size, 
-    #            degree=degree, 
-    #            num_nodes=num_nodes, 
-    #            gaussian_mean=gaussian_mean, 
-    #            gaussian_variance=gaussian_variance
-    #            )
-
-    plot_cost_data( # comparison btw greedy and reluctant results
-        cost_data1, iterations_taken1, final_cost1, 
-        cost_data2, iterations_taken2, final_cost2,
-        graph_name
-        )
-    
-
-    
+    # # uncomment to plot cost data comparison
+    # plot_cost_data( # comparison btw greedy and reluctant results
+    #     cost_data1, iterations_taken1, final_cost1, 
+    #     cost_data2, iterations_taken2, final_cost2,
+    #     graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance
+    #     )
