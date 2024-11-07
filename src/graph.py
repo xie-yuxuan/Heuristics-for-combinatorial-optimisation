@@ -46,13 +46,13 @@ if __name__ == '__main__':
     # uncomment below to aggegate results for multiple instances of a graph ----------------------------------------------
 
     # set parameters
-    degree = 5
+    degree = 8
     num_nodes = 100
-    color_set_size = 5
+    color_set_size = 4
     gaussian_mean = 0
     gaussian_variance = 1
     seed = 1
-    graph_name = "expt5"
+    graph_name = "expt6"
 
     results = {
         "graph_name": graph_name,
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     }
     iteration = 0
 
-    for x in range(1000):
+    for x in range(100):
         graph = generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance, seed)
 
         graph_copy = copy.deepcopy(graph)
