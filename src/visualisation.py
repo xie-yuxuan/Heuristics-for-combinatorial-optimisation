@@ -77,12 +77,12 @@ def plot_cost_data(cost_data_fg, total_iterations_fg, final_cost_fg,
     iterations_fg, costs_fg = cost_data_fg
     iterations_fr, costs_fr = cost_data_fr
 
-    plt.plot(iterations_fg, costs_fg, label="Greedy", color="blue")
+    plt.plot(iterations_fg, costs_fg, label="Greedy", color="red")
     plt.scatter(total_iterations_fg, final_cost_fg, color="red", s=50, label="Greedy Convergence")
 
     # # Plot for "Reluctant" (fr)
     plt.plot(iterations_fr, costs_fr, label="Reluctant", color="green")
-    plt.scatter(total_iterations_fr, final_cost_fr, color="orange", s=50, label="Reluctant Convergence")
+    plt.scatter(total_iterations_fr, final_cost_fr, color="green", s=50, label="Reluctant Convergence")
 
     if total_iterations_fg < total_iterations_fr:
         plt.hlines(final_cost_fg, total_iterations_fg, total_iterations_fr, colors="blue", linestyles="dashed")
@@ -103,7 +103,7 @@ def plot_cost_data(cost_data_fg, total_iterations_fg, final_cost_fg,
                   f"Gaussian Variance: {gaussian_variance}")
     
     # Place the text box on the plot
-    plt.gcf().text(0.7, 0.56, param_text, fontsize=10, bbox=dict(facecolor='white', alpha=0.5))
+    plt.gcf().text(0.7, 0.56, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
 
     # Labels and legend
     plt.xlabel("Iterations")

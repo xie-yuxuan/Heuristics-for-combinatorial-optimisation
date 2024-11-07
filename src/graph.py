@@ -11,7 +11,6 @@ from algorithms import optimise, optimise2, optimise3
 from graph_gen import generate_random_regular_graph
 
 
-
 def load_graph_from_json(file_path):
     with open(file_path, 'r') as f:
         data = json.load(f)
@@ -32,6 +31,7 @@ def load_graph_from_json(file_path):
     
     return graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance
 
+# matrix transformation fn, depending on algo
 fg = lambda x: x # greedy transforamtion to cost change matrix
 def fr(x): # reluctant transformation to cost change matrix
     # check if x is a np array
@@ -43,38 +43,50 @@ def fr(x): # reluctant transformation to cost change matrix
 
 if __name__ == '__main__':
 
-    # # uncomment below to view aggegate results for one graph combination ----------------------------------------------
-
-    comparison_results = []
+    # uncomment below to aggegate results for multiple instances of a graph ----------------------------------------------
 
     # set parameters
-    degree = 3
+    degree = 5
     num_nodes = 100
-    color_set_size = 3
+    color_set_size = 5
     gaussian_mean = 0
     gaussian_variance = 1
     seed = 1
-    graph_name = "test8"
+    graph_name = "expt5"
 
+    results = {
+        "graph_name": graph_name,
+        "degree" : degree,
+        "num_nodes" : num_nodes,
+        "color_set_size" : color_set_size,
+        "gaussian_mean" : gaussian_mean,
+        "gaussian_variance" : gaussian_variance,
+        "cost_data" : {}
+    }
+    iteration = 0
 
-    for x in range(100):
+    for x in range(1000):
         graph = generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance, seed)
 
         graph_copy = copy.deepcopy(graph)
-        graph1, final_cost1, iterations_taken1, cost_data1 = optimise3(graph, color_set_size, algo_func=fg) 
-        graph2, final_cost2, iterations_taken2, cost_data2 = optimise3(graph_copy, color_set_size, algo_func=fr) 
+        graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise3(graph, color_set_size, algo_func=fg) 
+        graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise3(graph_copy, color_set_size, algo_func=fr) 
 
-        if final_cost1 < final_cost2:
-            comparison_results.append("greedy")
-        else:
-            comparison_results.append("reluctant")
-        
-    print(comparison_results)
-    print(comparison_results.count("greedy"))
+        results["cost_data"][f"instance_{x}"] = {
+            "cost_data_g": cost_data_g,
+            "cost_data_r": cost_data_r
+        }
+        print(f"Instance {x} completed")
+
+    graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results"
+
+    with open(os.path.join(graphs_path, f"{graph_name}_results.json"), 'w') as f:
+        json.dump(results, f, indent = 2)
+
+    print(f"Saved results to {graphs_path}/{graph_name}_results.json")
 
 
-    # # Uncomment below to view graph plot comparison between greedy and reluctant --------------------------------------------
-
+    # Uncomment below to view plots and results for one graph instance, for testing usually --------------------------------------------
 
     # file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\test8.json"
     # graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance = load_graph_from_json(file_path)
@@ -90,16 +102,16 @@ if __name__ == '__main__':
     # #            gaussian_variance=gaussian_variance
     # #            )
 
-    # # start_time = time.time()
+    # start_time = time.time()
 
     # # graph, final_cost, iterations_taken, cost_data = optimise(graph, color_set_size, algo = 'reluctant')
     # # graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'reluctant')  
     # graph_copy = copy.deepcopy(graph)
-    # graph1, final_cost1, iterations_taken1, cost_data1 = optimise3(graph, color_set_size, algo_func=fg) 
-    # graph2, final_cost2, iterations_taken2, cost_data2 = optimise3(graph_copy, color_set_size, algo_func=fr) 
+    # graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise3(graph, color_set_size, algo_func=fg) 
+    # graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise3(graph_copy, color_set_size, algo_func=fr) 
     
 
-    # # print("--- %s seconds ---" % (time.time() - start_time))
+    # print("--- %s seconds ---" % (time.time() - start_time))
 
     # # uncomment to visualise graph plot aft optimisation
     # # draw_graph(graph2, pos=nx.spring_layout(graph2, seed=1), 
@@ -115,7 +127,7 @@ if __name__ == '__main__':
 
     # # uncomment to plot cost data comparison
     # plot_cost_data( # comparison btw greedy and reluctant results
-    #     cost_data1, iterations_taken1, final_cost1, 
-    #     cost_data2, iterations_taken2, final_cost2,
+    #     cost_data_g, len(cost_data_g[0]), cost_data_g[1][-1], 
+    #     cost_data_r, len(cost_data_r[0]), cost_data_r[1][-1],
     #     graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance
     #     )
