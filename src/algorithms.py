@@ -71,7 +71,7 @@ def optimise3(graph, color_set_size, algo_func):
 
         # update cost matrix by looping through neighbors of the recolored node
         for neighbor in graph.neighbors(node):
-            edge_weight = graph[node][neighbor].get('weight')
+            edge_weight = graph[node][neighbor].get('weight') #TODO 
             neighbor_color_bef = graph.nodes[neighbor]['color']
             
             for color in range(color_set_size): # looping over col
@@ -100,7 +100,8 @@ def optimise3(graph, color_set_size, algo_func):
         
         # delete the recolored node and its neighbors from the sorted list
         nodes_to_remove = [node] + list(graph.neighbors(node))
-        for entry in reversed(sorted_cost_list): # iterate backwards when removing items to avoid indexing issues
+        # iterate backwards when removing items to avoid indexing issues
+        for entry in reversed(sorted_cost_list): #TODO O(N) SLOW, find a data structure that is sorted and associative, heaps, etc
             if entry[1] in nodes_to_remove:
                 sorted_cost_list.remove(entry)
 

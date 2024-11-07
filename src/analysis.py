@@ -9,7 +9,7 @@ from visualisation import plot_cost_data
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\expt3_results.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\expt5_results.json"
 
     with open(file_path, 'r') as f:
         data = json.load(f)
