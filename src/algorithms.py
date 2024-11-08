@@ -1,5 +1,6 @@
 import numpy as np
 from sortedcontainers import SortedList
+from collections import defaultdict
 
 from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge
 
@@ -31,6 +32,7 @@ def optimise3(graph, color_set_size, algo_func):
 
     # initialise a sorted list of cost change, first choice for recoloring
     sorted_cost_list = SortedList()
+    # node_to_tuples = defaultdict(set)
     # find index of the most negative (minimum) value in each row, best color change choice for that node
     min_indices = np.argmin(algo_func(cost_change_matrix), axis=1)
     
@@ -40,11 +42,12 @@ def optimise3(graph, color_set_size, algo_func):
     # populate the sorted list
     for node, (cost_change, best_color) in enumerate(zip(algo_func(min_values), min_indices)): # pair 1st item in one iterable with 1st item of another iterable
         sorted_cost_list.add((cost_change, node, best_color))
+        # node_to_tuples[node].add((cost_change, node, best_color))
 
     # print(sorted_cost_list) # no fr applied, everything good as original here
     
     while True:
-    # for x in range(1000):
+    # for x in range(1):
         delta_cost, node, new_color = sorted_cost_list[0]
 
         # print('recoloring')
@@ -99,23 +102,38 @@ def optimise3(graph, color_set_size, algo_func):
         # print(sorted_cost_list)
         
         # delete the recolored node and its neighbors from the sorted list
-        nodes_to_remove = [node] + list(graph.neighbors(node))
+        nodes_to_remove = [node] + list(graph.neighbors(node)) # O(k)
         # iterate backwards when removing items to avoid indexing issues
         for entry in reversed(sorted_cost_list): #TODO O(N) SLOW, find a data structure that is sorted and associative, heaps, etc
             if entry[1] in nodes_to_remove:
                 sorted_cost_list.remove(entry)
+        print(nodes_to_remove)
+        # print(node_to_tuples)
+
+
+        # entries_to_remove = []
+        # for node in nodes_to_remove:  # O(k)
+        #     if node in node_to_tuples:
+        #         entries_to_remove.extend(node_to_tuples.pop(node))  # Add all tuples associated with node
+        # print(entries_to_remove)
+        # Remove each entry from the SortedList
+        # for entry in entries_to_remove:  # O(k)
+        #     sorted_cost_list.remove(entry)
 
         # add the best choice for the recolored node in the row of the cost change matrix to the sorted list
         recolored_row = algo_func((cost_change_matrix)[node])
         recolored_best_idx = np.argmin(recolored_row)  # index of the min value in this row for the recolored node
         sorted_cost_list.add((recolored_row[recolored_best_idx], node, recolored_best_idx))
+        # node_to_tuples[node].add((recolored_row[recolored_best_idx], node, recolored_best_idx))
 
         # add the best choice for the neighbors of the recolored node in the row of the cost change matrix to the sorted list
         for neighbor in graph.neighbors(node):
             neighbor_row = algo_func((cost_change_matrix)[neighbor])
             neighbor_best_idx = np.argmin(neighbor_row)  # index of the min value for this neighbor row
             sorted_cost_list.add((neighbor_row[neighbor_best_idx], neighbor, neighbor_best_idx))
+            # node_to_tuples[neighbor].add((neighbor_row[neighbor_best_idx], neighbor, neighbor_best_idx))
 
+        print('test')
         # print(sorted_cost_list)
 
     # print(cost_change_matrix)
