@@ -11,7 +11,7 @@ from visualisation import draw_graph
 Run this script to generate and save random graphs based on specified parameters. Uncomment draw_graph() to view graphs before saving. 
 """
 
-def generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance, seed=None):
+def generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed=None):
     # specifying seed for reproducibility of random results
     graph = nx.random_regular_graph(degree, num_nodes, seed=seed)
 
@@ -19,30 +19,49 @@ def generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_me
         edge_weight = np.random.normal(gaussian_mean, gaussian_variance)
         graph[u][v]['weight'] = edge_weight
 
-    for node in graph.nodes():
-        graph.nodes[node]['color'] = np.random.randint(0, color_set_size)
+    # for node in graph.nodes():
+    #     graph.nodes[node]['color'] = np.random.randint(0, color_set_size)
 
     return graph
 
 if __name__ == '__main__':
     # set parameters
-    degree = 20
-    num_nodes = 10000
-    color_set_size = 2
+    degree = 4
+    num_nodes = 10
+    color_set_size = 4
     gaussian_mean = 0
     gaussian_variance = 1
+    num_initial_colorings = 5
     seed = 1
-    graph_name = "expt3"
+    graph_name = "graph1"
 
-    graph = generate_random_regular_graph(degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance, seed)
+    # generate graph, get J
+    graph = generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed)
+
+    # create a list of initial color states (list of lists)
+    initial_node_colors = [
+        [np.random.randint(0, color_set_size) for _ in range(num_nodes)]
+        for _ in range(num_initial_colorings)
+    ]
+
+    # # uncomment to assign one of the initial colorings to graph nodes
+    # for node, color in enumerate(initial_node_colors[0]):
+    #     graph.nodes[node]['color'] = color
+
+    print(initial_node_colors)
 
     # uncomment to view graphs before saving
-    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None)
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=seed), graph_name=graph_name, iterations_taken=0, cost_data=None,
+    #            color_set_size=color_set_size, 
+    #            degree=degree, 
+    #            num_nodes=num_nodes, 
+    #            gaussian_mean=gaussian_mean, 
+    #            gaussian_variance=gaussian_variance
+    #            )
 
     graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
 
     graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialised to JSON
-    # print(graph_data)
 
     data = {
         "graph_name": graph_name,
@@ -51,6 +70,7 @@ if __name__ == '__main__':
         "color_set_size" : color_set_size,
         "gaussian_mean" : gaussian_mean,
         "gaussian_variance" : gaussian_variance,
+        "initial_node_colors" : initial_node_colors,
         "graph_data": graph_data
     }
 

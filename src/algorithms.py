@@ -1,9 +1,130 @@
 import numpy as np
-from sortedcontainers import SortedList
+from sortedcontainers import SortedList, SortedSet
 from collections import defaultdict
 
 from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge
 
+def optimise4(graph, color_set_size, algo_func):
+    # initialise cost, iteration count
+    cur_cost = calc_cost(graph)
+    # print(cur_cost)
+    iterations_taken = 0
+    # collect data for cost plot
+    cost_data = {
+        'iterations': [0],
+        'costs': [cur_cost]
+    }
+
+    # initialise cost matrix, row is node, col is color, each element is cost change for that node and color
+    cost_change_matrix = np.zeros((len(graph.nodes), color_set_size))
+    cost_change_matrix = cost_change_matrix.astype(float)
+    # print(cost_matrix) 
+    # print(cost_matrix.shape) # rows are nodes, cols are colors
+
+    for node in graph.nodes:
+        current_color = graph.nodes[node]['color']
+        for color in range(color_set_size):
+            if color != current_color: # to only consider other color choices
+                delta_cost = calc_delta_cost(graph, node, current_color, color)
+                cost_change_matrix[node][color] = -delta_cost
+
+    # print(cost_change_matrix)
+
+    # initialise a sorted list of cost change, first choice for recoloring
+    sorted_cost_set = SortedSet()
+    
+    # find index of the most negative (minimum) value in each row, best color change choice for that node
+    min_indices = np.argmin(algo_func(cost_change_matrix), axis=1)
+    
+    # retrieve the minimum values based on the indices
+    min_values = cost_change_matrix[np.arange(cost_change_matrix.shape[0]), min_indices]
+    
+    # populate the sorted list
+    for node, (cost_change, best_color) in enumerate(zip(algo_func(min_values), min_indices)): # pair 1st item in one iterable with 1st item of another iterable
+        sorted_cost_set.add((cost_change, node, best_color))
+
+    # print(sorted_cost_set) # no fr applied, everything good as original here
+    
+    while True:
+    # for x in range(3):
+
+        delta_cost, node, new_color = sorted_cost_set[0]
+
+        # print('recoloring')
+        # print(delta_cost, node, new_color)
+        delta_cost = -algo_func(delta_cost) # change back to +ve, represent cost reduction
+
+        if delta_cost <= 0:
+            # reach convergence, no more choice that will res in cost reduction
+            break
+
+        # recolor the node
+        node_color_bef = graph.nodes[node]['color']
+        graph.nodes[node]['color'] = new_color
+        current_color = new_color
+        cur_cost -= delta_cost
+        iterations_taken += 1
+
+        # print(cur_cost)
+        # print(calc_cost(graph))
+
+        # update cost data
+        cost_data['iterations'].append(iterations_taken)
+        cost_data['costs'].append(cur_cost)
+        
+        # delete the recolored node and its neighbors from the sorted list
+        nodes_to_remove = [node] + list(graph.neighbors(node)) # O(k)
+        
+        for removing_node in nodes_to_remove:
+            min_idx = np.argmin(algo_func(cost_change_matrix[removing_node]))
+            sorted_cost_set.remove((algo_func(cost_change_matrix[removing_node][min_idx]), removing_node, min_idx))
+
+        # print('after removing', sorted_cost_set)
+
+        # update cost matrix by looping through neighbors of the recolored node
+        for neighbor in graph.neighbors(node):
+            edge_weight = graph[node][neighbor].get('weight') 
+            neighbor_color_bef = graph.nodes[neighbor]['color']
+            
+            for color in range(color_set_size): # looping over col
+                # step 1: node row update, then update each col correctly, will be updated every iteration
+                node_delta_update = edge_weight * (
+                      int(node_color_bef == neighbor_color_bef) # int() to convert np bool to int
+                    - int(new_color == neighbor_color_bef)
+                )
+            
+                cost_change_matrix[node][color] += node_delta_update # update cost change in node row 
+                if abs(cost_change_matrix[node][color]) < 1e-14:
+                    cost_change_matrix[node][color] = 0          
+
+                # step 2: neighbor row update, then update each col correctly, will only be updated once
+                neighbor_delta_update = edge_weight * (
+                      int(new_color == color) 
+                    - int(new_color == neighbor_color_bef) 
+                    - int(node_color_bef == color) 
+                    + int(node_color_bef == neighbor_color_bef)
+                )
+                cost_change_matrix[neighbor][color] += neighbor_delta_update
+                if abs(cost_change_matrix[neighbor][color]) < 1e-14:
+                    cost_change_matrix[neighbor][color] = 0
+
+        # add the best choice for the recolored node in the row of the cost change matrix to the sorted list
+        recolored_row = algo_func((cost_change_matrix)[node])
+        recolored_best_idx = np.argmin(recolored_row)  # index of the min value in this row for the recolored node
+        sorted_cost_set.add((recolored_row[recolored_best_idx], node, recolored_best_idx))
+
+        # add the best choice for the neighbors of the recolored node in the row of the cost change matrix to the sorted list
+        for neighbor in graph.neighbors(node):
+            neighbor_row = algo_func((cost_change_matrix)[neighbor])
+            neighbor_best_idx = np.argmin(neighbor_row)  # index of the min value for this neighbor row
+            sorted_cost_set.add((neighbor_row[neighbor_best_idx], neighbor, neighbor_best_idx))
+
+        # print(sorted_cost_set)
+
+    # print(cost_change_matrix)
+    # print(sorted_cost_list)
+
+    return graph, cur_cost, iterations_taken, (cost_data['iterations'], cost_data['costs'])
 def optimise3(graph, color_set_size, algo_func):
     # initialise cost, iteration count
     cur_cost = calc_cost(graph)
@@ -32,7 +153,7 @@ def optimise3(graph, color_set_size, algo_func):
 
     # initialise a sorted list of cost change, first choice for recoloring
     sorted_cost_list = SortedList()
-    # node_to_tuples = defaultdict(set)
+    
     # find index of the most negative (minimum) value in each row, best color change choice for that node
     min_indices = np.argmin(algo_func(cost_change_matrix), axis=1)
     
@@ -42,12 +163,12 @@ def optimise3(graph, color_set_size, algo_func):
     # populate the sorted list
     for node, (cost_change, best_color) in enumerate(zip(algo_func(min_values), min_indices)): # pair 1st item in one iterable with 1st item of another iterable
         sorted_cost_list.add((cost_change, node, best_color))
-        # node_to_tuples[node].add((cost_change, node, best_color))
 
     # print(sorted_cost_list) # no fr applied, everything good as original here
     
     while True:
     # for x in range(1):
+
         delta_cost, node, new_color = sorted_cost_list[0]
 
         # print('recoloring')
@@ -107,33 +228,18 @@ def optimise3(graph, color_set_size, algo_func):
         for entry in reversed(sorted_cost_list): #TODO O(N) SLOW, find a data structure that is sorted and associative, heaps, etc
             if entry[1] in nodes_to_remove:
                 sorted_cost_list.remove(entry)
-        print(nodes_to_remove)
-        # print(node_to_tuples)
-
-
-        # entries_to_remove = []
-        # for node in nodes_to_remove:  # O(k)
-        #     if node in node_to_tuples:
-        #         entries_to_remove.extend(node_to_tuples.pop(node))  # Add all tuples associated with node
-        # print(entries_to_remove)
-        # Remove each entry from the SortedList
-        # for entry in entries_to_remove:  # O(k)
-        #     sorted_cost_list.remove(entry)
 
         # add the best choice for the recolored node in the row of the cost change matrix to the sorted list
         recolored_row = algo_func((cost_change_matrix)[node])
         recolored_best_idx = np.argmin(recolored_row)  # index of the min value in this row for the recolored node
         sorted_cost_list.add((recolored_row[recolored_best_idx], node, recolored_best_idx))
-        # node_to_tuples[node].add((recolored_row[recolored_best_idx], node, recolored_best_idx))
 
         # add the best choice for the neighbors of the recolored node in the row of the cost change matrix to the sorted list
         for neighbor in graph.neighbors(node):
             neighbor_row = algo_func((cost_change_matrix)[neighbor])
             neighbor_best_idx = np.argmin(neighbor_row)  # index of the min value for this neighbor row
             sorted_cost_list.add((neighbor_row[neighbor_best_idx], neighbor, neighbor_best_idx))
-            # node_to_tuples[neighbor].add((neighbor_row[neighbor_best_idx], neighbor, neighbor_best_idx))
 
-        print('test')
         # print(sorted_cost_list)
 
     # print(cost_change_matrix)

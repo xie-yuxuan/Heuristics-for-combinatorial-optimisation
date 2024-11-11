@@ -93,7 +93,7 @@ def plot_cost_data(cost_data_fg, total_iterations_fg, final_cost_fg,
                  xytext=(-10,10), ha='center', color="red")
     plt.annotate(f'Iter: {total_iterations_fr}\nCost: {final_cost_fr}', 
                  (total_iterations_fr, final_cost_fr), textcoords="offset points", 
-                 xytext=(-10,10), ha='center', color="orange")
+                 xytext=(-10,10), ha='center', color="green")
     
     # Text box with graph parameters
     param_text = (f"Color Set Size: {color_set_size}\n"

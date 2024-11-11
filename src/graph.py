@@ -7,7 +7,7 @@ import copy
 from networkx.readwrite import json_graph
 
 from visualisation import draw_graph, plot_cost_data
-from algorithms import optimise, optimise2, optimise3
+from algorithms import optimise, optimise2, optimise3, optimise4
 from graph_gen import generate_random_regular_graph
 
 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     # Uncomment below to view plots and results for one graph instance, for testing usually --------------------------------------------
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\test7.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\expt3.json"
     graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance = load_graph_from_json(file_path)
     # uncomment to visualise graph plot bef optimisation\
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
@@ -106,18 +106,19 @@ if __name__ == '__main__':
 
     # graph, final_cost, iterations_taken, cost_data = optimise(graph, color_set_size, algo = 'reluctant')
     # graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'reluctant')  
-    graph_copy = copy.deepcopy(graph)
-    graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise3(graph, color_set_size, algo_func=fg) 
-    graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise3(graph_copy, color_set_size, algo_func=fr) 
+    # graph_copy = copy.deepcopy(graph)
+    # graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise3(graph, color_set_size, algo_func=fg) 
+    # graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise3(graph, color_set_size, algo_func=fr) 
+    graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise4(graph, color_set_size, algo_func=fg) 
     
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
     # uncomment to visualise graph plot aft optimisation
-    # draw_graph(graph2, pos=nx.spring_layout(graph2, seed=1), 
+    # draw_graph(graph_r, pos=nx.spring_layout(graph_r, seed=1), 
     #            graph_name=graph_name, 
-    #            iterations_taken=iterations_taken2, 
-    #            cost_data=cost_data2,
+    #            iterations_taken=iterations_taken_r, 
+    #            cost_data=cost_data_r,
     #            color_set_size=color_set_size, 
     #            degree=degree, 
     #            num_nodes=num_nodes, 
@@ -125,9 +126,9 @@ if __name__ == '__main__':
     #            gaussian_variance=gaussian_variance
     #            )
 
-    # uncomment to plot cost data comparison
-    plot_cost_data( # comparison btw greedy and reluctant results
-        cost_data_g, len(cost_data_g[0]), cost_data_g[1][-1], 
-        cost_data_r, len(cost_data_r[0]), cost_data_r[1][-1],
-        graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance
-        )
+    # # uncomment to plot cost data comparison
+    # plot_cost_data( # comparison btw greedy and reluctant results
+    #     cost_data_g, len(cost_data_g[0])-1, cost_data_g[1][-1], 
+    #     cost_data_r, len(cost_data_r[0])-1, cost_data_r[1][-1],
+    #     graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance
+    #     )
