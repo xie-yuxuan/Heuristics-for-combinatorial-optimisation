@@ -4,12 +4,89 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import os
 
-from visualisation import plot_cost_data
+from visualisation import plot_cost_data, plot_final_costs, plot_cost_diff_histogram
 
+def get_best_final_cost(cost_data):
+    min_final_cost_g = float('inf')
+    min_final_cost_r = float('inf')
+    min_iterations_fg = None
+    min_iterations_fr = None
+
+    # Iterate through all initial colorings in the cost data
+    for value in cost_data.values():
+        # Extract cost data for greedy and reluctant approaches
+        iterations_fg, costs_fg = value["cost_data_g"]
+        iterations_fr, costs_fr = value["cost_data_r"]
+
+        # Get the final cost and total iterations for each approach
+        final_cost_fg = costs_fg[-1]
+        total_iterations_fg = iterations_fg[-1]
+        final_cost_fr = costs_fr[-1]
+        total_iterations_fr = iterations_fr[-1]
+
+        # Update minimum final cost and iterations for Greedy
+        if final_cost_fg < min_final_cost_g:
+            min_final_cost_g = final_cost_fg
+            min_iterations_fg = total_iterations_fg
+
+        # Update minimum final cost and iterations for Reluctant
+        if final_cost_fr < min_final_cost_r:
+            min_final_cost_r = final_cost_fr
+            min_iterations_fr = total_iterations_fr
+
+    # Return results as a dictionary
+    return {
+        "Greedy": {"Best Final Cost": min_final_cost_g, "Iterations": min_iterations_fg},
+        "Reluctant": {"Best Final Cost": min_final_cost_r, "Iterations": min_iterations_fr}
+    }
+
+
+def calculate_greedy_vs_reluctant_stats(cost_data):
+    greedy_better_count = 0
+    cost_differences = []
+    greedy_final_costs = []
+    reluctant_final_costs = []
+
+    # Loop through all initial colorings
+    for initial_coloring_key, iteration_data in cost_data.items():
+        cost_data_g = iteration_data["cost_data_g"]
+        cost_data_r = iteration_data["cost_data_r"]
+
+        final_cost_g = cost_data_g[1][-1]  # Last entry in the greedy cost data
+        final_cost_r = cost_data_r[1][-1]  # Last entry in the reluctant cost data
+
+        greedy_final_costs.append(final_cost_g)
+        reluctant_final_costs.append(final_cost_r)
+
+        # Track if greedy is better
+        if final_cost_g < final_cost_r:
+            greedy_better_count += 1
+
+        # Calculate the cost difference
+        cost_difference = final_cost_g - final_cost_r
+        cost_differences.append(cost_difference)
+
+    # Calculate probability that greedy is better
+    probability_greedy_better = greedy_better_count / len(cost_differences)
+
+    # Calculate the average cost difference between greedy and reluctant
+    avg_cost_difference = np.mean(cost_differences)
+
+    # Calculate the average final costs for both greedy and reluctant
+    avg_greedy_final_cost = np.mean(greedy_final_costs)
+    avg_reluctant_final_cost = np.mean(reluctant_final_costs)
+
+    # Return the results
+    return {
+        "probability_greedy_better": probability_greedy_better,
+        "avg_cost_difference": avg_cost_difference,
+        "avg_greedy_final_cost": avg_greedy_final_cost,
+        "avg_reluctant_final_cost": avg_reluctant_final_cost
+    }
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\expt3_results.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\(2000, 20)_results.json"
 
     with open(file_path, 'r') as f:
         data = json.load(f)
@@ -20,61 +97,35 @@ if __name__ == '__main__':
     color_set_size = data['color_set_size']
     gaussian_mean = data['gaussian_mean']
     gaussian_variance = data['gaussian_variance']
+    all_cost_data = data['cost_data']
+
+    # get best final cost for both reluctant and greedy, compare to see global optima
+    best_costs = get_best_final_cost(cost_data=all_cost_data)
+    if best_costs['Greedy']['Best Final Cost'] < best_costs['Reluctant']['Best Final Cost']:
+        print(f"Greedy found global optima. Final cost: {best_costs['Greedy']['Best Final Cost']} vs {best_costs['Reluctant']['Best Final Cost']}")
+    else:
+        print(f"Reluctant found global optima. Final cost: {best_costs['Reluctant']['Best Final Cost']} vs {best_costs['Greedy']['Best Final Cost']}")
     
-    greedy_better_count = 0
-    cost_differences = []
-    greedy_final_costs = []
-    reluctant_final_costs = []
+    # visualisation: plot cost against iterations for all colorings 
+    plot_cost_data(all_cost_data, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, specific_coloring=None)
 
-    for iteration_key, iteration_data in data["cost_data"].items():
-        cost_data_g = iteration_data["cost_data_g"]
-        cost_data_r = iteration_data["cost_data_r"]
+    stats = calculate_greedy_vs_reluctant_stats(data["cost_data"])
 
-        final_cost_g = cost_data_g[1][-1]  # Last entry in the greedy cost data
-        final_cost_r = cost_data_r[1][-1]  # Last entry in the reluctant cost data
+    print(f"Probability that greedy is better: {stats['probability_greedy_better']}")
+    print(f"Average final cost (Greedy): {stats['avg_greedy_final_cost']}")
+    print(f"Average final cost (Reluctant): {stats['avg_reluctant_final_cost']}")
+    print(f"Average cost difference (Greedy - Reluctant): {stats['avg_cost_difference']}")
 
-        greedy_final_costs.append(final_cost_g)
-        reluctant_final_costs.append(final_cost_r)
-        
-        if final_cost_g < final_cost_r:
-            greedy_better_count += 1
-        
-        cost_difference = final_cost_g - final_cost_r
-        cost_differences.append(cost_difference)
+    # visualisation
 
-    average_cost_difference = np.mean(cost_differences)
+    plot_final_costs(
+        cost_data=data["cost_data"],
+        graph_name=graph_name,
+        degree=degree,
+        num_nodes=num_nodes,
+        color_set_size=color_set_size,
+        gaussian_mean=gaussian_mean,
+        gaussian_variance=gaussian_variance
+    )
 
-    print(f"Probability that greedy is better: {greedy_better_count/len(cost_differences)}")
-    print(f"Average cost difference (Greedy - Reluctant): {average_cost_difference}") # positive means greedy converged to higher final cost
-
-    plt.figure(figsize=(10, 6))
-    plt.scatter(range(len(greedy_final_costs)), greedy_final_costs, label='Greedy', color='red', alpha=0.6)
-    plt.scatter(range(len(reluctant_final_costs)), reluctant_final_costs, label='Reluctant', color='green', alpha=0.6)
-    plt.axhline(np.mean(greedy_final_costs), color='red', linestyle='--', label=f'Mean Greedy: {np.mean(greedy_final_costs):.2f}')
-    plt.axhline(np.mean(reluctant_final_costs), color='green', linestyle='--', label=f'Mean Reluctant: {np.mean(reluctant_final_costs):.2f}')
-
-    plt.xlabel('Instance')
-    plt.ylabel('Final Cost')
-    plt.title(f'Greedy and reluctant final costs for multiple instances of {graph_name}')
-
-    experiment_text = f"Degree: {degree}\nNum Nodes: {num_nodes}\nColor Set Size: {color_set_size}\nGaussian Mean: {gaussian_mean}\nGaussian Variance: {gaussian_variance}"
-    plt.gca().text(0.95, 0.95, experiment_text, transform=plt.gca().transAxes, fontsize=8, 
-               verticalalignment='top', horizontalalignment='right', bbox=dict(facecolor='white', alpha=0.5))
-    plt.legend()
-
-    plt.show()
-
-    # # plot comparison for particular instance ------------------------------------------
-
-    instance = 0 # change this to see other instances
-    cost_data_g = data["cost_data"][f"instance_{instance}"]["cost_data_g"]
-    cost_data_r = data["cost_data"][f"instance_{instance}"]["cost_data_r"]
-
-    plot_cost_data( # comparison btw greedy and reluctant results for specified instance
-        cost_data_g, len(cost_data_g[0]), cost_data_g[1][-1], 
-        cost_data_r, len(cost_data_r[0]), cost_data_r[1][-1],
-        graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance
-        )
-    
-
-
+    plot_cost_diff_histogram(data["cost_data"], num_nodes, graph_name)
