@@ -86,7 +86,7 @@ def calculate_greedy_vs_reluctant_stats(cost_data):
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\(2000, 20)_results.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\(5000, 20)_results.json"
 
     with open(file_path, 'r') as f:
         data = json.load(f)
