@@ -44,7 +44,7 @@ def fr(x): # reluctant transformation to cost change matrix
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\(5000, 20).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\(7500, 20).json"
     graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, initial_node_colors = load_graph_from_json(file_path)
     # uncomment to visualise graph plot bef optimisation\
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
         "cost_data" : {}
     }
 
-    # get list of greedy and reluctant op given list of initial colorings and graph J --------------------------------------------
+    # # get list of greedy and reluctant op given list of initial colorings and graph J --------------------------------------------
     
     # loop through list of initial colorings, assign colors and run optimisation
     for i, intial_coloring in enumerate(initial_node_colors):
@@ -97,20 +97,25 @@ if __name__ == '__main__':
 
     # # testing optimisation code on one graph and one coloring -----------------------------------------------------------------
 
-    # for node, color in enumerate(initial_node_colors[0]): # assign idx 0 initial colors
+    # for node, color in enumerate(initial_node_colors[1]): # assign idx 0 initial colors
     #         graph.nodes[node]['color'] = color
 
-    # # start_time = time.time()
+    # start_time = time.time()
 
     # # graph, final_cost, iterations_taken, cost_data = optimise(graph, color_set_size, algo = 'reluctant')
     # # graph, final_cost, iterations_taken, cost_data = optimise2(graph, color_set_size, algo = 'reluctant')  
-    # graph_copy = copy.deepcopy(graph)
+    # # graph_copy = copy.deepcopy(graph)
     # # graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise3(graph, color_set_size, algo_func=fg) 
     # # graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise3(graph, color_set_size, algo_func=fr) 
-    # graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise4(graph, color_set_size, algo_func=fg) 
-    # graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise4(graph_copy, color_set_size, algo_func=fr) 
+    # # graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise4(graph, color_set_size, algo_func=fg) 
+    # graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise4(graph, color_set_size, algo_func=fr) 
     
-    # # print("--- %s seconds ---" % (time.time() - start_time))
+    # print("--- %s seconds ---" % (time.time() - start_time))
+
+    # # print(f"Final cost g: {final_cost_g}")
+    # print(f"Final cost r: {final_cost_r}")
+    # # print(iterations_taken_g)
+    # print(iterations_taken_r)
 
     # # uncomment to visualise graph plot aft optimisation
     # # draw_graph(graph_r, pos=nx.spring_layout(graph_r, seed=1), 

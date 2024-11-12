@@ -46,7 +46,8 @@ def optimise4(graph, color_set_size, algo_func):
         sorted_cost_set.add((cost_change, node, best_color))
 
     # print(sorted_cost_set) # no fr applied, everything good as original here
-    
+    # i = 0
+
     while True:
     # for x in range(3):
 
@@ -96,7 +97,7 @@ def optimise4(graph, color_set_size, algo_func):
                 )
             
                 cost_change_matrix[node][color] += node_delta_update # update cost change in node row 
-                if abs(cost_change_matrix[node][color]) < 1e-14:
+                if abs(cost_change_matrix[node][color]) < 1e-13:
                     cost_change_matrix[node][color] = 0          
 
                 # step 2: neighbor row update, then update each col correctly, will only be updated once
@@ -107,7 +108,7 @@ def optimise4(graph, color_set_size, algo_func):
                     + int(node_color_bef == neighbor_color_bef)
                 )
                 cost_change_matrix[neighbor][color] += neighbor_delta_update
-                if abs(cost_change_matrix[neighbor][color]) < 1e-14:
+                if abs(cost_change_matrix[neighbor][color]) < 1e-13:
                     cost_change_matrix[neighbor][color] = 0
 
         # add the best choice for the recolored node in the row of the cost change matrix to the sorted list
@@ -121,7 +122,6 @@ def optimise4(graph, color_set_size, algo_func):
             neighbor_best_idx = np.argmin(neighbor_row)  # index of the min value for this neighbor row
             sorted_cost_set.add((neighbor_row[neighbor_best_idx], neighbor, neighbor_best_idx))
 
-        # print(sorted_cost_set)
 
     # print(cost_change_matrix)
     # print(sorted_cost_list)
@@ -380,7 +380,7 @@ def optimise2(graph, color_set_size, algo):
                 cost_change_matrix[neighbor][color] += neighbor_delta_update
 
                 # replace very small number in the cost_change_matrix with 0
-                cost_change_matrix[np.abs(cost_change_matrix) < 1e-14] = 0
+                cost_change_matrix[np.abs(cost_change_matrix) < 1e-11] = 0
         
     # print(cost_change_matrix)
     

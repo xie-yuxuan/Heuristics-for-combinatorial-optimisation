@@ -11,7 +11,7 @@ from visualisation import draw_graph
 Run this script to generate and save random graphs based on specified parameters. Uncomment draw_graph() to view graphs before saving. 
 """
 
-def generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed):
+def generate_random_regular_graph(degree, num_nodes,  gaussian_mean, gaussian_variance, seed):
     # specifying seed for reproducibility of random results
     graph = nx.random_regular_graph(degree, num_nodes, seed)
 
@@ -27,7 +27,7 @@ def generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_var
 if __name__ == '__main__':
     # set parameters
     degree = 20
-    num_nodes = 10000
+    num_nodes = 7500
     color_set_size = 2
     gaussian_mean = 0
     gaussian_variance = 1
