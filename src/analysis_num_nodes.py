@@ -93,6 +93,8 @@ def plot_histograms_for_all_num_nodes(results_folder, degree, color_set_size, nu
     plt.legend(title="Number of Nodes")
 
     plt.grid(True)
+
+    plt.savefig(f"plots/num_nodes_hist.png")
     plt.show()
 
 def plot_final_cost_vs_nodes(results_folder, degree, color_set_size):
@@ -192,6 +194,8 @@ def plot_final_cost_vs_nodes(results_folder, degree, color_set_size):
     plt.legend()
 
     plt.grid(True)
+
+    plt.savefig(f"plots/num_nodes_cost.png")
     plt.show()
 
 
@@ -312,6 +316,8 @@ def plot_iterations_vs_nodes_with_avg_variance(results_folder, degree, color_set
     plt.legend()
 
     plt.grid(True)
+
+    plt.savefig(f"plots/num_nodes_iter.png")
     plt.show()
 
 

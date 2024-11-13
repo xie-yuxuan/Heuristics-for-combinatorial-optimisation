@@ -150,6 +150,8 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
     plt.title(f"Cost vs Iterations for Greedy and Reluctant Algorithms on {graph_name}")
     plt.grid()
 
+    plt.savefig(f"plots/{graph_name}_cost.png")
+
     plt.show()
 
 
@@ -193,6 +195,8 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
 
     plt.legend(loc='upper left')
 
+    plt.savefig(f"plots/{graph_name}_scatter.png")
+
     plt.show()
 
 
@@ -233,6 +237,9 @@ def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins=20, bin_
     plt.title(f'Histogram of Normalized Cost Differences for {graph_name}')
     
     plt.grid(True)
+
+    plt.savefig(f"plots/{graph_name}_hist.png")
+
     plt.show()
 
 # ----------------------------------- ANIMATION -----------------------------------------------
