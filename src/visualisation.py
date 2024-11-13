@@ -195,7 +195,8 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
     plt.show()
 
 
-def plot_cost_diff_histogram(cost_data, num_nodes, graph_name):
+
+def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins=20, bin_range=None):
     cost_differences = []
     
     # Loop through all initial colorings and compute the cost difference for each one
@@ -216,9 +217,13 @@ def plot_cost_diff_histogram(cost_data, num_nodes, graph_name):
         # Append to the list
         cost_differences.append(normalized_cost_diff)
     
+    # Set bin range if not provided
+    if bin_range is None:
+        bin_range = (min(cost_differences), max(cost_differences))
+    
     # Plot the histogram of the normalized cost differences
     plt.figure(figsize=(10, 6))
-    plt.hist(cost_differences, bins=20, edgecolor='black', alpha=0.7)
+    plt.hist(cost_differences, bins=np.linspace(bin_range[0], bin_range[1], num_bins), edgecolor='blue', alpha=0.7)
     
     plt.xlabel('Normalized Cost Difference (1/n * (Greedy - Reluctant))')
     plt.ylabel('Frequency')
