@@ -1,2 +1,2 @@
-results/(7500,[[:space:]]20)_results.json filter=lfs diff=lfs merge=lfs -text
-results/(10000,[[:space:]]20)_results.json filter=lfs diff=lfs merge=lfs -text
+results/(7500,[[:space:]]20,[[:space:]]2)_results.json filter=lfs diff=lfs merge=lfs -text
+results/(10000,[[:space:]]20,[[:space:]]2)_results.json filter=lfs diff=lfs merge=lfs -text

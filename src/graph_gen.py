@@ -32,7 +32,7 @@ if __name__ == '__main__':
     gaussian_mean = 0
     gaussian_variance = 1
     num_initial_colorings = 100
-    graph_name = f"{num_nodes, degree}"
+    graph_name = f"{num_nodes, degree, color_set_size}"
 
     # generate graph, get J
     graph = generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed=1)
