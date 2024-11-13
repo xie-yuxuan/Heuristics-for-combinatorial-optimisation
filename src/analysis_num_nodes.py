@@ -3,7 +3,14 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_histograms_for_all_graphs(results_folder, degree, color_set_size, num_bins=20, bin_range=None):
+'''
+Run this program to show plots for graphs of all num_nodes.
+'''
+
+def plot_histograms_for_all_num_nodes(results_folder, degree, color_set_size, num_bins=20, bin_range=None):
+    '''
+    Plot histograms for all graphs of diff num_nodes.
+    '''
     # Get a list of all files in the results folder
     result_files = [f for f in os.listdir(results_folder) if f.endswith('_results.json')]
     
@@ -79,19 +86,19 @@ def plot_histograms_for_all_graphs(results_folder, degree, color_set_size, num_b
         plt.hist(cost_differences, bins=num_bins, edgecolor='black', alpha=0.5, 
                  range=bin_range, label=sorted_labels[i], color=color_cycle[i % len(color_cycle)])
 
-    # Add labels and title
     plt.xlabel('Normalized Cost Difference (1/n * (Greedy - Reluctant))')
     plt.ylabel('Frequency')
     plt.title(f'Histogram of Normalized Cost Differences (Degree {degree}, Color Set Size {color_set_size})')
 
-    # Show legend to differentiate between the histograms
     plt.legend(title="Number of Nodes")
 
-    # Display the plot
     plt.grid(True)
     plt.show()
 
 def plot_final_cost_vs_nodes(results_folder, degree, color_set_size):
+    '''
+    Plot final, avg cost + var, against num_nodes.
+    '''
     # Get a list of all files in the results folder
     result_files = [f for f in os.listdir(results_folder) if f.endswith('_results.json')]
     
@@ -162,7 +169,6 @@ def plot_final_cost_vs_nodes(results_folder, degree, color_set_size):
     var_final_cost_greedy_sorted = np.array(var_final_cost_greedy)[sorted_indices]
     var_final_cost_reluctant_sorted = np.array(var_final_cost_reluctant)[sorted_indices]
 
-    # Plot the data
     plt.figure(figsize=(10, 6))
 
     # Plot best final costs
@@ -179,20 +185,20 @@ def plot_final_cost_vs_nodes(results_folder, degree, color_set_size):
     plt.fill_between(num_nodes_list_sorted, avg_final_cost_reluctant_sorted - 2*np.sqrt(var_final_cost_reluctant_sorted),
                      avg_final_cost_reluctant_sorted + 2*np.sqrt(var_final_cost_reluctant_sorted), color='green', alpha=0.1, label="Reluctant Variance")
 
-    # Labels and title
     plt.xlabel('Number of Nodes')
     plt.ylabel('Cost')
     plt.title(f'Final Cost vs Number of Nodes (Degree {degree}, Color Set Size {color_set_size})')
 
-    # Show legend
     plt.legend()
 
-    # Display grid and plot
     plt.grid(True)
     plt.show()
 
 
 def plot_iterations_vs_nodes_with_avg_variance(results_folder, degree, color_set_size):
+    '''
+    Plot avg iterations + var, num of iter for best case against num_nodes.
+    '''
     # Get a list of all files in the results folder
     result_files = [f for f in os.listdir(results_folder) if f.endswith('_results.json')]
     
@@ -285,7 +291,6 @@ def plot_iterations_vs_nodes_with_avg_variance(results_folder, degree, color_set
     best_case_iterations_greedy_sorted = np.array(best_case_iterations_greedy)[sorted_indices]
     best_case_iterations_reluctant_sorted = np.array(best_case_iterations_reluctant)[sorted_indices]
 
-    # Plot the data
     plt.figure(figsize=(10, 6))
 
     # Plot average iterations for Greedy and Reluctant with variance
@@ -300,28 +305,24 @@ def plot_iterations_vs_nodes_with_avg_variance(results_folder, degree, color_set
     plt.fill_between(num_nodes_list_sorted, avg_iterations_greedy_sorted - np.sqrt(avg_iterations_greedy_variance_sorted), avg_iterations_greedy_sorted + np.sqrt(avg_iterations_greedy_variance_sorted), alpha=0.1, color='red')
     plt.fill_between(num_nodes_list_sorted, avg_iterations_reluctant_sorted - np.sqrt(avg_iterations_reluctant_variance_sorted), avg_iterations_reluctant_sorted + np.sqrt(avg_iterations_reluctant_variance_sorted), alpha=0.1, color='green')
 
-    # Labels and title
     plt.xlabel('Number of Nodes')
     plt.ylabel('Number of Iterations to Convergence')
     plt.title(f'Average and Best Case Iterations to Convergence vs Number of Nodes (Degree {degree}, Color Set Size {color_set_size})')
 
-    # Show legend
     plt.legend()
 
-    # Display grid and plot
     plt.grid(True)
     plt.show()
-
-# Example usage:
 
 
 if __name__ == "__main__":
     results_folder = r'C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results'
 
+    # set degree and color_set_size
     degree = 20
     color_set_size = 2
+
     plot_final_cost_vs_nodes(results_folder, degree=degree, color_set_size=color_set_size)
     plot_iterations_vs_nodes_with_avg_variance(results_folder, degree, color_set_size)
-
-    plot_histograms_for_all_graphs(results_folder, degree=degree, color_set_size=color_set_size, num_bins=100, bin_range=None)
+    plot_histograms_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size, num_bins=100, bin_range=None)
 

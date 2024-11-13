@@ -8,7 +8,9 @@ from networkx.readwrite import json_graph
 from visualisation import draw_graph
 
 """
-Run this script to generate and save random graphs based on specified parameters. Uncomment draw_graph() to view graphs before saving. 
+Run this script to generate and save random regular graphs based on specified parameters (n, k, mu, sigma). 
+Specified number of initial colorings are generated and saved in a list.
+Uncomment draw_graph() to view graphs before saving. 
 """
 
 def generate_random_regular_graph(degree, num_nodes,  gaussian_mean, gaussian_variance, seed):

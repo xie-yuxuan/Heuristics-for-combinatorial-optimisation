@@ -6,7 +6,15 @@ import os
 
 from visualisation import plot_cost_data, plot_final_costs, plot_cost_diff_histogram
 
+'''
+Run this program to run an analysis for a single graph, returning results and showing plots.
+'''
+
 def get_best_final_cost(cost_data):
+    '''
+    Return best final cost and corresponding number of iterations.
+    Purpose is to find global optima.
+    '''
     min_final_cost_g = float('inf')
     min_final_cost_r = float('inf')
     min_iterations_fg = None
@@ -34,7 +42,6 @@ def get_best_final_cost(cost_data):
             min_final_cost_r = final_cost_fr
             min_iterations_fr = total_iterations_fr
 
-    # Return results as a dictionary
     return {
         "Greedy": {"Best Final Cost": min_final_cost_g, "Iterations": min_iterations_fg},
         "Reluctant": {"Best Final Cost": min_final_cost_r, "Iterations": min_iterations_fr}
@@ -42,6 +49,9 @@ def get_best_final_cost(cost_data):
 
 
 def calculate_greedy_vs_reluctant_stats(cost_data):
+    '''
+    Return avg final cost (and avg cost diff), std dev, and probability that greedy is better.
+    '''
     greedy_better_count = 0
     cost_differences = []
     greedy_final_costs = []
@@ -88,7 +98,6 @@ def calculate_greedy_vs_reluctant_stats(cost_data):
     reluctant_2sigma_range = (avg_reluctant_final_cost - 2 * std_reluctant_final_cost, avg_reluctant_final_cost + 2 * std_reluctant_final_cost)
     cost_diff_2sigma_range = (avg_cost_difference - 2 * std_cost_difference, avg_cost_difference + 2 * std_cost_difference)
 
-    # Return the results
     return {
         "probability_greedy_better": probability_greedy_better,
         "avg_cost_difference": avg_cost_difference,
@@ -121,7 +130,7 @@ if __name__ == '__main__':
     else:
         print(f"Reluctant found global optima. Final cost: {best_costs['Reluctant']['Best Final Cost']} vs {best_costs['Greedy']['Best Final Cost']}")
     
-    # visualisation: plot cost against iterations for all colorings 
+    # visualisation: plot cost against iterations for all initial colorings 
     plot_cost_data(all_cost_data, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, specific_coloring=None)
 
     stats = calculate_greedy_vs_reluctant_stats(data["cost_data"])
@@ -131,7 +140,7 @@ if __name__ == '__main__':
     print(f"Average final cost (Reluctant): {stats['avg_reluctant_final_cost']}")
     print(f"Average cost difference (Greedy - Reluctant): {stats['avg_cost_difference']}")
 
-    # visualisation
+    # visualisation: plot scatter of final costs against initial colorings
     plot_final_costs(
         cost_data=data["cost_data"],
         graph_name=graph_name,
@@ -142,5 +151,6 @@ if __name__ == '__main__':
         gaussian_variance=gaussian_variance
     )
 
+    # visualisation: plot histogram of cost differences for all initial colorings
     plot_cost_diff_histogram(data["cost_data"], num_nodes, graph_name, num_bins=100, bin_range=(-0.5, 0.5))
 

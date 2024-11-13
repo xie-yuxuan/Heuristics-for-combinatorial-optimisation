@@ -4,8 +4,6 @@ from collections import defaultdict
 
 from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge
 
-
-
 def optimise4(graph, color_set_size, algo_func):
     # initialise cost, iteration count
     cur_cost = calc_cost(graph)

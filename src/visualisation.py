@@ -8,6 +8,11 @@ from matplotlib.animation import PillowWriter
 from algorithms import naive_greedy, animate_naive_greedy, naive_reluctant, animate_naive_reluctant
 from utils import calc_cost
 
+'''
+Visualisation functions for a single graph.
+Multi graph visualisation functions are in the corresponding programs e.g. analysis_num_nodes.py.
+'''
+
 def draw_graph(graph, pos, graph_name, iterations_taken, cost_data, 
                color_set_size, 
                degree, 
@@ -70,6 +75,9 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
 
 
 def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, specific_coloring=None):
+    '''
+    Plot cost against iterations for one graph.
+    '''
     plt.figure(figsize=(10, 6))
 
     min_final_cost_g = float('inf')
@@ -126,16 +134,10 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
                      (min_iterations_fr, min_final_cost_r), textcoords="offset points", 
                      xytext=(10, -15), ha='center', color="green", fontsize=8)
 
-    # Simplified legend
     plt.plot([], [], color="red", label="Greedy")
     plt.plot([], [], color="green", label="Reluctant")
-    legend = plt.legend(loc="upper right")
+    plt.legend(loc="upper right")
     
-    # Calculate position for the parameter text box based on the legend's bounding box
-    legend_bbox = legend.get_window_extent().transformed(plt.gcf().dpi_scale_trans.inverted())
-    param_text_y = legend_bbox.y0 - 0.12  # Position below the legend
-
-    # Text box with graph parameters
     param_text = (f"Color Set Size: {color_set_size}\n"
                   f"Degree: {degree}\n"
                   f"Number of Nodes: {num_nodes}\n"
@@ -143,16 +145,19 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
                   f"Gaussian Variance: {gaussian_variance}")
     plt.gcf().text(0.75, 0.65, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
 
-    # Labels and grid
     plt.xlabel("Iterations")
     plt.ylabel("Cost")
     plt.title(f"Cost vs Iterations for Greedy and Reluctant Algorithms on {graph_name}")
     plt.grid()
 
-    # Show plot
     plt.show()
 
+
 def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance):
+    '''
+    Plot a scatter plot of final costs against initial coloring. 
+    Show average final cost.
+    '''
     greedy_final_costs = []
     reluctant_final_costs = []
 
@@ -167,7 +172,6 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
         greedy_final_costs.append(final_cost_g)
         reluctant_final_costs.append(final_cost_r)
 
-    # Plot
     plt.figure(figsize=(10, 6))
 
     # Scatter plot for greedy and reluctant final costs
@@ -178,18 +182,15 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
     plt.axhline(np.mean(greedy_final_costs), color='red', linestyle='--', label=f'Mean Greedy: {np.mean(greedy_final_costs)}')
     plt.axhline(np.mean(reluctant_final_costs), color='green', linestyle='--', label=f'Mean Reluctant: {np.mean(reluctant_final_costs)}')
 
-    # Labels, legend, and title
     plt.xlabel('Initial Coloring Index')
     plt.ylabel('Final Cost')
     plt.title(f'Greedy and Reluctant Final Costs for Multiple Initial Colorings of {graph_name}')
 
-    # Display experiment parameters in the bottom right corner
     experiment_text = (f"Degree: {degree}\nNum Nodes: {num_nodes}\nColor Set Size: {color_set_size}\n"
                        f"Gaussian Mean: {gaussian_mean}\nGaussian Variance: {gaussian_variance}")
     plt.gca().text(0.95, 0.8, experiment_text, transform=plt.gca().transAxes, fontsize=8, 
                    verticalalignment='bottom', horizontalalignment='right', bbox=dict(facecolor='white', alpha=0.5))
 
-    # Simplified legend for the scatter points
     plt.legend(loc='upper left')
 
     plt.show()
@@ -197,6 +198,9 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
 
 
 def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins=20, bin_range=None):
+    '''
+    Plot histogram of normalised cost diff for all initial colorings.
+    '''
     cost_differences = []
     
     # Loop through all initial colorings and compute the cost difference for each one
@@ -221,7 +225,6 @@ def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins=20, bin_
     if bin_range is None:
         bin_range = (min(cost_differences), max(cost_differences))
     
-    # Plot the histogram of the normalized cost differences
     plt.figure(figsize=(10, 6))
     plt.hist(cost_differences, bins=np.linspace(bin_range[0], bin_range[1], num_bins), edgecolor='blue', alpha=0.7)
     
@@ -229,56 +232,10 @@ def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins=20, bin_
     plt.ylabel('Frequency')
     plt.title(f'Histogram of Normalized Cost Differences for {graph_name}')
     
-    # Display the plot
     plt.grid(True)
     plt.show()
 
-# def plot_cost_data(cost_data_fg, total_iterations_fg, final_cost_fg, 
-#                    cost_data_fr, total_iterations_fr, final_cost_fr,
-#                    graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance):
-#     plt.figure(figsize=(10, 6))
-
-#     # # Plot for "Greedy" (fg)
-#     iterations_fg, costs_fg = cost_data_fg
-#     iterations_fr, costs_fr = cost_data_fr
-
-#     plt.plot(iterations_fg, costs_fg, label="Greedy", color="red")
-#     plt.scatter(total_iterations_fg, final_cost_fg, color="red", s=50, label="Greedy Convergence")
-
-#     # # Plot for "Reluctant" (fr)
-#     plt.plot(iterations_fr, costs_fr, label="Reluctant", color="green")
-#     plt.scatter(total_iterations_fr, final_cost_fr, color="green", s=50, label="Reluctant Convergence")
-
-#     if total_iterations_fg < total_iterations_fr:
-#         plt.hlines(final_cost_fg, total_iterations_fg, total_iterations_fr, colors="blue", linestyles="dashed")
-
-#     # Annotate the convergence points
-#     plt.annotate(f'Iter: {total_iterations_fg}\nCost: {final_cost_fg}', 
-#                  (total_iterations_fg, final_cost_fg), textcoords="offset points", 
-#                  xytext=(-10,10), ha='center', color="red")
-#     plt.annotate(f'Iter: {total_iterations_fr}\nCost: {final_cost_fr}', 
-#                  (total_iterations_fr, final_cost_fr), textcoords="offset points", 
-#                  xytext=(-10,10), ha='center', color="green")
-    
-#     # Text box with graph parameters
-#     param_text = (f"Color Set Size: {color_set_size}\n"
-#                   f"Degree: {degree}\n"
-#                   f"Number of Nodes: {num_nodes}\n"
-#                   f"Gaussian Mean: {gaussian_mean}\n"
-#                   f"Gaussian Variance: {gaussian_variance}")
-    
-#     # Place the text box on the plot
-#     plt.gcf().text(0.7, 0.56, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
-
-#     # Labels and legend
-#     plt.xlabel("Iterations")
-#     plt.ylabel("Cost")
-#     plt.title("Cost vs Iterations for Greedy and Reluctant Algorithms on " + graph_name)
-#     plt.legend()
-#     plt.grid()
-
-#     # Show plot
-#     plt.show()
+# ----------------------------------- ANIMATION -----------------------------------------------
 
 def animate(graph, color_set_size, iterations, pos, graph_name, algo):
     """

@@ -10,6 +10,12 @@ from visualisation import draw_graph, plot_cost_data
 from algorithms import optimise, optimise2, optimise3, optimise4
 from graph_gen import generate_random_regular_graph
 
+'''
+Run this program to run both greedy and reluctant optimisation fn on graph for all initial colorings and save results to JSON.
+fg and fr are transformation functions for cost change matrix for greedy and reluctant algos.
+Uncomment last section for testing purposes of the optimisation fn.
+'''
+
 
 def load_graph_from_json(file_path):
     with open(file_path, 'r') as f:

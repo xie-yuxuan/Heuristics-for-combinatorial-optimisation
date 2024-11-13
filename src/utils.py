@@ -4,6 +4,7 @@ import networkx as nx
 Utility functions including:
 - calc_cost
 - calc_delta_cost
+- calc_delta_cost_edge (no longer used, logic included in optimise function)
 """
 
 def calc_cost(graph):
