@@ -150,7 +150,7 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
     plt.title(f"Cost vs Iterations for Greedy and Reluctant Algorithms on {graph_name}")
     plt.grid()
 
-    plt.savefig(f"plots/{graph_name}_cost.png")
+    # plt.savefig(f"plots/{graph_name}_cost.png")
 
     plt.show()
 
