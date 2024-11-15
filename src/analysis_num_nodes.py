@@ -197,6 +197,112 @@ def plot_final_cost_for_all_num_nodes(results_folder, degree, color_set_size):
 
     plt.savefig(f"plots/num_nodes_cost.png")
     plt.show()
+def plot_norm_final_cost_for_all_num_nodes(results_folder, degree, color_set_size):
+    '''
+    Plot final, avg cost + var, against num_nodes.
+    '''
+    # Get a list of all files in the results folder
+    result_files = [f for f in os.listdir(results_folder) if f.endswith('_results.json')]
+    
+    # Lists to hold data for plotting
+    num_nodes_list = []
+    best_final_cost_greedy = []
+    best_final_cost_reluctant = []
+    avg_final_cost_greedy = []
+    avg_final_cost_reluctant = []
+    var_final_cost_greedy = []
+    var_final_cost_reluctant = []
+
+    # Iterate through all result files
+    for result_file in result_files:
+        # Extract graph parameters (num_nodes, degree, color_set_size) from the file name
+        file_name_parts = result_file.split('_')[0].strip('()').split(', ')
+        num_nodes = int(file_name_parts[0])
+        current_degree = int(file_name_parts[1])
+        current_color_set_size = int(file_name_parts[2])
+
+        # Check if the file matches the provided degree and color_set_size
+        if current_degree == degree and current_color_set_size == color_set_size:
+            # Construct the full file path
+            file_path = os.path.join(results_folder, result_file)
+            
+            # Load the JSON data from the result file
+            with open(file_path, 'r') as f:
+                cost_data = json.load(f)["cost_data"]
+            
+            # Variables to hold the final costs for greedy and reluctant
+            final_costs_greedy = []
+            final_costs_reluctant = []
+
+            # Iterate through all initial colorings and get final costs
+            for initial_coloring_key, iteration_data in cost_data.items():
+                cost_data_g = iteration_data["cost_data_g"]
+                cost_data_r = iteration_data["cost_data_r"]
+
+                # Get the final costs for both approaches
+                final_cost_g = cost_data_g[1][-1]
+                final_cost_r = cost_data_r[1][-1]
+
+                final_costs_greedy.append(final_cost_g)
+                final_costs_reluctant.append(final_cost_r)
+
+            # Calculate best final costs (global optima) for both approaches
+            best_final_cost_greedy.append(min(final_costs_greedy))
+            best_final_cost_reluctant.append(min(final_costs_reluctant))
+
+            # Calculate average final costs for both approaches
+            avg_final_cost_greedy.append(np.mean(final_costs_greedy))
+            avg_final_cost_reluctant.append(np.mean(final_costs_reluctant))
+
+            # Calculate variance of final costs for both approaches
+            var_final_cost_greedy.append(np.var(final_costs_greedy))
+            var_final_cost_reluctant.append(np.var(final_costs_reluctant))
+
+            # Append num_nodes to the list for plotting
+            num_nodes_list.append(num_nodes)
+
+    # Sort the data by the number of nodes
+    sorted_indices = np.argsort(num_nodes_list)
+    num_nodes_list_sorted = np.array(num_nodes_list)[sorted_indices]
+    best_final_cost_greedy_sorted = np.array(best_final_cost_greedy)[sorted_indices]
+    best_final_cost_reluctant_sorted = np.array(best_final_cost_reluctant)[sorted_indices]
+    avg_final_cost_greedy_sorted = np.array(avg_final_cost_greedy)[sorted_indices]
+    avg_final_cost_reluctant_sorted = np.array(avg_final_cost_reluctant)[sorted_indices]
+    var_final_cost_greedy_sorted = np.array(var_final_cost_greedy)[sorted_indices]
+    var_final_cost_reluctant_sorted = np.array(var_final_cost_reluctant)[sorted_indices]
+
+    # Normalize the costs by dividing by num_nodes
+    best_final_cost_greedy_norm = best_final_cost_greedy_sorted / num_nodes_list_sorted
+    best_final_cost_reluctant_norm = best_final_cost_reluctant_sorted / num_nodes_list_sorted
+    avg_final_cost_greedy_norm = avg_final_cost_greedy_sorted / num_nodes_list_sorted
+    avg_final_cost_reluctant_norm = avg_final_cost_reluctant_sorted / num_nodes_list_sorted
+
+    plt.figure(figsize=(10, 6))
+
+    # Plot normalized best final costs
+    plt.plot(num_nodes_list_sorted, best_final_cost_greedy_norm, label="Best Final Cost (Greedy)", marker='o', color='red', linestyle='-', markersize=8)
+    plt.plot(num_nodes_list_sorted, best_final_cost_reluctant_norm, label="Best Final Cost (Reluctant)", marker='o', color='green', linestyle='-', markersize=8)
+
+    # Plot normalized average final costs
+    plt.plot(num_nodes_list_sorted, avg_final_cost_greedy_norm, label="Avg Final Cost (Greedy)", marker='o', color='red', linestyle='--', markersize=8, alpha=0.3)
+    plt.plot(num_nodes_list_sorted, avg_final_cost_reluctant_norm, label="Avg Final Cost (Reluctant)", marker='o', color='green', linestyle='--', markersize=8, alpha=0.3)
+
+    # Plot normalized variance as shaded area (alpha = 0.5)
+    plt.fill_between(num_nodes_list_sorted, avg_final_cost_greedy_norm - 2*np.sqrt(var_final_cost_greedy_sorted) / num_nodes_list_sorted,
+                     avg_final_cost_greedy_norm + 2*np.sqrt(var_final_cost_greedy_sorted) / num_nodes_list_sorted, color='red', alpha=0.1, label="Greedy Variance")
+    plt.fill_between(num_nodes_list_sorted, avg_final_cost_reluctant_norm - 2*np.sqrt(var_final_cost_reluctant_sorted) / num_nodes_list_sorted,
+                     avg_final_cost_reluctant_norm + 2*np.sqrt(var_final_cost_reluctant_sorted) / num_nodes_list_sorted, color='green', alpha=0.1, label="Reluctant Variance")
+
+    plt.xlabel('Number of Nodes')
+    plt.ylabel('Normalized Cost (Cost / Num Nodes)')
+    plt.title(f'Normalized Final Cost vs Number of Nodes (Degree {degree}, Color Set Size {color_set_size})')
+
+    plt.legend()
+
+    plt.grid(True)
+
+    plt.savefig(f"plots/num_nodes_norm_cost.png")
+    plt.show()
 
 
 def plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size):
@@ -328,7 +434,8 @@ if __name__ == "__main__":
     degree = 20
     color_set_size = 2
 
-    plot_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)
-    plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size)
-    plot_histogram_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size, num_bins=100, bin_range=None)
+    # plot_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)
+    # plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size)
+    # plot_histogram_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size, num_bins=100, bin_range=None)
 
+    plot_norm_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)
