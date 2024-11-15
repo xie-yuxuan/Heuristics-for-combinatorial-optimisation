@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 Run this program to show plots for graphs of all num_nodes.
 '''
 
-def plot_histograms_for_all_num_nodes(results_folder, degree, color_set_size, num_bins=20, bin_range=None):
+def plot_histogram_for_all_num_nodes(results_folder, degree, color_set_size, num_bins=20, bin_range=None):
     '''
     Plot histograms for all graphs of diff num_nodes.
     '''
@@ -97,7 +97,7 @@ def plot_histograms_for_all_num_nodes(results_folder, degree, color_set_size, nu
     plt.savefig(f"plots/num_nodes_hist.png")
     plt.show()
 
-def plot_final_cost_vs_nodes(results_folder, degree, color_set_size):
+def plot_final_cost_for_all_num_nodes(results_folder, degree, color_set_size):
     '''
     Plot final, avg cost + var, against num_nodes.
     '''
@@ -199,7 +199,7 @@ def plot_final_cost_vs_nodes(results_folder, degree, color_set_size):
     plt.show()
 
 
-def plot_iterations_vs_nodes_with_avg_variance(results_folder, degree, color_set_size):
+def plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size):
     '''
     Plot avg iterations + var, num of iter for best case against num_nodes.
     '''
@@ -328,7 +328,7 @@ if __name__ == "__main__":
     degree = 20
     color_set_size = 2
 
-    plot_final_cost_vs_nodes(results_folder, degree=degree, color_set_size=color_set_size)
-    plot_iterations_vs_nodes_with_avg_variance(results_folder, degree, color_set_size)
-    plot_histograms_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size, num_bins=100, bin_range=None)
+    plot_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)
+    plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size)
+    plot_histogram_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size, num_bins=100, bin_range=None)
 
