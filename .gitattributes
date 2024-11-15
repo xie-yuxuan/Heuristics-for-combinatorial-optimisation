@@ -1,2 +1,10 @@
 results/(7500,[[:space:]]20,[[:space:]]2)_results.json filter=lfs diff=lfs merge=lfs -text
 results/(10000,[[:space:]]20,[[:space:]]2)_results.json filter=lfs diff=lfs merge=lfs -text
+
+results/(200,[[:space:]]20,[[:space:]]8)_results.json filter=lfs diff=lfs merge=lfs -text
+results/(500,[[:space:]]20,[[:space:]]8)_results.json filter=lfs diff=lfs merge=lfs -text
+results/(1000,[[:space:]]20,[[:space:]]8)_results.json filter=lfs diff=lfs merge=lfs -text
+results/(2000,[[:space:]]20,[[:space:]]8)_results.json filter=lfs diff=lfs merge=lfs -text
+results/(5000,[[:space:]]20,[[:space:]]8)_results.json filter=lfs diff=lfs merge=lfs -text
+results/(7500,[[:space:]]20,[[:space:]]8)_results.json filter=lfs diff=lfs merge=lfs -text
+results/(10000,[[:space:]]20,[[:space:]]8)_results.json filter=lfs diff=lfs merge=lfs -text
