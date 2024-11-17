@@ -102,11 +102,11 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
         final_cost_fr = costs_fr[-1]
 
         # Plot "Greedy" (fg) with transparency for multiple colorings
-        plt.plot(iterations_fg, costs_fg, color="red", alpha=0.6)
+        plt.scatter(iterations_fg, costs_fg, color="red", alpha=0.6)
         plt.scatter(total_iterations_fg, final_cost_fg, color="red", s=50, alpha=0.6)
 
         # Plot "Reluctant" (fr) with transparency for multiple colorings
-        plt.plot(iterations_fr, costs_fr, color="green", alpha=0.6)
+        plt.scatter(iterations_fr, costs_fr, color="green", alpha=0.6)
         plt.scatter(total_iterations_fr, final_cost_fr, color="green", s=50, alpha=0.6)
 
         # Update minimum final cost and iterations for Greedy

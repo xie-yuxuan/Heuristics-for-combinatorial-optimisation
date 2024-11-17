@@ -56,6 +56,8 @@ def optimise4(graph, color_set_size, algo_func):
         delta_cost = -algo_func(delta_cost) # change back to +ve, represent cost reduction
 
         if delta_cost <= 0:
+            cost_data['iterations'].append(iterations_taken)
+            cost_data['costs'].append(cur_cost)
             # reach convergence, no more choice that will res in cost reduction
             break
 
@@ -70,8 +72,7 @@ def optimise4(graph, color_set_size, algo_func):
         # print(calc_cost(graph))
 
         # update cost data
-        cost_data['iterations'].append(iterations_taken)
-        cost_data['costs'].append(cur_cost)
+
         
         # delete the recolored node and its neighbors from the sorted list
         nodes_to_remove = [node] + list(graph.neighbors(node)) # O(k)
