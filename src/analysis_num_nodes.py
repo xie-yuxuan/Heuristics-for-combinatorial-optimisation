@@ -432,10 +432,10 @@ if __name__ == "__main__":
 
     # set degree and color_set_size
     degree = 20
-    color_set_size = 2
+    color_set_size = 8
 
-    # plot_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)
-    # plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size)
-    # plot_histogram_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size, num_bins=100, bin_range=None)
+    plot_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)
+    plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size)
+    plot_histogram_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size, num_bins=100, bin_range=None)
 
     plot_norm_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)

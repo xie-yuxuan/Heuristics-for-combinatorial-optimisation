@@ -29,7 +29,7 @@ def generate_random_regular_graph(degree, num_nodes,  gaussian_mean, gaussian_va
 if __name__ == '__main__':
     # set parameters
     degree = 20
-    num_nodes = 100
+    num_nodes = 10000
     color_set_size = 4
     gaussian_mean = 0
     gaussian_variance = 1
