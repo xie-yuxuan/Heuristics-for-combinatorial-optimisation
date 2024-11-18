@@ -50,7 +50,7 @@ def fr(x): # reluctant transformation to cost change matrix
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\(100, 10, 2).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\(2000, 10, 4).json"
     graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, initial_node_colors = load_graph_from_json(file_path)
     # uncomment to visualise graph plot bef optimisation\
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
