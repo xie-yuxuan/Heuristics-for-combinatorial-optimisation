@@ -1,7 +1,8 @@
 import networkx as nx
+import json
 
 
-from src.graph_processing import load_color_map, load_json_graph
+from graph_processing import load_graph_from_json
 from algorithms import naive_greedy, animate_naive_greedy, naive_reluctant, animate_naive_reluctant
 from utils import calc_cost
 from visualisation import animate
@@ -9,20 +10,26 @@ from visualisation import animate
 
 if __name__ == '__main__':
     # Graph and color map paths
-    graph_1_json_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/graph1.json'
+    # graph_1_json_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/graph1.json'
     color_map_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
+    with open(color_map_path, 'r') as f:
+        color_map = json.load(f)['color_map']
+
 
     # Load graph and color map
-    graph_1, graph_1_name = load_json_graph(graph_1_json_path)
-    color_map = load_color_map(color_map_path)
+    # graph_1, graph_1_name = load_json_graph(graph_1_json_path)
 
     # Random graph
-    random_graph_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/random_graph.json'
-    random_graph, random_graph_name = load_json_graph(random_graph_path)
+    # random_graph_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/random_graph.json'
+    # random_graph, random_graph_name = load_json_graph(random_graph_path)
 
     # Random1 graph
-    random1_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/sample_graphs/random1.json'
-    random1, random1_name = load_json_graph(random1_path)
+    test_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\(100, 10, 4).json"
+    graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, initial_node_colors = load_graph_from_json(test_path)
+
+    initial_coloring = initial_node_colors[0]
+    for node, color in enumerate(initial_coloring): #TODO: slow, looping through all nodes to recolor
+        graph.nodes[node]['color'] = color
 
     # Initialise parameters
     # Define layout for graph visualiation, set vertex positions
@@ -34,7 +41,7 @@ if __name__ == '__main__':
     # pos = nx.spectral_layout(graph) # use eigenvectors of graph Laplacian matrix
     # pos = nx.draw_planar(graph) # planar graph
 
-    max_iterations = 200
+    max_iterations = 500
     color_set_size = 4
 
     # Apply optimisation algo ------------------------------------------------
@@ -71,14 +78,15 @@ if __name__ == '__main__':
 
     # Random1 graph
 
-    pos = nx.spring_layout(random1, seed=0)
+    pos = nx.spring_layout(graph, seed=0)
 
     # random1_naive_greedy, final_cost, iterations_taken, cost_data = naive_greedy(random1, color_set_size, max_iterations)
     # draw_graph(random1_naive_greedy, pos, random1_name, iterations_taken, cost_data)
 
-    animate(random1, color_set_size, max_iterations, pos, random1_name, algo='naive greedy')
+    animate(graph, color_set_size, max_iterations, pos, graph_name, algo='naive greedy')
 
     # random1_naive_reluctant, final_cost, iterations_taken, cost_data = naive_reluctant(random1, color_set_size, max_iterations)
     # draw_graph(random1_naive_reluctant, pos, random1_name, iterations_taken, cost_data)
 
     # animate(random1, color_set_size, max_iterations, pos, random1_name, algo='naive reluctant')
+

@@ -50,7 +50,7 @@ def fr(x): # reluctant transformation to cost change matrix
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\(5000, 2, 4).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\(5000, 20, 4).json"
     graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, initial_node_colors = load_graph_from_json(file_path)
     # uncomment to visualise graph plot bef optimisation\
     # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), 
@@ -77,9 +77,9 @@ if __name__ == '__main__':
     # # get list of greedy and reluctant op given list of initial colorings and graph J --------------------------------------------
     
     # loop through list of initial colorings, assign colors and run optimisation
-    for i, intial_coloring in enumerate(initial_node_colors):
+    for i, initial_coloring in enumerate(initial_node_colors):
         # assign one of the initial colorings
-        for node, color in enumerate(intial_coloring): #TODO: slow, looping through all nodes to recolor
+        for node, color in enumerate(initial_coloring): #TODO: slow, looping through all nodes to recolor
             graph.nodes[node]['color'] = color
 
         # graph_copy1 = copy.deepcopy(graph)

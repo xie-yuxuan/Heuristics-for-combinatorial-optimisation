@@ -94,7 +94,7 @@ def plot_histogram_for_all_num_nodes(results_folder, degree, color_set_size, num
 
     plt.grid(True)
 
-    plt.savefig(f"plots/num_nodes_hist.png")
+    plt.savefig(f"plots/(all, {degree}, {color_set_size})_norm_cost_diff_hist.png")
     plt.show()
 
 def plot_final_cost_for_all_num_nodes(results_folder, degree, color_set_size):
@@ -195,7 +195,7 @@ def plot_final_cost_for_all_num_nodes(results_folder, degree, color_set_size):
 
     plt.grid(True)
 
-    plt.savefig(f"plots/num_nodes_cost.png")
+    plt.savefig(f"plots/(all, {degree}, {color_set_size})_cost.png")
     plt.show()
 def plot_norm_final_cost_for_all_num_nodes(results_folder, degree, color_set_size):
     '''
@@ -301,7 +301,7 @@ def plot_norm_final_cost_for_all_num_nodes(results_folder, degree, color_set_siz
 
     plt.grid(True)
 
-    plt.savefig(f"plots/num_nodes_norm_cost.png")
+    plt.savefig(f"plots/(all, {degree}, {color_set_size})_norm_cost.png")
     plt.show()
 
 
@@ -423,7 +423,7 @@ def plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size):
 
     plt.grid(True)
 
-    plt.savefig(f"plots/num_nodes_iter.png")
+    plt.savefig(f"plots/(all, {degree}, {color_set_size})_iter.png")
     plt.show()
 
 
@@ -431,11 +431,12 @@ if __name__ == "__main__":
     results_folder = r'C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results'
 
     # set degree and color_set_size
-    degree = 20
+    degree = 10
     color_set_size = 8
 
     plot_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)
+    plot_norm_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)
     plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size)
     plot_histogram_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size, num_bins=100, bin_range=None)
 
-    plot_norm_final_cost_for_all_num_nodes(results_folder, degree=degree, color_set_size=color_set_size)
+    

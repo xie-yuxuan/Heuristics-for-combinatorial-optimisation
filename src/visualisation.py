@@ -199,7 +199,7 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
 
     plt.show()
 
-def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins, bin_range=None):
+def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins, bin_range):
     '''
     Plot histogram of normalised cost diff for all initial colorings.
     '''
@@ -325,6 +325,6 @@ def animate(graph, color_set_size, iterations, pos, graph_name, algo):
     writer = animation.PillowWriter(fps=10,
                                 metadata=dict(artist='Me'),
                                 bitrate=1800)
-    ani.save('random_graph_naive_reluctant.gif', writer=writer)
+    # ani.save('test1_naive_reluctant.gif', writer=writer)
     
     plt.show()
