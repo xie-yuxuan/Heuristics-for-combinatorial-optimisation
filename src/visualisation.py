@@ -199,7 +199,7 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
 
     plt.show()
 
-def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins=20, bin_range=None):
+def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins, bin_range=None):
     '''
     Plot histogram of normalised cost diff for all initial colorings.
     '''
