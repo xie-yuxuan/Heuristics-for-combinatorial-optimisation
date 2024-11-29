@@ -18,8 +18,12 @@ def generate_random_regular_graph(degree, num_nodes,  gaussian_mean, gaussian_va
     graph = nx.random_regular_graph(degree, num_nodes, seed)
 
     for u,v in graph.edges(): # u, v are the nodes connected by each edge
-        edge_weight = np.random.normal(gaussian_mean, gaussian_variance)
-        graph[u][v]['weight'] = edge_weight
+        if gaussian_mean == None and gaussian_variance == None:
+            edge_weight = 1
+            graph[u][v]['weight'] = edge_weight
+        else:
+            edge_weight = np.random.normal(gaussian_mean, gaussian_variance)
+            graph[u][v]['weight'] = edge_weight
 
     # for node in graph.nodes():
     #     graph.nodes[node]['color'] = np.random.randint(0, color_set_size)
