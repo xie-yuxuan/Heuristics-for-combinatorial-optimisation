@@ -32,13 +32,16 @@ def generate_random_regular_graph(degree, num_nodes,  gaussian_mean, gaussian_va
 
 if __name__ == '__main__':
     # set parameters
-    num_nodes = 100
-    degree = 1
-    color_set_size = 4
-    gaussian_mean = 0
-    gaussian_variance = 1
+    num_nodes = 5000
+    degree = 2
+    color_set_size = 2
+    gaussian_mean = None
+    gaussian_variance = None
     num_initial_colorings = 100
-    graph_name = f"{num_nodes, degree, color_set_size}"
+    if gaussian_mean == None and gaussian_variance == None:
+        graph_name = f"{num_nodes, degree, color_set_size, 'uniform'}"
+    else:
+        graph_name = f"{num_nodes, degree, color_set_size}"
 
     # generate graph, get J
     graph = generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed=1)
