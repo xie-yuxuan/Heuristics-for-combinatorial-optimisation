@@ -28,7 +28,7 @@ def plot_3d_final_costs(results_folder, filter_num_nodes, filter_color_set_size)
 
     # Collect data from files
     data_points = []
-    result_files = [f for f in os.listdir(results_folder) if f.endswith('_results.json')]
+    result_files = [f for f in os.listdir(results_folder) if not f.endswith("uniform')_results.json")]
 
     for result_file in result_files:
         # Extract parameters (num_nodes, degree, color_set_size) from filename
@@ -157,10 +157,6 @@ def plot_3d_normalized_costs(results_folder, filter_num_nodes, filter_color_set_
     or a 2D graph when filtered by num_nodes or color_set_size.
     Normalized final cost is calculated as final_cost / num_nodes.
     """
-    import os
-    import json
-    import numpy as np
-    import matplotlib.pyplot as plt
 
     # Degree-specific colors
     degree_colors = {
@@ -172,7 +168,7 @@ def plot_3d_normalized_costs(results_folder, filter_num_nodes, filter_color_set_
 
     # Collect data from files
     data_points = []
-    result_files = [f for f in os.listdir(results_folder) if f.endswith('_results.json')]
+    result_files = [f for f in os.listdir(results_folder) if not f.endswith("uniform')_results.json")]
 
     for result_file in result_files:
         # Extract parameters (num_nodes, degree, color_set_size) from filename
@@ -297,6 +293,112 @@ def plot_3d_normalized_costs(results_folder, filter_num_nodes, filter_color_set_
 
 
 
+
+def plot_best_normalized_costs_for_uniform_edgeweight(results_folder, filter_num_nodes, filter_color_set_size):
+    """
+    Plot 2D graph when filtered by num_nodes or color_set_size.
+    Normalized final cost is calculated as final_cost / num_nodes.
+    """
+
+    # Degree-specific colors
+    degree_colors = {
+        20: 'red',
+        10: 'green',
+        5: 'blue',
+        2: 'orange'
+    }
+
+    # Collect data from files
+    data_points = []
+    result_files = [f for f in os.listdir(results_folder) if f.endswith("uniform')_results.json")]
+
+    for result_file in result_files:
+        # Extract parameters (num_nodes, degree, color_set_size) from filename
+        file_name_parts = result_file.split('_')[0].strip('()').split(', ')
+        num_nodes = int(file_name_parts[0])
+        degree = int(file_name_parts[1])
+        color_set_size = int(file_name_parts[2])
+
+        # Check filters
+        if filter_num_nodes is not None and num_nodes != filter_num_nodes:
+            continue
+        if filter_color_set_size is not None and color_set_size != filter_color_set_size:
+            continue
+
+        # Load data from the file
+        file_path = os.path.join(results_folder, result_file)
+        with open(file_path, 'r') as f:
+            cost_data = json.load(f)["cost_data"]
+
+        final_costs_greedy = []
+        final_costs_reluctant = []
+
+        for initial_coloring_key, iteration_data in cost_data.items():
+            cost_data_g = iteration_data["cost_data_g"]
+            cost_data_r = iteration_data["cost_data_r"]
+
+            final_cost_g = cost_data_g[1][-1]
+            final_cost_r = cost_data_r[1][-1]
+
+            final_costs_greedy.append(final_cost_g)
+            final_costs_reluctant.append(final_cost_r)
+
+        # Store data points (best normalized final costs for each approach)
+        best_final_cost_greedy = np.min(final_costs_greedy) / num_nodes
+        best_final_cost_reluctant = np.min(final_costs_reluctant) / num_nodes
+        data_points.append((num_nodes, degree, color_set_size, best_final_cost_greedy, best_final_cost_reluctant))
+
+    # If no data points match the filter, exit
+    if not data_points:
+        print("No data points match the specified filters.")
+        return
+
+    # Separate data for plotting
+    xs = np.array([d[0] for d in data_points])  # num_nodes
+    ys = np.array([d[2] for d in data_points])  # color_set_size
+    degrees = np.array([d[1] for d in data_points])  # degree
+    zs_greedy = np.array([d[3] for d in data_points])  # best normalized costs (greedy)
+    zs_reluctant = np.array([d[4] for d in data_points])  # best normalized costs (reluctant)
+
+    if filter_num_nodes is not None:
+        x_axis = ys
+        x_label = "Color Set Size"
+    else:
+        x_axis = xs
+        x_label = "Number of Nodes"
+
+    # Create 2D plot
+    plt.figure(figsize=(10, 6))
+    for degree, color in degree_colors.items():
+        # Filter points for the current degree
+        mask = (degrees == degree)
+        if not mask.any():
+            continue
+
+        x_points = x_axis[mask]
+        y_greedy = zs_greedy[mask]
+        y_reluctant = zs_reluctant[mask]
+
+        # Sort the data by the number of nodes (x_points)
+        sorted_indices = np.argsort(x_points)
+        x_points_sorted = x_points[sorted_indices]
+        y_greedy_sorted = y_greedy[sorted_indices]
+        y_reluctant_sorted = y_reluctant[sorted_indices]
+
+        # Plot points
+        plt.plot(x_points_sorted, y_greedy_sorted, color=color, label=f"Greedy (Degree {degree})", marker='o', linestyle='-', markersize=8)
+        plt.plot(x_points_sorted, y_reluctant_sorted, color=color, label=f"Reluctant (Degree {degree})", marker='x', linestyle='--', markersize=8)
+
+    plt.xlabel(x_label)
+    plt.ylabel("Best Normalized Final Cost")
+    if filter_num_nodes is not None:
+        plt.title(f"Plot of Best Normalized Costs vs. {x_label} for num_node = {filter_num_nodes}")
+    else:
+        plt.title(f"Plot of Best Normalized Costs vs. {x_label} for color_set_size = {filter_color_set_size}")
+    plt.legend(loc='upper right', fontsize='small')
+    plt.grid(True)
+    plt.savefig(f"plots/({filter_num_nodes}, all, {filter_color_set_size})_best_norm_cost_uniform_edgeweight.png")
+    plt.show()
 
 
 
@@ -539,6 +641,8 @@ if __name__ == "__main__":
     # plot_3d_final_costs(results_folder, filter_num_nodes=num_nodes, filter_color_set_size=color_set_size)
     # plot_3d_normalized_costs(results_folder, filter_num_nodes=num_nodes, filter_color_set_size=color_set_size)
     # plot_avg_norm_cost_diff(results_folder, num_nodes=num_nodes)
-    plot_3d_avg_norm_cost_diff(results_folder, num_nodes)
+    # plot_3d_avg_norm_cost_diff(results_folder, num_nodes)
     # plot_2d_avg_norm_cost_diff(results_folder, num_nodes)
+    plot_best_normalized_costs_for_uniform_edgeweight(results_folder, filter_num_nodes=num_nodes, filter_color_set_size=color_set_size)
+
     
