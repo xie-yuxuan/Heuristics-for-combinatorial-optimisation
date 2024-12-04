@@ -30,21 +30,92 @@ def generate_random_regular_graph(degree, num_nodes,  gaussian_mean, gaussian_va
 
     return graph
 
+def generate_random_graph(num_nodes, max_degree, gaussian_mean, gaussian_variance, seed):
+    """
+    Generates a random graph where each node has a random degree between 1 and `max_degree`.
+    Ensures the graph is connected. Edges are randomly assigned, and weights are based on a 
+    Gaussian distribution or set to 1.
+
+    Parameters:
+        num_nodes (int): Number of nodes in the graph.
+        max_degree (int): Maximum degree a node can have.
+        gaussian_mean (float or None): Mean for Gaussian edge weights (None for uniform weight).
+        gaussian_variance (float or None): Variance for Gaussian edge weights (None for uniform weight).
+        seed (int): Random seed for reproducibility.
+
+    Returns:
+        nx.Graph: A randomly generated graph.
+    """
+    np.random.seed(seed)
+    rng = np.random.default_rng(seed)
+    
+    # Initialize an empty graph
+    graph = nx.Graph()
+    graph.add_nodes_from(range(num_nodes))
+    
+    # Generate random degrees for each node
+    degrees = rng.integers(1, max_degree + 1, size=num_nodes)
+    
+    # Create a list of stubs (nodes repeated according to their degree)
+    stubs = []
+    for node, degree in enumerate(degrees):
+        stubs.extend([node] * degree)
+    
+    # Shuffle the stubs and create random edges
+    rng.shuffle(stubs)
+    while len(stubs) > 1:
+        u = stubs.pop()
+        v = stubs.pop()
+        # Avoid self-loops and duplicate edges
+        while u == v or graph.has_edge(u, v):
+            stubs.append(v)
+            rng.shuffle(stubs)
+            v = stubs.pop()
+        graph.add_edge(u, v)
+    
+    # Ensure the graph is connected
+    while not nx.is_connected(graph):
+        components = list(nx.connected_components(graph))
+        for i in range(len(components) - 1):
+            # Connect a node from one component to another
+            u = rng.choice(list(components[i]))
+            v = rng.choice(list(components[i + 1]))
+            graph.add_edge(u, v)
+    
+    # Assign edge weights
+    for u, v in graph.edges():
+        if gaussian_mean is None and gaussian_variance is None:
+            edge_weight = 1
+        else:
+            edge_weight = np.random.normal(gaussian_mean, gaussian_variance)
+        graph[u][v]['weight'] = edge_weight
+
+    return graph
+
 if __name__ == '__main__':
     # set parameters
-    num_nodes = 5000
-    degree = 20
-    color_set_size = 8
+    num_nodes = 20
+    degree = 10
+    color_set_size = 4
     gaussian_mean = None
     gaussian_variance = None
+    random_regular = False
     num_initial_colorings = 100
-    if gaussian_mean == None and gaussian_variance == None:
+    if gaussian_mean == None and gaussian_variance == None and random_regular:
         graph_name = f"{num_nodes, degree, color_set_size, 'uniform'}"
-    else:
+    elif random_regular:
         graph_name = f"{num_nodes, degree, color_set_size}"
+    elif gaussian_mean == None and gaussian_variance == None and not random_regular:
+        graph_name = f"{num_nodes, degree, color_set_size, 'uniform', 'not regular'}"
+    else:
+        graph_name = f"{num_nodes, degree, color_set_size, 'not regular'}"
 
     # generate graph, get J
-    graph = generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed=1)
+    if random_regular:
+        graph = generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed=1)
+    else:
+        graph = generate_random_graph(num_nodes, degree, gaussian_mean, gaussian_variance, seed=1)
+
 
     # create a list of initial color states (list of lists)
     initial_node_colors = [

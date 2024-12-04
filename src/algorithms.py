@@ -2,7 +2,52 @@ import numpy as np
 from sortedcontainers import SortedList, SortedSet
 from collections import defaultdict
 
-from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge
+from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_likelihood, compute_w
+
+def optimise_sbm(graph, color_set_size, algo_func):
+    '''
+    optimisation algorithm to maximise the likelihood of the adjacency matrix P(A) by optimising the group membership configuration (vector)
+    group membership assignment is like the color assignment of the graph
+    '''
+    # compute initial w, symmetric matrix of edge probabilities
+    w = compute_w(graph)
+    # compute inital log_likelihood
+    log_likelihood = calc_log_likelihood(graph, w)
+
+    # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
+    log_likelihood_data = [[0], [log_likelihood]]
+
+    for iteration in range(1, 10):
+        improved = False
+
+        for node in graph.nodes:
+            original_color = graph.nodes[node]['color']
+            best_likelihood = log_likelihood
+            best_color = original_color
+
+            for color in range(color_set_size):
+                if color == original_color:
+                    continue
+
+                graph.nodes[node]['color'] = color # temporarily recolor
+                new_likelihood = calc_log_likelihood(graph, w)
+
+                if new_likelihood > best_likelihood:
+                    best_likelihood = new_likelihood
+                    best_color = color
+                    improved = True
+
+            # assign the best color found
+            graph.nodes[node]['color'] = best_color
+        
+        if improved:
+            log_likelihood = best_likelihood
+            log_likelihood_data[0].append(iteration)
+            log_likelihood_data[1].append(log_likelihood)
+        else:
+            break
+
+    return graph, log_likelihood_data, w
 
 def optimise4(graph, color_set_size, algo_func):
     # initialise cost, iteration count
@@ -504,6 +549,9 @@ def optimise(graph, color_set_size, algo):
 
 
     return graph, cur_cost, iterations_taken, (cost_data['iterations'], cost_data['costs'])
+
+
+
 
 # --------------------------------------------------------------
 

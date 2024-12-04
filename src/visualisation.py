@@ -35,10 +35,24 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
     nx.draw_networkx(graph, pos, with_labels=True, node_color=vertex_colors, node_size=5000/num_nodes, edge_color='black', font_color='white', font_size=100/num_nodes, ax=ax[0])
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_weights, rotate=False, font_size=100/num_nodes, ax=ax[0])
 
+    if cost_data:
+        # Unpack cost data
+        iterations, costs = cost_data
+        
+        # Plot the cost vs. iteration graph on ax[1]
+        ax[1].plot(iterations, costs, marker='o', linestyle='-', color='b')
+        ax[1].set_xlabel('Iterations')
+        ax[1].set_ylabel('Cost')
+        ax[1].set_title('Cost vs. Iteration')
+        ax[1].grid(True)
+    else:
+        # Clear the second subplot if no cost graph is needed
+        ax[1].axis('off')
+
     ax[0].text(
         0.98, 0.0, 
         f'Iterations: {iterations_taken}\n'
-        f'Cost: {calc_cost(graph)}\n'
+        f'Cost: {costs[-1]}\n'
         f'Colors used: {len(set(nx.get_node_attributes(graph, "color").values()))}\n'
         f'Degree: {degree}\n'
         f'Number of nodes: {num_nodes}\n'
@@ -53,20 +67,6 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
         )
 
     ax[0].set_title(graph_name)
-
-    if cost_data:
-        # Unpack cost data
-        iterations, costs = cost_data
-        
-        # Plot the cost vs. iteration graph on ax[1]
-        ax[1].plot(iterations, costs, marker='o', linestyle='-', color='b')
-        ax[1].set_xlabel('Iterations')
-        ax[1].set_ylabel('Cost')
-        ax[1].set_title('Cost vs. Iteration')
-        ax[1].grid(True)
-    else:
-        # Clear the second subplot if no cost graph is needed
-        ax[1].axis('off')
 
     fig.tight_layout()
     # plt.tight_layout()

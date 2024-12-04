@@ -1,4 +1,5 @@
 import networkx as nx
+import numpy as np
 
 """
 Utility functions including:
@@ -6,6 +7,60 @@ Utility functions including:
 - calc_delta_cost
 - calc_delta_cost_edge (no longer used, logic included in optimise function)
 """
+
+def calc_log_likelihood(graph, w):
+    """
+    Calculate the log-likelihood for the graph given the w matrix.
+    
+    Parameters:
+        graph (nx.Graph): The graph with node colors assigned.
+        w (ndarray): Precomputed w matrix based on group memberships.
+
+    Returns:
+        float: Log-likelihood of the current graph configuration.
+    """
+    adj_matrix = nx.to_numpy_array(graph)
+    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes])
+    
+    # Compute log-likelihood
+    log_likelihood = 0
+    for u in range(len(groups)):
+        for v in range(len(groups)):
+            if u != v:  # Skip self-loops
+                gu, gv = groups[u], groups[v]
+                p = w[gu, gv]
+                log_likelihood += adj_matrix[u, v] * np.log(p + 1e-10) + (1 - adj_matrix[u, v]) * np.log(1 - p + 1e-10) # 1e-10 is for numerical stability
+    return log_likelihood
+
+def compute_w(graph):
+    """
+    Compute the symmetric w matrix for the graph based on group memberships.
+    
+    Parameters:
+        graph (nx.Graph): The graph with initial group memberships in the 'color' attribute.
+
+    Returns:
+        ndarray: The symmetric matrix of edge probabilities.
+    """
+    adj_matrix = nx.to_numpy_array(graph)
+    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes])
+    unique_groups = np.unique(groups)
+    
+    group_counts = {g: np.sum(groups == g) for g in unique_groups}
+    w = np.zeros((len(unique_groups), len(unique_groups)))
+    
+    for i, g1 in enumerate(unique_groups):
+        for j, g2 in enumerate(unique_groups):
+            if i == j:  # Within-group
+                m_gg = np.sum(adj_matrix[np.ix_(groups == g1, groups == g1)])
+                n_g = group_counts[g1]
+                w[i, j] = m_gg / (0.5 * n_g * (n_g - 1)) if n_g > 1 else 0
+            else:  # Between-group
+                m_gg = np.sum(adj_matrix[np.ix_(groups == g1, groups == g2)])
+                n_g1, n_g2 = group_counts[g1], group_counts[g2]
+                w[i, j] = m_gg / (n_g1 * n_g2) if n_g1 > 0 and n_g2 > 0 else 0
+
+    return w
 
 def calc_cost(graph):
     cost = 0
