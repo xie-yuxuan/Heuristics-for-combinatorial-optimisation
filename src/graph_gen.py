@@ -32,22 +32,11 @@ def generate_random_regular_graph(degree, num_nodes,  gaussian_mean, gaussian_va
 
 def generate_random_graph(num_nodes, max_degree, gaussian_mean, gaussian_variance, seed):
     """
-    Generates a random graph where each node has a random degree between 1 and `max_degree`.
-    Ensures the graph is connected. Edges are randomly assigned, and weights are based on a 
-    Gaussian distribution or set to 1.
-
-    Parameters:
-        num_nodes (int): Number of nodes in the graph.
-        max_degree (int): Maximum degree a node can have.
-        gaussian_mean (float or None): Mean for Gaussian edge weights (None for uniform weight).
-        gaussian_variance (float or None): Variance for Gaussian edge weights (None for uniform weight).
-        seed (int): Random seed for reproducibility.
-
-    Returns:
-        nx.Graph: A randomly generated graph.
+    generate a random graph with specified number of nodes, degree is random between 1 and max_degree, connection is random
+    graph creation follows the configuration process where each nodes have stubs (tentacles)
     """
     np.random.seed(seed)
-    rng = np.random.default_rng(seed)
+    rng = np.random.default_rng(seed) #  initialise generator object
     
     # Initialize an empty graph
     graph = nx.Graph()
@@ -59,7 +48,7 @@ def generate_random_graph(num_nodes, max_degree, gaussian_mean, gaussian_varianc
     # Create a list of stubs (nodes repeated according to their degree)
     stubs = []
     for node, degree in enumerate(degrees):
-        stubs.extend([node] * degree)
+        stubs.extend([node] * degree) # [2, 3, 1] -> [0, 0, 1, 1, 1, 2]
     
     # Shuffle the stubs and create random edges
     rng.shuffle(stubs)

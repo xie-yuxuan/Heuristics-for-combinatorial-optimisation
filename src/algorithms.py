@@ -30,7 +30,9 @@ def optimise_sbm(graph, color_set_size, algo_func):
                     continue
 
                 graph.nodes[node]['color'] = color # temporarily recolor
+                # w_temp = compute_w(graph)
                 new_likelihood = calc_log_likelihood(graph, w)
+                # new_likelihood = calc_log_likelihood(graph, w_temp)
 
                 if new_likelihood > best_likelihood:
                     best_likelihood = new_likelihood
@@ -39,6 +41,7 @@ def optimise_sbm(graph, color_set_size, algo_func):
 
             # assign the best color found
             graph.nodes[node]['color'] = best_color
+            # w = compute_w(graph)
         
         if improved:
             log_likelihood = best_likelihood

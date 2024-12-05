@@ -42,17 +42,18 @@ def compute_w(graph):
     Returns:
         ndarray: The symmetric matrix of edge probabilities.
     """
-    adj_matrix = nx.to_numpy_array(graph)
-    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes])
+    adj_matrix = nx.to_numpy_array(graph) # adjacency matrix
+    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes]) # get list of node colors / group membership
     unique_groups = np.unique(groups)
     
-    group_counts = {g: np.sum(groups == g) for g in unique_groups}
+    group_counts = {g: np.sum(groups == g) for g in unique_groups} # for 2 colors, 10 nodes we have {0:3, 1:7}
+    print(group_counts)
     w = np.zeros((len(unique_groups), len(unique_groups)))
     
     for i, g1 in enumerate(unique_groups):
         for j, g2 in enumerate(unique_groups):
             if i == j:  # Within-group
-                m_gg = np.sum(adj_matrix[np.ix_(groups == g1, groups == g1)])
+                m_gg = np.sum(adj_matrix[np.ix_(groups == g1, groups == g1)]) # np.ix_ to get a submatrix, m_gg is the total number of edges in group g, A is all pairwise connections in graph
                 n_g = group_counts[g1]
                 w[i, j] = m_gg / (0.5 * n_g * (n_g - 1)) if n_g > 1 else 0
             else:  # Between-group
