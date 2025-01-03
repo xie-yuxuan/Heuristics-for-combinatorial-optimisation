@@ -69,8 +69,8 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
     ax[0].set_title(graph_name)
 
     fig.tight_layout()
-    # plt.tight_layout()
-    # plt.savefig(graph_name)
+    plt.tight_layout()
+    plt.savefig(graph_name)
     plt.show()
 
 

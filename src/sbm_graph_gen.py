@@ -40,7 +40,7 @@ if __name__ == '__main__':
     # set parameters
     num_nodes = 20
     num_groups = 2
-    group_mode = ["association", "bipartite", "core-periphery"][0]
+    group_mode = ["association", "bipartite", "core-periphery"][2]
     graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
 
     # Generate the g vector (color assignment)
