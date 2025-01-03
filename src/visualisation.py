@@ -52,7 +52,7 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
     ax[0].text(
         0.98, 0.0, 
         f'Iterations: {iterations_taken}\n'
-        f'Cost: {costs[-1]}\n'
+        # f'Cost: {costs[-1]}\n'
         f'Colors used: {len(set(nx.get_node_attributes(graph, "color").values()))}\n'
         f'Degree: {degree}\n'
         f'Number of nodes: {num_nodes}\n'
