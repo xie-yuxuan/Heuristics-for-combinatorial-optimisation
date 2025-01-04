@@ -75,40 +75,35 @@ if __name__ == '__main__':
         "cost_data" : {}
     }
 
-    # # get list of greedy and reluctant op given list of initial colorings and graph J --------------------------------------------
+    # get list of greedy and reluctant op given list of initial colorings and graph J --------------------------------------------
     
     # loop through list of initial colorings, assign colors and run optimisation
-    # for i, initial_coloring in enumerate(initial_node_colors):
-    #     # assign one of the initial colorings
-    #     for node, color in enumerate(initial_coloring): #TODO: slow, looping through all nodes to recolor
-    #         graph.nodes[node]['color'] = color
+    for i, initial_coloring in enumerate(initial_node_colors):
+        # assign one of the initial colorings
+        for node, color in enumerate(initial_coloring): #TODO: slow, looping through all nodes to recolor
+            graph.nodes[node]['color'] = color
 
         # graph_copy1 = copy.deepcopy(graph)
-        # graph_copy1 = copy.deepcopy(graph)
-        # graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise4(graph, color_set_size, algo_func=fg) 
-        # graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise4(graph_copy1, color_set_size, algo_func=fr) 
+        graph_copy1 = copy.deepcopy(graph)
+        graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise4(graph, color_set_size, algo_func=fg) 
+        graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise4(graph_copy1, color_set_size, algo_func=fr) 
 
-        # results["cost_data"][f"initial_coloring_{i}"] = {
-        #     "cost_data_g": cost_data_g,
-        #     "cost_data_r": cost_data_r
-        # }
+        results["cost_data"][f"initial_coloring_{i}"] = {
+            "cost_data_g": cost_data_g,
+            "cost_data_r": cost_data_r
+        }
 
-        # print(f"{i} initial coloring optimisation complete")
+        print(f"{i} initial coloring optimisation complete")
 
-    for node, color in enumerate(initial_node_colors[0]):
-        graph.nodes[node]['color'] = color
-
-    graph, log_likelihood_data, w = optimise_sbm(graph, color_set_size, algo_func=None)
-    print(w, log_likelihood_data)
 
 
 
     graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results"
 
-    # with open(os.path.join(graphs_path, f"{graph_name}_results.json"), 'w') as f:
-    #     json.dump(results, f, indent = 2)
+    with open(os.path.join(graphs_path, f"{graph_name}_results.json"), 'w') as f:
+        json.dump(results, f, indent = 2)
 
-    # print(f"Saved results to {graphs_path}/{graph_name}_results.json")  
+    print(f"Saved results to {graphs_path}/{graph_name}_results.json")  
 
     # # testing optimisation code on one graph and one coloring -----------------------------------------------------------------
 
@@ -132,21 +127,3 @@ if __name__ == '__main__':
     # # print(iterations_taken_g)
     # print(iterations_taken_r)
 
-    # # uncomment to visualise graph plot aft optimisation
-    draw_graph(graph, 
-               pos=nx.spring_layout(graph, seed=1), 
-            #    pos=nx.kamada_kawai_layout(graph),
-            #    pos=nx.circular_layout(graph),
-            #    pos=nx.random_layout(graph),
-            #    pos=nx.shell_layout(graph),
-            #    pos=nx.spectral_layout(graph),
-               graph_name=graph_name, 
-               iterations_taken=len(log_likelihood_data[0])-1, 
-               cost_data=log_likelihood_data,
-               color_set_size=color_set_size, 
-               degree=degree, 
-               num_nodes=num_nodes, 
-               gaussian_mean=gaussian_mean, 
-               gaussian_variance=gaussian_variance,
-               ground_truth_log_likelihood = None
-               )

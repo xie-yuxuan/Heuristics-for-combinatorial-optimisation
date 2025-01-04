@@ -13,8 +13,11 @@ def optimise_sbm2(graph, num_groups, algo_func):
     # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
     log_likelihood_data = [[0], [log_likelihood]]
 
-    for iteration in range(1, 10):
-        max_increase = 0
+    iteration = 0
+
+    # for iteration in range(1, 100):
+    while True:
+        best_increase = None if algo_func == "greedy" else float('inf')
         best_node, best_color = None, None
 
         # Iterate through all nodes and possible colors
@@ -34,21 +37,28 @@ def optimise_sbm2(graph, num_groups, algo_func):
 
                 # Check for the best increase
                 increase = temp_log_likelihood - log_likelihood
-                if increase > max_increase:
-                    max_increase = increase
-                    best_node, best_color = node, color
+
+                # Greedy: Maximize positive increase
+                if algo_func == "greedy" and increase > 0 and (best_increase is None or increase > best_increase):
+                    best_increase, best_node, best_color = increase, node, color
+                # Reluctant: Minimize positive increase
+                elif algo_func == "reluctant" and increase > 0 and (increase < best_increase):
+                    best_increase, best_node, best_color = increase, node, color
 
                 # Revert the change
                 graph.nodes[node]['color'] = current_color
 
         # If no improvement, terminate
-        if max_increase <= 0:
+        if best_node is None or best_color is None:
+            print(f"Terminating at iteration {iteration}: No valid moves found.")
             break
 
         # Apply the best change
         graph.nodes[best_node]['color'] = best_color
         w = compute_w(graph)
         log_likelihood = calc_log_likelihood(graph, w)
+        iteration += 1
+        # print(f"iteration: {iteration}, log_likelihood: {log_likelihood}")
         log_likelihood_data[0].append(iteration)
         log_likelihood_data[1].append(log_likelihood)
 

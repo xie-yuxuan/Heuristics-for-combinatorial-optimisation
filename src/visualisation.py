@@ -80,6 +80,51 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
     plt.savefig(graph_name)
     plt.show()
 
+def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode, ground_truth_log_likelihood, specific_coloring):
+
+    # Iterate over each initial coloring in cost_data
+    for i, (key, value) in enumerate(cost_data.items()):
+        # Skip other colorings if a specific coloring is selected
+        if specific_coloring is not None and i != specific_coloring:
+            continue
+
+        # Extract data for the greedy and reluctant algorithms
+        iterations_fg, costs_fg = value["cost_data_g"]
+        iterations_fr, costs_fr = value["cost_data_r"]
+
+        # Final cost and total iterations for this coloring
+        # total_iterations_fg = iterations_fg[-1]
+        # final_cost_fg = costs_fg[-1]
+        # total_iterations_fr = iterations_fr[-1]
+        # final_cost_fr = costs_fr[-1]
+
+        # Plot "Greedy" (fg) with transparency for multiple colorings
+        plt.plot(iterations_fg, costs_fg, color="red", alpha=0.6)
+        # plt.scatter(total_iterations_fg, final_cost_fg, color="red", s=50, alpha=0.6)
+
+        # Plot "Reluctant" (fr) with transparency for multiple colorings
+        plt.plot(iterations_fr, costs_fr, color="green", alpha=0.6)
+        # plt.scatter(total_iterations_fr, final_cost_fr, color="green", s=50, alpha=0.6)
+
+    plt.axhline(y=ground_truth_log_likelihood, color='b', linestyle='--', label='Ground Truth')
+
+    plt.plot([], [], color="red", label="Greedy")
+    plt.plot([], [], color="green", label="Reluctant")
+    plt.legend(loc="upper right")
+    
+    param_text = (f"Color Set Size: {num_groups}\n"
+                  f"Number of Nodes: {num_nodes}\n")
+    plt.gcf().text(0.75, 0.65, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
+
+    plt.xlabel("Iterations")
+    plt.ylabel("Cost")
+    plt.title(f"Cost vs Iterations for Greedy and Reluctant Algorithms on {graph_name}")
+    plt.grid()
+
+    plt.savefig(f"plots/{graph_name}_cost.png")
+
+    plt.show()
+
 
 def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, specific_coloring=None):
     '''
