@@ -4,6 +4,56 @@ from collections import defaultdict
 
 from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_likelihood, compute_w
 
+def optimise_sbm2(graph, num_groups, algo_func):
+    # compute initial w, symmetric matrix of edge probabilities
+    w = compute_w(graph)
+    # compute inital log_likelihood
+    log_likelihood = calc_log_likelihood(graph, w)
+
+    # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
+    log_likelihood_data = [[0], [log_likelihood]]
+
+    for iteration in range(1, 10):
+        max_increase = 0
+        best_node, best_color = None, None
+
+        # Iterate through all nodes and possible colors
+        for node in graph.nodes:
+            current_color = graph.nodes[node]['color']
+
+            for color in range(num_groups):
+                if color == current_color:
+                    continue
+
+                # Temporarily recolor the node
+                graph.nodes[node]['color'] = color
+                
+                # Recompute w and log-likelihood
+                temp_w = compute_w(graph)
+                temp_log_likelihood = calc_log_likelihood(graph, temp_w)
+
+                # Check for the best increase
+                increase = temp_log_likelihood - log_likelihood
+                if increase > max_increase:
+                    max_increase = increase
+                    best_node, best_color = node, color
+
+                # Revert the change
+                graph.nodes[node]['color'] = current_color
+
+        # If no improvement, terminate
+        if max_increase <= 0:
+            break
+
+        # Apply the best change
+        graph.nodes[best_node]['color'] = best_color
+        w = compute_w(graph)
+        log_likelihood = calc_log_likelihood(graph, w)
+        log_likelihood_data[0].append(iteration)
+        log_likelihood_data[1].append(log_likelihood)
+
+    return graph, log_likelihood_data, w
+
 def optimise_sbm(graph, color_set_size, algo_func):
     '''
     optimisation algorithm to maximise the likelihood of the adjacency matrix P(A) by optimising the group membership configuration (vector)

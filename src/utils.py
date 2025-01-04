@@ -21,15 +21,17 @@ def calc_log_likelihood(graph, w):
     """
     adj_matrix = nx.to_numpy_array(graph)
     groups = np.array([graph.nodes[node]['color'] for node in graph.nodes])
-    
-    # Compute log-likelihood
     log_likelihood = 0
+    epsilon = 1e-10
+
     for u in range(len(groups)):
         for v in range(len(groups)):
             if u != v:  # Skip self-loops
                 gu, gv = groups[u], groups[v]
-                p = w[gu, gv]
-                log_likelihood += adj_matrix[u, v] * np.log(p + 1e-10) + (1 - adj_matrix[u, v]) * np.log(1 - p + 1e-10) # 1e-10 is for numerical stability
+                p = max(epsilon, min(1 - epsilon, w[gu, gv]))  # Clamp probabilities to avoid log issues
+                log_likelihood += (
+                    adj_matrix[u, v] * np.log(p) + (1 - adj_matrix[u, v]) * np.log(1 - p)
+                )
     return log_likelihood
 
 def compute_w(graph):
@@ -47,7 +49,7 @@ def compute_w(graph):
     unique_groups = np.unique(groups)
     
     group_counts = {g: np.sum(groups == g) for g in unique_groups} # for 2 colors, 10 nodes we have {0:3, 1:7}
-    print(group_counts)
+    # print(group_counts)
     w = np.zeros((len(unique_groups), len(unique_groups)))
     
     for i, g1 in enumerate(unique_groups):

@@ -18,7 +18,8 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
                degree, 
                num_nodes, 
                gaussian_mean, 
-               gaussian_variance):
+               gaussian_variance, 
+               ground_truth_log_likelihood):
     '''
     Draw graph on a given axis
     '''
@@ -45,6 +46,12 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
         ax[1].set_ylabel('Cost')
         ax[1].set_title('Cost vs. Iteration')
         ax[1].grid(True)
+        if ground_truth_log_likelihood:
+            ax[1].axhline(y=ground_truth_log_likelihood, color='r', linestyle='--', label='Ground Truth')
+            ax[1].text(0.5, ground_truth_log_likelihood, f'{ground_truth_log_likelihood:.2f}', 
+               color='r', ha='center', va='bottom', fontsize=10, transform=ax[1].get_yaxis_transform())
+    
+    
     else:
         # Clear the second subplot if no cost graph is needed
         ax[1].axis('off')

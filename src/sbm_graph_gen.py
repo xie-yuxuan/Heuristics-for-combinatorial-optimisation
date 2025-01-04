@@ -6,6 +6,7 @@ import os
 from networkx.readwrite import json_graph
 
 from visualisation import draw_graph
+from utils import calc_log_likelihood, compute_w
 
 def gen_sbm_graph(g, w):
     num_nodes = len(g)
@@ -38,9 +39,10 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     # set parameters
-    num_nodes = 20
-    num_groups = 2
-    group_mode = ["association", "bipartite", "core-periphery"][2]
+    num_nodes = 40
+    num_groups = 4
+    num_initial_colorings = 100
+    group_mode = ["association", "bipartite", "core-periphery"][0]
     graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
 
     # Generate the g vector (color assignment)
@@ -73,7 +75,8 @@ if __name__ == '__main__':
                degree=None, 
                num_nodes=num_nodes, 
                gaussian_mean=None, 
-               gaussian_variance=None
+               gaussian_variance=None,
+               ground_truth_log_likelihood = None
                )
     
     print("Color assignment vector (g):")
@@ -87,12 +90,21 @@ if __name__ == '__main__':
 
     graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialised to JSON
     
+    # create a list of initial color states (list of lists)
+    initial_node_colors = [
+        [np.random.randint(0, num_groups) for _ in range(num_nodes)]
+        for _ in range(num_initial_colorings)
+    ]
+
+
     data = {
         "graph_name": graph_name,
         "num_nodes" : num_nodes,
         "num_groups" : num_groups,
         "group_mode" : group_mode,
-        "graph_data": graph_data
+        "graph_data": graph_data,
+        "ground_truth_log_likelihood": calc_log_likelihood(graph, w),
+        "initial_node_colors": initial_node_colors
     }
 
     with open(os.path.join(graphs_path, f"{graph_name}.json"), 'w') as f:

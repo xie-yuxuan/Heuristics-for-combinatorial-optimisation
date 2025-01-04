@@ -61,7 +61,8 @@ if __name__ == '__main__':
     #            degree=degree, 
     #            num_nodes=num_nodes, 
     #            gaussian_mean=gaussian_mean, 
-    #            gaussian_variance=gaussian_variance
+    #            gaussian_variance=gaussian_variance,
+    #            ground_truth_log_likelihood = None
     #            )
 
     results = {
@@ -146,5 +147,6 @@ if __name__ == '__main__':
                degree=degree, 
                num_nodes=num_nodes, 
                gaussian_mean=gaussian_mean, 
-               gaussian_variance=gaussian_variance
+               gaussian_variance=gaussian_variance,
+               ground_truth_log_likelihood = None
                )
