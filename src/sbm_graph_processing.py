@@ -30,7 +30,7 @@ def load_graph_from_json(file_path):
     return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood
 
 if __name__ == "__main__":
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(20, 2, a).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(40, 2, a).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     results = {
@@ -50,6 +50,18 @@ if __name__ == "__main__":
     for i, initial_coloring in enumerate(initial_node_colors):
         for node, color in enumerate(initial_coloring):
             graph.nodes[node]['color'] = color
+
+    # for node, color in enumerate(initial_node_colors[3]):
+    #     graph.nodes[node]['color'] = color
+
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
+    #         color_set_size=num_groups, 
+    #         degree=None, 
+    #         num_nodes=num_nodes, 
+    #         gaussian_mean=None, 
+    #         gaussian_variance=None,
+    #         ground_truth_log_likelihood = ground_truth_log_likelihood
+    #         )
 
         graph_copy = graph.copy()
 
@@ -71,23 +83,16 @@ if __name__ == "__main__":
 
     print(f"Saved results to {graphs_path}/{graph_name}_results.json")  
 
-    # draw_graph(graph_copy, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
-    #         color_set_size=num_groups, 
-    #         degree=None, 
-    #         num_nodes=num_nodes, 
-    #         gaussian_mean=None, 
-    #         gaussian_variance=None,
-    #         ground_truth_log_likelihood = ground_truth_log_likelihood
-    #         )
 
 
 
-    # draw_graph(sbm_optimised_graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=log_likelihood_data,
-    #         color_set_size=num_groups, 
-    #         degree=None, 
-    #         num_nodes=num_nodes, 
-    #         gaussian_mean=None, 
-    #         gaussian_variance=None,
-    #         ground_truth_log_likelihood = ground_truth_log_likelihood
-    #         )
+
+    # # draw_graph(sbm_optimised_graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=log_likelihood_data,
+    # #         color_set_size=num_groups, 
+    # #         degree=None, 
+    # #         num_nodes=num_nodes, 
+    # #         gaussian_mean=None, 
+    # #         gaussian_variance=None,
+    # #         ground_truth_log_likelihood = ground_truth_log_likelihood
+    # #         )
     

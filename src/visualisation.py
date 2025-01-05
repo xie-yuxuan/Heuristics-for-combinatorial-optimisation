@@ -107,6 +107,8 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
         # plt.scatter(total_iterations_fr, final_cost_fr, color="green", s=50, alpha=0.6)
 
     plt.axhline(y=ground_truth_log_likelihood, color='b', linestyle='--', label='Ground Truth')
+    plt.text(0.5, ground_truth_log_likelihood, f'{ground_truth_log_likelihood:.2f}', 
+               color='b', ha='center', va='bottom', fontsize=10)
 
     plt.plot([], [], color="red", label="Greedy")
     plt.plot([], [], color="green", label="Reluctant")
