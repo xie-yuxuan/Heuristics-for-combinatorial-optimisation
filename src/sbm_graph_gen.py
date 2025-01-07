@@ -39,8 +39,8 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     # set parameters
-    num_nodes = 40
-    num_groups = 4
+    num_nodes = 100
+    num_groups = 2
     num_initial_colorings = 100
     group_mode = ["association", "bipartite", "core-periphery"][0]
     graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"

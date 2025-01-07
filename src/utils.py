@@ -19,6 +19,7 @@ def calc_log_likelihood(graph, w):
     Returns:
         float: Log-likelihood of the current graph configuration.
     """
+    # print(w.shape)
     adj_matrix = nx.to_numpy_array(graph)
     groups = np.array([graph.nodes[node]['color'] for node in graph.nodes])
     log_likelihood = 0
@@ -28,7 +29,8 @@ def calc_log_likelihood(graph, w):
         for v in range(len(groups)):
             if u != v:  # Skip self-loops
                 gu, gv = groups[u], groups[v]
-                p = max(epsilon, min(1 - epsilon, w[gu, gv]))  # Clamp probabilities to avoid log issues
+                p = max(epsilon, min(1 - epsilon, w[gu, gv])) # clamp probabilities
+                # print(w)
                 log_likelihood += (
                     adj_matrix[u, v] * np.log(p) + (1 - adj_matrix[u, v]) * np.log(1 - p)
                 )

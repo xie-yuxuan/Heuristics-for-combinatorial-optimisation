@@ -30,7 +30,7 @@ def load_graph_from_json(file_path):
     return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood
 
 if __name__ == "__main__":
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(40, 2, a).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(100, 2, a).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     results = {
@@ -42,12 +42,32 @@ if __name__ == "__main__":
         "cost_data" : {}
     }
 
-    # # make all colors red which is 0
-    # for node in graph_copy.nodes:
-    #     graph_copy.nodes[node]['color'] = 0
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
+    #         color_set_size=num_groups, 
+    #         degree=None, 
+    #         num_nodes=num_nodes, 
+    #         gaussian_mean=None, 
+    #         gaussian_variance=None,
+    #         ground_truth_log_likelihood = ground_truth_log_likelihood
+    #         )
+
+    # ISOLATE TEST FOR ONE SPECIFIC INITIAL COLORING ------------------------
+
+    # for node, color in enumerate(initial_node_colors[3]):
+    #     graph.nodes[node]['color'] = color
+
+    # graph_r, log_likelihood_data_r, final_w_r = optimise_sbm2(graph, num_groups, algo_func="reluctant")
+
+    # ------------------------------------------------------------------------S
+
+    graph_copy = graph.copy()
+
+    # make all colors red which is 0
+    for node in graph_copy.nodes:
+        graph_copy.nodes[node]['color'] = 0
 
     # replace all colors with initial colorings
-    for i, initial_coloring in enumerate(initial_node_colors):
+    for i, initial_coloring in enumerate(initial_node_colors[0:10]):
         for node, color in enumerate(initial_coloring):
             graph.nodes[node]['color'] = color
 

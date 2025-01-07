@@ -112,15 +112,16 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
 
     plt.plot([], [], color="red", label="Greedy")
     plt.plot([], [], color="green", label="Reluctant")
-    plt.legend(loc="upper right")
+    plt.legend(loc="lower right")
     
-    param_text = (f"Color Set Size: {num_groups}\n"
-                  f"Number of Nodes: {num_nodes}\n")
-    plt.gcf().text(0.75, 0.65, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
+    param_text = (f"Number of Groups: {num_groups}\n"
+                  f"Number of Nodes: {num_nodes}\n"
+                  f"Group Mode: {group_mode}")
+    plt.gcf().text(0.66, 0.3, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
 
     plt.xlabel("Iterations")
-    plt.ylabel("Cost")
-    plt.title(f"Cost vs Iterations for Greedy and Reluctant Algorithms on {graph_name}")
+    plt.ylabel("Log Likelihood")
+    plt.title(f"Log Likelihood vs Iterations for Greedy and Reluctant on {graph_name}")
     plt.grid()
 
     plt.savefig(f"plots/{graph_name}_cost.png")
@@ -208,6 +209,56 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
 
     plt.show()
 
+
+def sbm_plot_final_costs(cost_data, graph_name, num_nodes, num_groups, group_mode, ground_truth_log_likelihood):
+    '''
+    Plot a scatter plot of final log likelihood against initial coloring. 
+    Show average final log likelihood.
+    Show the ground truth log likelihood
+    '''
+    greedy_final_costs = []
+    reluctant_final_costs = []
+
+    # Extract the final cost for each initial coloring for both greedy and reluctant algorithms
+    for initial_coloring_key, iteration_data in cost_data.items():
+        cost_data_g = iteration_data["cost_data_g"]
+        cost_data_r = iteration_data["cost_data_r"]
+
+        final_cost_g = cost_data_g[1][-1]  # Last entry in the greedy cost data
+        final_cost_r = cost_data_r[1][-1]  # Last entry in the reluctant cost data
+
+        greedy_final_costs.append(final_cost_g)
+        reluctant_final_costs.append(final_cost_r)
+
+    plt.figure(figsize=(10, 6))
+
+    # Scatter plot for greedy and reluctant final costs
+    plt.scatter(range(len(greedy_final_costs)), greedy_final_costs, label='Greedy', color='red', alpha=0.6)
+    plt.scatter(range(len(reluctant_final_costs)), reluctant_final_costs, label='Reluctant', color='green', alpha=0.6)
+
+    # Mean lines for greedy and reluctant
+    plt.axhline(np.mean(greedy_final_costs), color='red', linestyle='--', label=f'Mean Greedy: {np.mean(greedy_final_costs)}')
+    plt.axhline(np.mean(reluctant_final_costs), color='green', linestyle='--', label=f'Mean Reluctant: {np.mean(reluctant_final_costs)}')
+    plt.axhline(ground_truth_log_likelihood, color='b', linestyle='--', label=f'Ground Truth: {ground_truth_log_likelihood}')
+    plt.text(0.5, ground_truth_log_likelihood, f'{ground_truth_log_likelihood:.2f}', 
+               color='b', ha='center', va='bottom', fontsize=10)
+
+    plt.xlabel('Initial Coloring Index')
+    plt.ylabel('Final Log Likelihood')
+    plt.title(f'Greedy and Reluctant Final Log likelihood for All Initial Colorings of {graph_name}')
+
+    experiment_text = (f"Number of Groups: {num_groups}\n"
+                  f"Number of Nodes: {num_nodes}\n"
+                  f"Group Mode: {group_mode}")
+    
+    plt.gca().text(0.05, 0.3, experiment_text, transform=plt.gca().transAxes, fontsize=8, 
+                   verticalalignment='bottom', horizontalalignment='left', bbox=dict(facecolor='white', alpha=0.5))
+
+    plt.legend(loc='lower left')
+
+    plt.savefig(f"plots/{graph_name}_scatter.png")
+
+    plt.show()
 
 def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, gaussian_mean, gaussian_variance):
     '''
