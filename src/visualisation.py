@@ -77,7 +77,7 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
 
     fig.tight_layout()
     plt.tight_layout()
-    plt.savefig(graph_name)
+    # plt.savefig(graph_name)
     plt.show()
 
 def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode, ground_truth_log_likelihood, specific_coloring):
@@ -124,7 +124,7 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
     plt.title(f"Log Likelihood vs Iterations for Greedy and Reluctant on {graph_name}")
     plt.grid()
 
-    plt.savefig(f"plots/{graph_name}_cost.png")
+    # plt.savefig(f"plots/{graph_name}_cost.png")
 
     plt.show()
 
@@ -205,7 +205,7 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
     plt.title(f"Cost vs Iterations for Greedy and Reluctant Algorithms on {graph_name}")
     plt.grid()
 
-    plt.savefig(f"plots/{graph_name}_cost.png")
+    # plt.savefig(f"plots/{graph_name}_cost.png")
 
     plt.show()
 

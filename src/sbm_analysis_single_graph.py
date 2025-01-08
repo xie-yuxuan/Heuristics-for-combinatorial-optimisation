@@ -8,7 +8,7 @@ from visualisation import plot_cost_data, plot_final_costs, plot_cost_diff_histo
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\SBM(40, 2, c)_results.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\SBM(20, 2, a)_results.json"
 
     with open(file_path, 'r') as f:
         data = json.load(f)
@@ -24,4 +24,4 @@ if __name__ == '__main__':
     sbm_plot_cost_data(all_cost_data, graph_name, num_groups, num_nodes, group_mode, ground_truth_log_likelihood, specific_coloring=None)
 
     # plot scatter of final log likelihood against initial colorings 
-    sbm_plot_final_costs(all_cost_data, graph_name, num_nodes, num_groups, group_mode, ground_truth_log_likelihood)
+    # sbm_plot_final_costs(all_cost_data, graph_name, num_nodes, num_groups, group_mode, ground_truth_log_likelihood)

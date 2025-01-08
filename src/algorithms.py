@@ -17,7 +17,7 @@ def optimise_sbm2(graph, num_groups, algo_func):
 
     # for iteration in range(1, 100):
     while True:
-        best_increase = None if algo_func == "greedy" else float('inf')
+        best_increase = 0 if algo_func == "greedy" else float('inf')
         best_node, best_color = None, None
 
         # Iterate through all nodes and possible colors
@@ -39,7 +39,7 @@ def optimise_sbm2(graph, num_groups, algo_func):
                 increase = temp_log_likelihood - log_likelihood
 
                 # Greedy: Maximize positive increase
-                if algo_func == "greedy" and increase > 0 and (best_increase is None or increase > best_increase):
+                if algo_func == "greedy" and increase > 0 and (increase > best_increase):
                     best_increase, best_node, best_color = increase, node, color
                 # Reluctant: Minimize positive increase
                 elif algo_func == "reluctant" and increase > 0 and (increase < best_increase):

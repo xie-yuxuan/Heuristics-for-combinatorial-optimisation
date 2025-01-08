@@ -8,6 +8,59 @@ Utility functions including:
 - calc_delta_cost_edge (no longer used, logic included in optimise function)
 """
 
+def compute_w(graph):
+    """
+    Compute the symmetric w matrix for the graph based on group memberships.
+    
+    Parameters:
+        graph (nx.Graph): The graph with initial group memberships in the 'color' attribute.
+
+    Returns:
+        ndarray: The symmetric matrix of edge probabilities.
+    """
+    # Get node groups (colors) and unique group identifiers
+    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes()])
+    unique_groups = np.unique(groups)
+    num_groups = len(unique_groups)
+
+    # Map group identifiers to indices
+    group_indices = {group: idx for idx, group in enumerate(unique_groups)}
+
+    # Initialize m and n counts
+    m = np.zeros((num_groups, num_groups))  # Edge counts between groups
+    n = np.zeros(num_groups)               # Node counts per group
+
+    # Count node group sizes
+    for node in graph.nodes:
+        group = groups[node]
+        n[group_indices[group]] += 1
+
+    # Count edges between groups
+    for u, v in graph.edges:
+        gu, gv = groups[u], groups[v]
+        i, j = group_indices[gu], group_indices[gv]
+        m[i, j] += 1
+        if i != j:  # Symmetric for between-group edges
+            m[j, i] += 1
+
+    # Compute w matrix
+    w = np.zeros((num_groups, num_groups))
+    for i in range(num_groups):
+        for j in range(num_groups):
+            if i == j:  # Within-group
+                if n[i] > 1:
+                    w[i, j] = m[i, j] / (0.5 * n[i] * (n[i] - 1))
+                else:
+                    w[i, j] = 0  # Avoid division by zero
+            else:  # Between-group
+                if n[i] > 0 and n[j] > 0:
+                    w[i, j] = m[i, j] / (n[i] * n[j])
+                else:
+                    w[i, j] = 0  # Avoid division by zero
+
+    return w
+
+
 def calc_log_likelihood(graph, w):
     """
     Calculate the log-likelihood for the graph given the w matrix.
@@ -19,53 +72,53 @@ def calc_log_likelihood(graph, w):
     Returns:
         float: Log-likelihood of the current graph configuration.
     """
-    # print(w.shape)
-    adj_matrix = nx.to_numpy_array(graph)
-    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes])
+    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes])  # Group membership of each node
     log_likelihood = 0
-    epsilon = 1e-10
+    epsilon = 1e-10  # Small constant to avoid log(0)
 
-    for u in range(len(groups)):
-        for v in range(len(groups)):
+    # Iterate over all pairs of nodes
+    for u in graph.nodes:
+        for v in graph.nodes:
             if u != v:  # Skip self-loops
-                gu, gv = groups[u], groups[v]
-                p = max(epsilon, min(1 - epsilon, w[gu, gv])) # clamp probabilities
-                # print(w)
-                log_likelihood += (
-                    adj_matrix[u, v] * np.log(p) + (1 - adj_matrix[u, v]) * np.log(1 - p)
-                )
+                gu, gv = groups[u], groups[v]  # Group indices of the nodes
+                p = max(epsilon, min(1 - epsilon, w[gu, gv]))  # Clamp probabilities
+                if graph.has_edge(u, v):
+                    log_likelihood += np.log(p)  # Add log(w_{g_i g_j})
+                else:
+                    log_likelihood += np.log(1 - p)  # Add log(1 - w_{g_i g_j})
+    
     return log_likelihood
 
-def compute_w(graph):
-    """
-    Compute the symmetric w matrix for the graph based on group memberships.
+# def compute_w(graph): # TODO: one for loop over list of edges, 4 lines
+#     """
+#     Compute the symmetric w matrix for the graph based on group memberships.
     
-    Parameters:
-        graph (nx.Graph): The graph with initial group memberships in the 'color' attribute.
+#     Parameters:
+#         graph (nx.Graph): The graph with initial group memberships in the 'color' attribute.
 
-    Returns:
-        ndarray: The symmetric matrix of edge probabilities.
-    """
-    adj_matrix = nx.to_numpy_array(graph) # adjacency matrix
-    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes]) # get list of node colors / group membership
-    unique_groups = np.unique(groups)
+#     Returns:
+#         ndarray: The symmetric matrix of edge probabilities.
+#     """
+#     adj_matrix = nx.to_numpy_array(graph, nodelist=range(G.number_of_nodes())) # adjacency matrix
+#     groups = np.array([graph.nodes[node]['color'] for node in graph.nodes]) # get list of node colors / group membership
+#     unique_groups = np.unique(groups)
     
-    group_counts = {g: np.sum(groups == g) for g in unique_groups} # for 2 colors, 10 nodes we have {0:3, 1:7}
-    # print(group_counts)
-    w = np.zeros((len(unique_groups), len(unique_groups)))
+#     group_counts = {g: np.sum(groups == g) for g in unique_groups} # for 2 colors, 10 nodes we have {0:3, 1:7}
+#     # print(group_counts)
+#     w = np.zeros((len(unique_groups), len(unique_groups)))
     
-    for i, g1 in enumerate(unique_groups):
-        for j, g2 in enumerate(unique_groups):
-            if i == j:  # Within-group
-                m_gg = np.sum(adj_matrix[np.ix_(groups == g1, groups == g1)]) # np.ix_ to get a submatrix, m_gg is the total number of edges in group g, A is all pairwise connections in graph
-                n_g = group_counts[g1]
-                w[i, j] = m_gg / (0.5 * n_g * (n_g - 1)) if n_g > 1 else 0
-            else:  # Between-group
-                m_gg = np.sum(adj_matrix[np.ix_(groups == g1, groups == g2)])
-                n_g1, n_g2 = group_counts[g1], group_counts[g2]
-                w[i, j] = m_gg / (n_g1 * n_g2) if n_g1 > 0 and n_g2 > 0 else 0
+#     for i, g1 in enumerate(unique_groups): #TODO: iterate through edges instead of groups to not double count, init m matrix of 0s, size NxN
+#         for j, g2 in enumerate(unique_groups):
+#             if i == j:  # Within-group
+#                 m_gg = np.sum(adj_matrix[np.ix_(groups == g1, groups == g1)]) # np.ix_ to get a submatrix, m_gg is the total number of edges in group g, A is all pairwise connections in graph
+#                 n_g = group_counts[g1]
+#                 w[i, j] = m_gg / (0.5 * n_g * (n_g - 1)) if n_g > 1 else 0
+#             else:  # Between-group
+#                 m_gg = np.sum(adj_matrix[np.ix_(groups == g1, groups == g2)])
+#                 n_g1, n_g2 = group_counts[g1], group_counts[g2]
+#                 w[i, j] = m_gg / (n_g1 * n_g2) if n_g1 > 0 and n_g2 > 0 else 0
 
-    return w
+#     return w
 
 def calc_cost(graph):
     cost = 0
