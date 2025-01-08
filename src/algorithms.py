@@ -2,11 +2,18 @@ import numpy as np
 from sortedcontainers import SortedList, SortedSet
 from collections import defaultdict
 
+import json
+import os
+import networkx as nx
+import time
+import copy
+from networkx.readwrite import json_graph
+
 from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_likelihood, compute_w
 
 def optimise_sbm2(graph, num_groups, algo_func):
     # compute initial w, symmetric matrix of edge probabilities
-    w = compute_w(graph)
+    w = compute_w(graph, num_groups)
     # compute inital log_likelihood
     log_likelihood = calc_log_likelihood(graph, w)
 
@@ -32,7 +39,8 @@ def optimise_sbm2(graph, num_groups, algo_func):
                 graph.nodes[node]['color'] = color
                 
                 # Recompute w and log-likelihood
-                temp_w = compute_w(graph)
+                temp_w = compute_w(graph, num_groups)
+
                 temp_log_likelihood = calc_log_likelihood(graph, temp_w)
 
                 # Check for the best increase
@@ -55,7 +63,7 @@ def optimise_sbm2(graph, num_groups, algo_func):
 
         # Apply the best change
         graph.nodes[best_node]['color'] = best_color
-        w = compute_w(graph)
+        w = compute_w(graph, num_groups)
         log_likelihood = calc_log_likelihood(graph, w)
         iteration += 1
         # print(f"iteration: {iteration}, log_likelihood: {log_likelihood}")
