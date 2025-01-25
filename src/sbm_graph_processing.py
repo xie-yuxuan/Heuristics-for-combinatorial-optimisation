@@ -30,7 +30,7 @@ def load_graph_from_json(file_path):
     return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood
 
 if __name__ == "__main__":
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(40, 4, a).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(20, 2, a).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     results = {
@@ -102,10 +102,10 @@ if __name__ == "__main__":
 
     graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results"
 
-    with open(os.path.join(graphs_path, f"{graph_name}_coloringgroundtruth_results.json"), 'w') as f:
+    with open(os.path.join(graphs_path, f"{graph_name}_results.json"), 'w') as f:
         json.dump(results, f, indent = 2)
 
-    print(f"Saved results to {graphs_path}/{graph_name}_coloringgroundtruth_results.json")  
+    print(f"Saved results to {graphs_path}/{graph_name}_results.json")  
 
 
     # DONT RECOLOR, INITIAL COLORING IS THE GROUND TRUTH --------------------------------------------------------------------

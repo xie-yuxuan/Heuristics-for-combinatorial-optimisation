@@ -1,5 +1,8 @@
 import networkx as nx
 import numpy as np
+import json
+from networkx.readwrite import json_graph
+
 
 """
 Utility functions including:
@@ -7,6 +10,43 @@ Utility functions including:
 - calc_delta_cost
 - calc_delta_cost_edge (no longer used, logic included in optimise function)
 """
+
+def load_graph_from_json(file_path):
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    
+    # load graph_name and attibutes
+    graph_name = data["graph_name"]
+    num_groups = data["num_groups"]
+    num_nodes = data["num_nodes"]
+    group_mode = data["group_mode"]
+    initial_node_colors = data["initial_node_colors"]
+    ground_truth_log_likelihood = data["ground_truth_log_likelihood"]
+
+    graph_data = data["graph_data"]
+    graph = json_graph.node_link_graph(graph_data)
+
+    # uncomment to get adj matrix
+    # adj_matrix = nx.adjacency_matrix(graph, weight='weight').toarray()
+    
+    return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood
+
+def compute_w2(graph, total_groups):
+    w = 0
+    # initialise n and m
+    # n is 1D array that stores the number of nodes in each group
+    # m is 2D array that stores the number of edges between groups
+    n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
+
+    for node in graph.nodes():
+        n[graph.nodes[node]['color']] += 1 # increment group count for each group
+    for u, v in graph.edges():
+        # increment edge count between groups
+        # ensures m is symmetric
+        m[graph.nodes[v]['color'], graph.nodes[u]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] + 1 
+    w = m / (np.outer(n, n) - np.diag(0.5 * n * (n + 1))) # subtracts within-group combinations for diagonal elements
+
+    return w
 
 def compute_w(graph, total_groups):
     """
@@ -53,6 +93,43 @@ def compute_w(graph, total_groups):
                     w[i, j] = 0  
 
     return w
+
+def calc_log_likelihood3(graph, w):
+    log_likelihood = 0
+
+    g = np.array([graph.nodes[node]['color'] for node in graph.nodes])
+    num_nodes = graph.number_of_nodes()
+    A = nx.to_numpy_array(graph, nodelist=range(num_nodes))
+
+    g_reshaped = g[:, np.newaxis]  # Shape (n, 1)
+    probabilities = w[g_reshaped, g]  # Broadcasting to get the pairwise probabilities
+
+    edge_contributions = (A*np.log(probabilities))
+    non_edge_contributions = (1 - A) * np.log(1 - probabilities)
+
+    # replace Nan with 0
+    edge_contributions = np.nan_to_num(edge_contributions, nan=0.0, posinf=0.0, neginf=0.0)
+    non_edge_contributions = np.nan_to_num(non_edge_contributions, nan=0.0, posinf=0.0, neginf=0.0)
+    
+    log_likelihood = 2*np.sum(np.triu(edge_contributions + non_edge_contributions))
+
+    return log_likelihood
+
+def calc_log_likelihood2(graph, w):
+
+    n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
+
+    # print(n, m)
+    e = 1e-10  # Small value to avoid log(0) or log(1)
+
+    log_likelihood = np.sum(
+        np.triu(
+            m * np.log(w) + (np.outer(n, n) - np.diag(0.5 * n * (n + 1)) - m) * np.log(1 - w)
+        )
+    )
+
+    return log_likelihood
+
 
 
 def calc_log_likelihood(graph, w):
@@ -178,5 +255,14 @@ def calc_delta_cost_edge(graph, node, node_color_bef, node_color_aft, neighbor_n
     # print(node_color_aft != neighbor_color_aft)
 
 if __name__ == '__main__':
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(5, 2, a).json"
+    graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(file_path)
+    total_groups = num_groups
+    w = compute_w(graph, total_groups)
 
-    pass
+    # print(w)
+
+    print(calc_log_likelihood2(graph, w))
+    # print(calc_log_likelihood2(graph, w))
+    print(calc_log_likelihood(graph, w))
+    
