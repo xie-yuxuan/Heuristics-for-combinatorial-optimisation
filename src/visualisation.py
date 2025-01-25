@@ -82,6 +82,7 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
 
 def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode, ground_truth_log_likelihood, specific_coloring):
 
+    plt.figure(figsize=(10, 6))
     # Iterate over each initial coloring in cost_data
     for i, (key, value) in enumerate(cost_data.items()):
         # Skip other colorings if a specific coloring is selected
@@ -124,7 +125,7 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
     plt.title(f"Log Likelihood vs Iterations for Greedy and Reluctant on {graph_name}")
     plt.grid()
 
-    # plt.savefig(f"plots/{graph_name}_cost.png")
+    plt.savefig(f"plots/{graph_name}_cost.png")
 
     plt.show()
 

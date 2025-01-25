@@ -49,7 +49,7 @@ if __name__ == "__main__":
     #         gaussian_mean=None, 
     #         gaussian_variance=None,
     #         ground_truth_log_likelihood = ground_truth_log_likelihood
-    #         )
+    #         ) 
 
     # ISOLATE TEST FOR ONE SPECIFIC INITIAL COLORING ------------------------
 
