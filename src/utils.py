@@ -40,11 +40,23 @@ def compute_w2(graph, total_groups):
 
     for node in graph.nodes():
         n[graph.nodes[node]['color']] += 1 # increment group count for each group
+    # print(n)
     for u, v in graph.edges():
         # increment edge count between groups
         # ensures m is symmetric
         m[graph.nodes[v]['color'], graph.nodes[u]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] + 1 
-    w = m / (np.outer(n, n) - np.diag(0.5 * n * (n + 1))) # subtracts within-group combinations for diagonal elements
+    # print(m)
+    # print(np.outer(n,n)-np.diag(0.5*n*(n+1)))
+    # Suppress warnings and handle division safely
+    with np.errstate(divide='ignore', invalid='ignore'):
+        w = np.divide(
+            m,
+            (np.outer(n, n) - np.diag(0.5 * n * (n + 1))),
+            where=(np.outer(n, n) - np.diag(0.5 * n * (n + 1))) != 0
+        )
+    
+    
+    # subtracts within-group combinations for diagonal elements
 
     return w
 
@@ -111,11 +123,11 @@ def calc_log_likelihood3(graph, w):
     edge_contributions = np.nan_to_num(edge_contributions, nan=0.0, posinf=0.0, neginf=0.0)
     non_edge_contributions = np.nan_to_num(non_edge_contributions, nan=0.0, posinf=0.0, neginf=0.0)
     
-    log_likelihood = 2*np.sum(np.triu(edge_contributions + non_edge_contributions))
+    log_likelihood = np.sum(np.triu(edge_contributions + non_edge_contributions))
 
     return log_likelihood
 
-def calc_log_likelihood2(graph, w):
+def calc_log_likelihood2(graph, w, total_groups):
 
     n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
 
@@ -262,7 +274,7 @@ if __name__ == '__main__':
 
     # print(w)
 
-    print(calc_log_likelihood2(graph, w))
+    print(calc_log_likelihood3(graph, w))
     # print(calc_log_likelihood2(graph, w))
     print(calc_log_likelihood(graph, w))
     

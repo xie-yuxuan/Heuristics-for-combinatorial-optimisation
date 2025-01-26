@@ -12,9 +12,12 @@ from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_lik
 
 def optimise_sbm2(graph, num_groups, algo_func):
     # compute initial w, symmetric matrix of edge probabilities
+    
     w = compute_w2(graph, num_groups)
+    
     # compute inital log_likelihood
     log_likelihood = calc_log_likelihood(graph, w)
+    
 
     # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
     log_likelihood_data = [[0], [log_likelihood]]
@@ -38,18 +41,20 @@ def optimise_sbm2(graph, num_groups, algo_func):
                 graph.nodes[node]['color'] = color
                 
                 # Recompute w and log-likelihood
+                # print("still working")
+                
                 temp_w = compute_w2(graph, num_groups)
-
+                
                 temp_log_likelihood = calc_log_likelihood(graph, temp_w)
 
                 # Check for the best increase
                 increase = temp_log_likelihood - log_likelihood
 
                 # Greedy: Maximize positive increase
-                if algo_func == "greedy" and increase > 0 and (increase > best_increase):
+                if algo_func == "greedy" and increase > 1e-13 and (increase > best_increase): # set some threshold for increase
                     best_increase, best_node, best_color = increase, node, color
                 # Reluctant: Minimize positive increase
-                elif algo_func == "reluctant" and increase > 0 and (increase < best_increase):
+                elif algo_func == "reluctant" and increase > 1e-13 and (increase < best_increase): # set some threshold for increase
                     best_increase, best_node, best_color = increase, node, color
 
                 # Revert the change

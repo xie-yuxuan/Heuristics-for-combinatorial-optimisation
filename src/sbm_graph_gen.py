@@ -6,7 +6,7 @@ import os
 from networkx.readwrite import json_graph
 
 from visualisation import draw_graph
-from utils import calc_log_likelihood, compute_w
+from utils import calc_log_likelihood3, compute_w
 
 def gen_sbm_graph(g, w):
     num_nodes = len(g)
@@ -39,10 +39,10 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     # set parameters
-    num_nodes = 5
+    num_nodes = 10
     num_groups = 2
     num_initial_colorings = 100
-    group_mode = ["association", "bipartite", "core-periphery"][0]
+    group_mode = ["association", "bipartite", "core-periphery"][2]
     graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
 
     # Generate the g vector (color assignment)
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         "num_groups" : num_groups,
         "group_mode" : group_mode,
         "graph_data": graph_data,
-        "ground_truth_log_likelihood": calc_log_likelihood(graph, w),
+        "ground_truth_log_likelihood": calc_log_likelihood3(graph, w),
         "initial_node_colors": initial_node_colors
     }
 

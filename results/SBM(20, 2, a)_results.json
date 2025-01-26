@@ -3,7 +3,7 @@
   "num_nodes": 20,
   "num_groups": 2,
   "group_mode": "association",
-  "ground_truth_log_likelihood": -141.10932650743928,
+  "ground_truth_log_likelihood": -116.60636511360096,
   "cost_data": {
     "initial_coloring_0": {
       "cost_data_g": [
