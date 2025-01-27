@@ -8,15 +8,17 @@ import time
 import copy
 from networkx.readwrite import json_graph
 
-from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_likelihood, compute_w, compute_w2, calc_log_likelihood3
+from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_likelihood, compute_w, compute_w2, calc_log_likelihood3, calc_log_likelihood2
 
 def optimise_sbm2(graph, num_groups, algo_func):
     # compute initial w, symmetric matrix of edge probabilities
+    # initialise global m and n
     
     w = compute_w2(graph, num_groups)
+    w = np.array([[0.9, 0.1],[0.1, 0.9]])
     
     # compute inital log_likelihood
-    log_likelihood = calc_log_likelihood(graph, w)
+    log_likelihood = calc_log_likelihood2(graph, w, num_groups)
     
 
     # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
@@ -42,10 +44,11 @@ def optimise_sbm2(graph, num_groups, algo_func):
                 
                 # Recompute w and log-likelihood
                 # print("still working")
+                # functionn taht will update m and n here efficiently
+
+                # temp_w = compute_w2(graph, num_groups)
                 
-                temp_w = compute_w2(graph, num_groups)
-                
-                temp_log_likelihood = calc_log_likelihood(graph, temp_w)
+                temp_log_likelihood = calc_log_likelihood2(graph, w, num_groups)
 
                 # Check for the best increase
                 increase = temp_log_likelihood - log_likelihood
@@ -67,8 +70,8 @@ def optimise_sbm2(graph, num_groups, algo_func):
 
         # Apply the best change
         graph.nodes[best_node]['color'] = best_color
-        w = compute_w2(graph, num_groups)
-        log_likelihood = calc_log_likelihood(graph, w)
+        # w = compute_w2(graph, num_groups)
+        log_likelihood = calc_log_likelihood2(graph, w, num_groups)
         iteration += 1
         # print(f"iteration: {iteration}, log_likelihood: {log_likelihood}")
         log_likelihood_data[0].append(iteration)

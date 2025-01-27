@@ -127,18 +127,28 @@ def calc_log_likelihood3(graph, w):
 
     return log_likelihood
 
-def calc_log_likelihood2(graph, w, total_groups):
+def calc_log_likelihood2(graph, w, total_groups): # or pass g, n, m in here as argument, not graph
 
     n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
+    # g = np.array(color for color in graph.nodes)
+
+    for node in graph.nodes():
+        n[graph.nodes[node]['color']] += 1 # increment group count for each group
+    # print(n)
+    for u, v in graph.edges():
+        # increment edge count between groups
+        # ensures m is symmetric
+        m[graph.nodes[v]['color'], graph.nodes[u]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] + 1 
 
     # print(n, m)
-    e = 1e-10  # Small value to avoid log(0) or log(1)
+    #e = 1e-10  # Small value to avoid log(0) or log(1)
+    
 
-    log_likelihood = np.sum(
+    log_likelihood = np.nansum(
         np.triu(
             m * np.log(w) + (np.outer(n, n) - np.diag(0.5 * n * (n + 1)) - m) * np.log(1 - w)
         )
-    )
+    ) # \sum_{r>s} m_rs log w_rw + (n_r n_s -m_rs ) log(1-w_rs) + \sum_r m_rr log w_rr + (nr(nr-1)/2 - m_rr) log(1-w_rr)
 
     return log_likelihood
 

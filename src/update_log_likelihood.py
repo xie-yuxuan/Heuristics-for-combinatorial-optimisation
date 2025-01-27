@@ -34,9 +34,14 @@ if __name__ == '__main__':
         w[:, 0] = 0.1  # Small first column (low connections to loners)
         w[0, 0] = 0.1  # loners have low self-connections
 
-    print(calc_log_likelihood3(graph, w))
+    # print(calc_log_likelihood3(graph, w))
+    # print(calc_log_likelihood2(graph, w, num_groups))
+    # print(calc_log_likelihood(graph, w))
+    print(w)
     print(calc_log_likelihood2(graph, w, num_groups))
+    print(calc_log_likelihood3(graph, w))
     print(calc_log_likelihood(graph, w))
+    
     # Update the value in the data dictionary
     data['ground_truth_log_likelihood'] = calc_log_likelihood3(graph, w)
 
