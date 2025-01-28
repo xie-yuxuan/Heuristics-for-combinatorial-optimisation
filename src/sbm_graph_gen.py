@@ -39,10 +39,10 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     # set parameters
-    num_nodes = 50
+    num_nodes = 20
     num_groups = 2
     num_initial_colorings = 100
-    group_mode = ["association", "bipartite", "core-periphery"][0]
+    group_mode = ["association", "bipartite", "core-periphery"][2]
     graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
 
     # Generate the g vector (color assignment)
@@ -56,16 +56,18 @@ if __name__ == '__main__':
     w = np.zeros((num_groups, num_groups))
 
     if group_mode == "association":
-        w += 0.1  # Small baseline for non-diagonal elements
-        np.fill_diagonal(w, 0.9)  # Large diagonal elements
+        w += 1  # Small baseline for non-diagonal elements
+        np.fill_diagonal(w, 9)  # Large diagonal elements
     elif group_mode == "bipartite":
-        w += 0.9  # Large baseline for non-diagonal elements
-        np.fill_diagonal(w, 0.1)  # Small diagonal elements
+        w += 9  # Large baseline for non-diagonal elements
+        np.fill_diagonal(w, 1)  # Small diagonal elements
     elif group_mode == "core-periphery":
-        w += 0.9  # Large baseline
-        w[0, :] = 0.1  # Small first row (loners have low connections to all groups)
-        w[:, 0] = 0.1  # Small first column (low connections to loners)
-        w[0, 0] = 0.1  # loners have low self-connections
+        w += 9  # Large baseline
+        w[0, :] = 1  # Small first row (loners have low connections to all groups)
+        w[:, 0] = 1  # Small first column (low connections to loners)
+        w[0, 0] = 1  # loners have low self-connections
+
+    w /= num_nodes
 
     graph, adjacency_matrix = gen_sbm_graph(g, w)
 
@@ -79,11 +81,11 @@ if __name__ == '__main__':
                ground_truth_log_likelihood = None
                )
     
-    print("Color assignment vector (g):")
-    print(g)
-    print("Edge probability matrix (w):")
-    print(w)
-    print(adjacency_matrix)
+    # print("Color assignment vector (g):")
+    # print(g)
+    # print("Edge probability matrix (w):")
+    # print(w)
+    # print(adjacency_matrix)
 
     # save graph into graphs folder
     graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
@@ -95,6 +97,17 @@ if __name__ == '__main__':
         [np.random.randint(0, num_groups) for _ in range(num_nodes)]
         for _ in range(num_initial_colorings)
     ]
+
+
+    n, m = np.zeros(num_groups), np.zeros((num_groups, num_groups))
+
+    for node in graph.nodes():
+        n[g[node]] += 1 # increment group count for each group
+
+    for u, v in graph.edges():
+        # increment edge count between groups
+        # ensures m is symmetric
+        m[g[v], g[u]] = m[g[u], g[v]] = m[g[u], g[v]] + 1
 
 
     data = {

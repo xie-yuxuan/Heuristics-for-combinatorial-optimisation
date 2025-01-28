@@ -125,7 +125,9 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
     plt.title(f"Log Likelihood vs Iterations for Greedy and Reluctant on {graph_name}")
     plt.grid()
 
-    plt.savefig(f"Heuristics-for-combinatorial-optimisation/plots/{graph_name}_cost.png")
+    plt.savefig(f"plots/{graph_name}_cost.png")
+    # plt.savefig(f"{graph_name}_cost.png")
+    
 
     plt.show()
 
@@ -206,7 +208,7 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
     plt.title(f"Cost vs Iterations for Greedy and Reluctant Algorithms on {graph_name}")
     plt.grid()
 
-    # plt.savefig(f"plots/{graph_name}_cost.png")
+    plt.savefig(f"plots/{graph_name}_cost.png")
 
     plt.show()
 
@@ -257,7 +259,7 @@ def sbm_plot_final_costs(cost_data, graph_name, num_nodes, num_groups, group_mod
 
     plt.legend(loc='lower left')
 
-    plt.savefig(f"Heuristics-for-combinatorial-optimisation/plots/{graph_name}_cost.png")
+    plt.savefig(f"plots/{graph_name}_scatter.png")
 
     plt.show()
 

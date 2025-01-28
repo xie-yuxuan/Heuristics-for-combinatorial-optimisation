@@ -12,13 +12,26 @@ from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_lik
 
 def optimise_sbm2(graph, num_groups, algo_func):
     # compute initial w, symmetric matrix of edge probabilities
-    # initialise global m and n
+    # initialise global n, m, g
+    # n is 1D array that stores the number of nodes in each group
+    # m is 2D array that stores the number of edges between groups
+    # g is group membership of each node
+    g = np.array([graph.nodes[node]['color'] for node in graph.nodes])
+    n, m = np.zeros(num_groups), np.zeros((num_groups, num_groups))
+
+    for node in graph.nodes():
+        n[g[node]] += 1 # increment group count for each group
+
+    for u, v in graph.edges():
+        # increment edge count between groups
+        # ensures m is symmetric
+        m[g[v], g[u]] = m[g[u], g[v]] = m[g[u], g[v]] + 1
     
-    w = compute_w2(graph, num_groups)
-    w = np.array([[0.9, 0.1],[0.1, 0.9]])
+    # w0, or start with an educated guess
+    w = compute_w2(n, m)
     
     # compute inital log_likelihood
-    log_likelihood = calc_log_likelihood2(graph, w, num_groups)
+    log_likelihood = calc_log_likelihood2(n, m, w)
     
 
     # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
@@ -39,16 +52,33 @@ def optimise_sbm2(graph, num_groups, algo_func):
                 if color == current_color:
                     continue
 
+
+                temp_m = m.copy()
+                temp_n = n.copy()
+                temp_g = g.copy()
+
                 # Temporarily recolor the node
                 graph.nodes[node]['color'] = color
+
+                # temp update temp_m and temp_n
+                temp_n[current_color] -= 1
+                temp_n[color] += 1
+                temp_g[node] = color
+
+                for neighbor in graph.neighbors(node):
+                    temp_m[current_color, temp_g[neighbor]] = temp_m[temp_g[neighbor], current_color] = temp_m[temp_g[neighbor], current_color] - 1
+                    temp_m[color, temp_g[neighbor]] = temp_m[temp_g[neighbor], color] = temp_m[temp_g[neighbor], color] + 1
+
+
+
                 
                 # Recompute w and log-likelihood
                 # print("still working")
                 # functionn taht will update m and n here efficiently
 
-                # temp_w = compute_w2(graph, num_groups)
+                temp_w = compute_w2(temp_n, temp_m)
                 
-                temp_log_likelihood = calc_log_likelihood2(graph, w, num_groups)
+                temp_log_likelihood = calc_log_likelihood2(temp_n, temp_m, temp_w)
 
                 # Check for the best increase
                 increase = temp_log_likelihood - log_likelihood
@@ -68,10 +98,22 @@ def optimise_sbm2(graph, num_groups, algo_func):
             print(f"Terminating at iteration {iteration}: No valid moves found.")
             break
 
+        r = graph.nodes[best_node]['color']
+
         # Apply the best change
         graph.nodes[best_node]['color'] = best_color
-        # w = compute_w2(graph, num_groups)
-        log_likelihood = calc_log_likelihood2(graph, w, num_groups)
+
+        # update n, m, g
+        n[r] -= 1
+        n[best_color] += 1
+        g[best_node] = best_color
+
+        for neighbor in graph.neighbors(best_node):
+            m[r, g[neighbor]] = m[g[neighbor], r] = m[g[neighbor], r] - 1
+            m[best_color, g[neighbor]] = m[g[neighbor], best_color] = m[g[neighbor], best_color] + 1
+
+        w = compute_w2(n, m)
+        log_likelihood = calc_log_likelihood2(n, m, w)
         iteration += 1
         # print(f"iteration: {iteration}, log_likelihood: {log_likelihood}")
         log_likelihood_data[0].append(iteration)

@@ -31,22 +31,21 @@ def load_graph_from_json(file_path):
     
     return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood
 
-def compute_w2(graph, total_groups):
-    w = 0
-    # initialise n and m
-    # n is 1D array that stores the number of nodes in each group
-    # m is 2D array that stores the number of edges between groups
-    n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
+def compute_w2(n, m):
 
-    for node in graph.nodes():
-        n[graph.nodes[node]['color']] += 1 # increment group count for each group
-    # print(n)
-    for u, v in graph.edges():
-        # increment edge count between groups
-        # ensures m is symmetric
-        m[graph.nodes[v]['color'], graph.nodes[u]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] + 1 
-    # print(m)
-    # print(np.outer(n,n)-np.diag(0.5*n*(n+1)))
+    # n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
+    # # g = np.array(color for color in graph.nodes)
+
+    # for node in graph.nodes():
+    #     n[graph.nodes[node]['color']] += 1 # increment group count for each group
+    # # print(n)
+    # for u, v in graph.edges():
+    #     # increment edge count between groups
+    #     # ensures m is symmetric
+    #     m[graph.nodes[v]['color'], graph.nodes[u]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] + 1 
+
+    w = 0
+
     # Suppress warnings and handle division safely
     with np.errstate(divide='ignore', invalid='ignore'):
         w = np.divide(
@@ -127,18 +126,18 @@ def calc_log_likelihood3(graph, w):
 
     return log_likelihood
 
-def calc_log_likelihood2(graph, w, total_groups): # or pass g, n, m in here as argument, not graph
+def calc_log_likelihood2(n, m, w): # or pass g, n, m in here as argument, not graph
 
-    n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
-    # g = np.array(color for color in graph.nodes)
+    # n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
+    # # g = np.array(color for color in graph.nodes)
 
-    for node in graph.nodes():
-        n[graph.nodes[node]['color']] += 1 # increment group count for each group
-    # print(n)
-    for u, v in graph.edges():
-        # increment edge count between groups
-        # ensures m is symmetric
-        m[graph.nodes[v]['color'], graph.nodes[u]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] + 1 
+    # for node in graph.nodes():
+    #     n[graph.nodes[node]['color']] += 1 # increment group count for each group
+    # # print(n)
+    # for u, v in graph.edges():
+    #     # increment edge count between groups
+    #     # ensures m is symmetric
+    #     m[graph.nodes[v]['color'], graph.nodes[u]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] + 1 
 
     # print(n, m)
     #e = 1e-10  # Small value to avoid log(0) or log(1)
@@ -280,11 +279,9 @@ if __name__ == '__main__':
     file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(5, 2, a).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(file_path)
     total_groups = num_groups
-    w = compute_w(graph, total_groups)
+    w = compute_w2(graph, total_groups)
 
-    # print(w)
-
-    print(calc_log_likelihood3(graph, w))
+    # print(calc_log_likelihood3(graph, w))
     # print(calc_log_likelihood2(graph, w))
-    print(calc_log_likelihood(graph, w))
+    # print(calc_log_likelihood(graph, w))
     

@@ -98,11 +98,6 @@
       {
         "weight": 1.0,
         "source": 0,
-        "target": 2
-      },
-      {
-        "weight": 1.0,
-        "source": 0,
         "target": 3
       },
       {
@@ -148,27 +143,7 @@
       {
         "weight": 1.0,
         "source": 1,
-        "target": 3
-      },
-      {
-        "weight": 1.0,
-        "source": 1,
         "target": 5
-      },
-      {
-        "weight": 1.0,
-        "source": 1,
-        "target": 6
-      },
-      {
-        "weight": 1.0,
-        "source": 1,
-        "target": 7
-      },
-      {
-        "weight": 1.0,
-        "source": 1,
-        "target": 8
       },
       {
         "weight": 1.0,
@@ -182,38 +157,13 @@
       },
       {
         "weight": 1.0,
-        "source": 1,
-        "target": 13
-      },
-      {
-        "weight": 1.0,
-        "source": 2,
-        "target": 3
-      },
-      {
-        "weight": 1.0,
         "source": 2,
         "target": 4
       },
       {
         "weight": 1.0,
         "source": 2,
-        "target": 5
-      },
-      {
-        "weight": 1.0,
-        "source": 2,
-        "target": 7
-      },
-      {
-        "weight": 1.0,
-        "source": 2,
         "target": 8
-      },
-      {
-        "weight": 1.0,
-        "source": 2,
-        "target": 9
       },
       {
         "weight": 1.0,
@@ -223,32 +173,12 @@
       {
         "weight": 1.0,
         "source": 3,
-        "target": 4
-      },
-      {
-        "weight": 1.0,
-        "source": 3,
         "target": 5
       },
       {
         "weight": 1.0,
         "source": 3,
-        "target": 6
-      },
-      {
-        "weight": 1.0,
-        "source": 3,
         "target": 7
-      },
-      {
-        "weight": 1.0,
-        "source": 3,
-        "target": 8
-      },
-      {
-        "weight": 1.0,
-        "source": 3,
-        "target": 9
       },
       {
         "weight": 1.0,
@@ -268,27 +198,12 @@
       {
         "weight": 1.0,
         "source": 4,
-        "target": 8
-      },
-      {
-        "weight": 1.0,
-        "source": 4,
         "target": 9
-      },
-      {
-        "weight": 1.0,
-        "source": 5,
-        "target": 6
       },
       {
         "weight": 1.0,
         "source": 5,
         "target": 7
-      },
-      {
-        "weight": 1.0,
-        "source": 5,
-        "target": 9
       },
       {
         "weight": 1.0,
@@ -298,32 +213,12 @@
       {
         "weight": 1.0,
         "source": 6,
-        "target": 7
-      },
-      {
-        "weight": 1.0,
-        "source": 6,
         "target": 8
       },
       {
         "weight": 1.0,
         "source": 6,
-        "target": 9
-      },
-      {
-        "weight": 1.0,
-        "source": 6,
         "target": 14
-      },
-      {
-        "weight": 1.0,
-        "source": 7,
-        "target": 9
-      },
-      {
-        "weight": 1.0,
-        "source": 7,
-        "target": 10
       },
       {
         "weight": 1.0,
@@ -343,17 +238,7 @@
       {
         "weight": 1.0,
         "source": 8,
-        "target": 9
-      },
-      {
-        "weight": 1.0,
-        "source": 8,
         "target": 18
-      },
-      {
-        "weight": 1.0,
-        "source": 9,
-        "target": 17
       },
       {
         "weight": 1.0,
@@ -373,27 +258,12 @@
       {
         "weight": 1.0,
         "source": 10,
-        "target": 13
-      },
-      {
-        "weight": 1.0,
-        "source": 10,
-        "target": 14
-      },
-      {
-        "weight": 1.0,
-        "source": 10,
         "target": 15
       },
       {
         "weight": 1.0,
         "source": 10,
         "target": 16
-      },
-      {
-        "weight": 1.0,
-        "source": 10,
-        "target": 18
       },
       {
         "weight": 1.0,
@@ -408,42 +278,12 @@
       {
         "weight": 1.0,
         "source": 11,
-        "target": 13
-      },
-      {
-        "weight": 1.0,
-        "source": 11,
         "target": 14
-      },
-      {
-        "weight": 1.0,
-        "source": 11,
-        "target": 15
-      },
-      {
-        "weight": 1.0,
-        "source": 11,
-        "target": 17
       },
       {
         "weight": 1.0,
         "source": 11,
         "target": 18
-      },
-      {
-        "weight": 1.0,
-        "source": 11,
-        "target": 19
-      },
-      {
-        "weight": 1.0,
-        "source": 12,
-        "target": 13
-      },
-      {
-        "weight": 1.0,
-        "source": 12,
-        "target": 14
       },
       {
         "weight": 1.0,
@@ -462,48 +302,13 @@
       },
       {
         "weight": 1.0,
-        "source": 12,
-        "target": 18
-      },
-      {
-        "weight": 1.0,
-        "source": 12,
-        "target": 19
-      },
-      {
-        "weight": 1.0,
-        "source": 13,
-        "target": 14
-      },
-      {
-        "weight": 1.0,
         "source": 13,
         "target": 15
       },
       {
         "weight": 1.0,
         "source": 13,
-        "target": 17
-      },
-      {
-        "weight": 1.0,
-        "source": 13,
         "target": 18
-      },
-      {
-        "weight": 1.0,
-        "source": 13,
-        "target": 19
-      },
-      {
-        "weight": 1.0,
-        "source": 14,
-        "target": 15
-      },
-      {
-        "weight": 1.0,
-        "source": 14,
-        "target": 16
       },
       {
         "weight": 1.0,
@@ -523,17 +328,7 @@
       {
         "weight": 1.0,
         "source": 15,
-        "target": 16
-      },
-      {
-        "weight": 1.0,
-        "source": 15,
         "target": 17
-      },
-      {
-        "weight": 1.0,
-        "source": 15,
-        "target": 18
       },
       {
         "weight": 1.0,
@@ -548,26 +343,11 @@
       {
         "weight": 1.0,
         "source": 16,
-        "target": 18
-      },
-      {
-        "weight": 1.0,
-        "source": 16,
-        "target": 19
-      },
-      {
-        "weight": 1.0,
-        "source": 17,
-        "target": 18
-      },
-      {
-        "weight": 1.0,
-        "source": 17,
         "target": 19
       }
     ]
   },
-  "ground_truth_log_likelihood": -116.60636511360096,
+  "ground_truth_log_likelihood": -99.35031609607779,
   "initial_node_colors": [
     [
       0,
