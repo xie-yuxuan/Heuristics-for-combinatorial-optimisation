@@ -31,7 +31,7 @@ def load_graph_from_json(file_path):
     
     return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood
 
-def compute_w2(n, m):
+def compute_w(n, m):
 
     # n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
     # # g = np.array(color for color in graph.nodes)
@@ -59,74 +59,53 @@ def compute_w2(n, m):
 
     return w
 
-def compute_w(graph, total_groups):
-    """
-    Compute the symmetric w matrix for the graph based on group memberships.
-    Ensures the w matrix remains of size total_groups x total_groups,
-    with rows/columns for missing groups set to zero.
+# def compute_w(graph, total_groups):
+#     """
+#     Compute the symmetric w matrix for the graph based on group memberships.
+#     Ensures the w matrix remains of size total_groups x total_groups,
+#     with rows/columns for missing groups set to zero.
 
-    Parameters:
-        graph (nx.Graph): The graph with group memberships in the 'color' attribute.
-        total_groups (int): The total number of groups (fixed size for w matrix).
+#     Parameters:
+#         graph (nx.Graph): The graph with group memberships in the 'color' attribute.
+#         total_groups (int): The total number of groups (fixed size for w matrix).
 
-    Returns:
-        ndarray: The symmetric matrix of edge probabilities with size total_groups x total_groups.
-    """
-    # Get node groups (colors) and initialize counts
-    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes()])
-    n = np.zeros(total_groups)                 # Node counts per group
-    m = np.zeros((total_groups, total_groups))  # Edge counts between groups
+#     Returns:
+#         ndarray: The symmetric matrix of edge probabilities with size total_groups x total_groups.
+#     """
+#     # Get node groups (colors) and initialize counts
+#     groups = np.array([graph.nodes[node]['color'] for node in graph.nodes()])
+#     n = np.zeros(total_groups)                 # Node counts per group
+#     m = np.zeros((total_groups, total_groups))  # Edge counts between groups
 
-    # Count node group sizes
-    for group in groups:
-        n[group] += 1
+#     # Count node group sizes
+#     for group in groups:
+#         n[group] += 1
 
-    # Count edges between groups
-    for u, v in graph.edges:
-        gu, gv = groups[u], groups[v]
-        m[gu, gv] += 1
-        if gu != gv:  # Symmetric for between-group edges
-            m[gv, gu] += 1
+#     # Count edges between groups
+#     for u, v in graph.edges:
+#         gu, gv = groups[u], groups[v]
+#         m[gu, gv] += 1
+#         if gu != gv:  # Symmetric for between-group edges
+#             m[gv, gu] += 1
 
-    # Compute w matrix with fixed size NxN
-    w = np.zeros((total_groups, total_groups))
-    for i in range(total_groups):
-        for j in range(total_groups):
-            if i == j:  # Within-group
-                if n[i] > 1:
-                    w[i, j] = m[i, j] / (0.5 * n[i] * (n[i] - 1))
-                else:
-                    w[i, j] = 0  
-            else:  # Between-group
-                if n[i] > 0 and n[j] > 0:
-                    w[i, j] = m[i, j] / (n[i] * n[j])
-                else:
-                    w[i, j] = 0  
+#     # Compute w matrix with fixed size NxN
+#     w = np.zeros((total_groups, total_groups))
+#     for i in range(total_groups):
+#         for j in range(total_groups):
+#             if i == j:  # Within-group
+#                 if n[i] > 1:
+#                     w[i, j] = m[i, j] / (0.5 * n[i] * (n[i] - 1))
+#                 else:
+#                     w[i, j] = 0  
+#             else:  # Between-group
+#                 if n[i] > 0 and n[j] > 0:
+#                     w[i, j] = m[i, j] / (n[i] * n[j])
+#                 else:
+#                     w[i, j] = 0  
 
-    return w
+#     return w
 
-def calc_log_likelihood3(graph, w):
-    log_likelihood = 0
-
-    g = np.array([graph.nodes[node]['color'] for node in graph.nodes])
-    num_nodes = graph.number_of_nodes()
-    A = nx.to_numpy_array(graph, nodelist=range(num_nodes))
-
-    g_reshaped = g[:, np.newaxis]  # Shape (n, 1)
-    probabilities = w[g_reshaped, g]  # Broadcasting to get the pairwise probabilities
-
-    edge_contributions = (A*np.log(probabilities))
-    non_edge_contributions = (1 - A) * np.log(1 - probabilities)
-
-    # replace Nan with 0
-    edge_contributions = np.nan_to_num(edge_contributions, nan=0.0, posinf=0.0, neginf=0.0)
-    non_edge_contributions = np.nan_to_num(non_edge_contributions, nan=0.0, posinf=0.0, neginf=0.0)
-    
-    log_likelihood = np.sum(np.triu(edge_contributions + non_edge_contributions))
-
-    return log_likelihood
-
-def calc_log_likelihood2(n, m, w): # or pass g, n, m in here as argument, not graph
+def calc_log_likelihood(n, m, w): # or pass g, n, m in here as argument, not graph
 
     # n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
     # # g = np.array(color for color in graph.nodes)
@@ -153,35 +132,35 @@ def calc_log_likelihood2(n, m, w): # or pass g, n, m in here as argument, not gr
 
 
 
-def calc_log_likelihood(graph, w):
-    """
-    Calculate the log-likelihood for the graph given the w matrix.
+# def calc_log_likelihood(graph, w):
+#     """
+#     Calculate the log-likelihood for the graph given the w matrix.
     
-    Parameters:
-        graph (nx.Graph): The graph with node colors assigned.
-        w (ndarray): Precomputed w matrix based on group memberships.
+#     Parameters:
+#         graph (nx.Graph): The graph with node colors assigned.
+#         w (ndarray): Precomputed w matrix based on group memberships.
 
-    Returns:
-        float: Log-likelihood of the current graph configuration.
-    """
+#     Returns:
+#         float: Log-likelihood of the current graph configuration.
+#     """
 
-    groups = np.array([graph.nodes[node]['color'] for node in graph.nodes])  # Group membership of each node, len of this list is num_nodes
-    log_likelihood = 0
-    epsilon = 1e-10  # Small constant to avoid log(0)
+#     groups = np.array([graph.nodes[node]['color'] for node in graph.nodes])  # Group membership of each node, len of this list is num_nodes
+#     log_likelihood = 0
+#     epsilon = 1e-10  # Small constant to avoid log(0)
 
-    # Iterate over all pairs of nodes
-    for u in graph.nodes:
-        for v in graph.nodes:
-            if u != v:  # Skip self-loops
-                gu, gv = groups[u], groups[v]  # Group indices of the nodes
-                # print(gu, gv)
-                p = max(epsilon, min(1 - epsilon, w[gu, gv]))  # Clamp probabilities
-                if graph.has_edge(u, v):
-                    log_likelihood += np.log(p)  # Add log(w_{g_i g_j})
-                else:
-                    log_likelihood += np.log(1 - p)  # Add log(1 - w_{g_i g_j})
+#     # Iterate over all pairs of nodes
+#     for u in graph.nodes:
+#         for v in graph.nodes:
+#             if u != v:  # Skip self-loops
+#                 gu, gv = groups[u], groups[v]  # Group indices of the nodes
+#                 # print(gu, gv)
+#                 p = max(epsilon, min(1 - epsilon, w[gu, gv]))  # Clamp probabilities
+#                 if graph.has_edge(u, v):
+#                     log_likelihood += np.log(p)  # Add log(w_{g_i g_j})
+#                 else:
+#                     log_likelihood += np.log(1 - p)  # Add log(1 - w_{g_i g_j})
     
-    return log_likelihood
+#     return log_likelihood
 
 # def compute_w(graph): # TODO: one for loop over list of edges, 4 lines
 #     """
@@ -279,7 +258,6 @@ if __name__ == '__main__':
     file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(5, 2, a).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(file_path)
     total_groups = num_groups
-    w = compute_w2(graph, total_groups)
 
     # print(calc_log_likelihood3(graph, w))
     # print(calc_log_likelihood2(graph, w))

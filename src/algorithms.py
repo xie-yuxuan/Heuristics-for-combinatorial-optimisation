@@ -8,9 +8,227 @@ import time
 import copy
 from networkx.readwrite import json_graph
 
-from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_likelihood, compute_w, compute_w2, calc_log_likelihood3, calc_log_likelihood2
+from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_likelihood, compute_w
 
-def optimise_sbm2(graph, num_groups, algo_func):
+def optimise_sbm3(graph, num_groups, group_mode, algo_func):
+    """
+    EM-style SBM optimisation: 
+    1. Update w initially
+    2. Optimize group membership until convergence without updating w
+    3. Update w
+    4. Repeat steps 2-3 until w update does not improve log-likelihood
+    """
+    g = np.array([graph.nodes[node]['color'] for node in graph.nodes])
+    n, m = np.zeros(num_groups), np.zeros((num_groups, num_groups))
+    
+    for node in graph.nodes():
+        n[g[node]] += 1
+    for u, v in graph.edges():
+        m[g[v], g[u]] = m[g[u], g[v]] = m[g[u], g[v]] + 1
+    
+    w = compute_w(n, m) # w0, TODO: should this be compute or educated guess
+    log_likelihood = calc_log_likelihood(n, m, w)
+    log_likelihood_data = [[0], [log_likelihood]]
+    iteration = 0
+    
+    while True:
+        prev_log_likelihood = log_likelihood
+        while True:
+            best_increase = 0 if algo_func == "greedy" else float('inf')
+            best_node, best_color = None, None
+            
+            for node in graph.nodes:
+                current_color = graph.nodes[node]['color']
+                for color in range(num_groups):
+                    if color == current_color:
+                        continue
+                    
+                    temp_n, temp_m, temp_g = n.copy(), m.copy(), g.copy()
+                    graph.nodes[node]['color'] = color
+                    
+                    temp_n[current_color] -= 1
+                    temp_n[color] += 1
+                    temp_g[node] = color
+                    
+                    for neighbor in graph.neighbors(node):
+                        temp_m[current_color, temp_g[neighbor]] = temp_m[temp_g[neighbor], current_color] = temp_m[temp_g[neighbor], current_color] - 1
+                        temp_m[color, temp_g[neighbor]] = temp_m[temp_g[neighbor], color] = temp_m[temp_g[neighbor], color] + 1
+                    
+                    temp_log_likelihood = calc_log_likelihood(temp_n, temp_m, w)
+                    increase = temp_log_likelihood - log_likelihood
+                    
+                    if algo_func == "greedy" and increase > 1e-13 and (increase > best_increase):
+                        best_increase, best_node, best_color = increase, node, color
+                    elif algo_func == "reluctant" and increase > 1e-13 and (increase < best_increase):
+                        best_increase, best_node, best_color = increase, node, color
+                    
+                    graph.nodes[node]['color'] = current_color
+            
+            if best_node is None:
+                break
+            
+            r = graph.nodes[best_node]['color']
+            graph.nodes[best_node]['color'] = best_color
+            n[r] -= 1
+            n[best_color] += 1
+            g[best_node] = best_color
+            
+            for neighbor in graph.neighbors(best_node):
+                m[r, g[neighbor]] = m[g[neighbor], r] = m[g[neighbor], r] - 1
+                m[best_color, g[neighbor]] = m[g[neighbor], best_color] = m[g[neighbor], best_color] + 1
+            
+            log_likelihood = calc_log_likelihood(n, m, w)
+            iteration += 1
+            log_likelihood_data[0].append(iteration)
+            log_likelihood_data[1].append(log_likelihood)
+        
+        w_new = compute_w(n, m)
+        new_log_likelihood = calc_log_likelihood(n, m, w_new)
+        
+        if abs(new_log_likelihood - prev_log_likelihood) <= 1e-13:
+            print(f"Terminating at iteration {iteration}: No valid moves found.")
+            break
+        
+        w = w_new
+        log_likelihood = new_log_likelihood
+        iteration += 1
+        log_likelihood_data[0].append(iteration)
+        log_likelihood_data[1].append(log_likelihood)
+    
+    return graph, log_likelihood_data, w
+
+
+
+def optimise_sbm2(graph, num_groups, group_mode, algo_func):
+    """
+    sbm optimisation that updates g in each iteration, w is kept as ground truth / educated guess
+    """
+    # compute initial w, symmetric matrix of edge probabilities
+    # initialise global n, m, g
+    # n is 1D array that stores the number of nodes in each group
+    # m is 2D array that stores the number of edges between groups
+    # g is group membership of each node
+    g = np.array([graph.nodes[node]['color'] for node in graph.nodes])
+    n, m = np.zeros(num_groups), np.zeros((num_groups, num_groups))
+
+    for node in graph.nodes():
+        n[g[node]] += 1 # increment group count for each group
+
+    for u, v in graph.edges():
+        # increment edge count between groups
+        # ensures m is symmetric
+        m[g[v], g[u]] = m[g[u], g[v]] = m[g[u], g[v]] + 1
+    
+    # w0 is ground truth / educated guess
+    # Generate the w matrix (edge probabilities)
+    w = np.zeros((num_groups, num_groups))
+
+    if group_mode == "association":
+        w += 1  # Small baseline for non-diagonal elements
+        np.fill_diagonal(w, 9)  # Large diagonal elements
+    elif group_mode == "bipartite":
+        w += 9  # Large baseline for non-diagonal elements
+        np.fill_diagonal(w, 1)  # Small diagonal elements
+    elif group_mode == "core-periphery":
+        w += 9  # Large baseline
+        w[0, :] = 1  # Small first row (loners have low connections to all groups)
+        w[:, 0] = 1  # Small first column (low connections to loners)
+        w[0, 0] = 1  # loners have low self-connections
+
+    w /= len(graph.nodes)
+    
+    # compute inital log_likelihood
+    log_likelihood = calc_log_likelihood(n, m, w)
+    
+
+    # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
+    log_likelihood_data = [[0], [log_likelihood]]
+
+    iteration = 0
+
+    # for iteration in range(1, 100):
+    while True:
+        best_increase = 0 if algo_func == "greedy" else float('inf')
+        best_node, best_color = None, None
+
+        # Iterate through all nodes and possible colors
+        for node in graph.nodes:
+            current_color = graph.nodes[node]['color']
+
+            for color in range(num_groups):
+                if color == current_color:
+                    continue
+
+                temp_m = m.copy()
+                temp_n = n.copy()
+                temp_g = g.copy()
+
+                # Temporarily recolor the node
+                graph.nodes[node]['color'] = color
+
+                # temp update temp_m and temp_n
+                temp_n[current_color] -= 1
+                temp_n[color] += 1
+                temp_g[node] = color
+
+                for neighbor in graph.neighbors(node):
+                    temp_m[current_color, temp_g[neighbor]] = temp_m[temp_g[neighbor], current_color] = temp_m[temp_g[neighbor], current_color] - 1
+                    temp_m[color, temp_g[neighbor]] = temp_m[temp_g[neighbor], color] = temp_m[temp_g[neighbor], color] + 1
+                
+                # Recompute w and log-likelihood
+                # print("still working")
+                # functionn taht will update m and n here efficiently
+
+                # temp_w = compute_w(temp_n, temp_m)
+                
+                temp_log_likelihood = calc_log_likelihood(temp_n, temp_m, w)
+
+                # Check for the best increase
+                increase = temp_log_likelihood - log_likelihood
+
+                # Greedy: Maximize positive increase
+                if algo_func == "greedy" and increase > 1e-13 and (increase > best_increase): # set some threshold for increase
+                    best_increase, best_node, best_color = increase, node, color
+                # Reluctant: Minimize positive increase
+                elif algo_func == "reluctant" and increase > 1e-13 and (increase < best_increase): # set some threshold for increase
+                    best_increase, best_node, best_color = increase, node, color
+
+                # Revert the change
+                graph.nodes[node]['color'] = current_color
+
+        # If no improvement, terminate
+        if best_node is None or best_color is None:
+            print(f"Terminating at iteration {iteration}: No valid moves found.")
+            break
+
+        r = graph.nodes[best_node]['color']
+
+        # Apply the best change
+        graph.nodes[best_node]['color'] = best_color
+
+        # update n, m, g
+        n[r] -= 1
+        n[best_color] += 1
+        g[best_node] = best_color
+
+        for neighbor in graph.neighbors(best_node):
+            m[r, g[neighbor]] = m[g[neighbor], r] = m[g[neighbor], r] - 1
+            m[best_color, g[neighbor]] = m[g[neighbor], best_color] = m[g[neighbor], best_color] + 1
+
+        # w = compute_w(n, m)
+        log_likelihood = calc_log_likelihood(n, m, w)
+        iteration += 1
+        # print(f"iteration: {iteration}, log_likelihood: {log_likelihood}")
+        log_likelihood_data[0].append(iteration)
+        log_likelihood_data[1].append(log_likelihood)
+
+    return graph, log_likelihood_data, w
+
+
+def optimise_sbm(graph, num_groups, group_mode, algo_func):
+    """
+    sbm optimisation that updates g and w in each iteration 
+    """
     # compute initial w, symmetric matrix of edge probabilities
     # initialise global n, m, g
     # n is 1D array that stores the number of nodes in each group
@@ -28,10 +246,10 @@ def optimise_sbm2(graph, num_groups, algo_func):
         m[g[v], g[u]] = m[g[u], g[v]] = m[g[u], g[v]] + 1
     
     # w0, or start with an educated guess
-    w = compute_w2(n, m)
+    w = compute_w(n, m)
     
     # compute inital log_likelihood
-    log_likelihood = calc_log_likelihood2(n, m, w)
+    log_likelihood = calc_log_likelihood(n, m, w)
     
 
     # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
@@ -68,17 +286,14 @@ def optimise_sbm2(graph, num_groups, algo_func):
                 for neighbor in graph.neighbors(node):
                     temp_m[current_color, temp_g[neighbor]] = temp_m[temp_g[neighbor], current_color] = temp_m[temp_g[neighbor], current_color] - 1
                     temp_m[color, temp_g[neighbor]] = temp_m[temp_g[neighbor], color] = temp_m[temp_g[neighbor], color] + 1
-
-
-
                 
                 # Recompute w and log-likelihood
                 # print("still working")
                 # functionn taht will update m and n here efficiently
 
-                temp_w = compute_w2(temp_n, temp_m)
+                temp_w = compute_w(temp_n, temp_m)
                 
-                temp_log_likelihood = calc_log_likelihood2(temp_n, temp_m, temp_w)
+                temp_log_likelihood = calc_log_likelihood(temp_n, temp_m, temp_w)
 
                 # Check for the best increase
                 increase = temp_log_likelihood - log_likelihood
@@ -112,60 +327,12 @@ def optimise_sbm2(graph, num_groups, algo_func):
             m[r, g[neighbor]] = m[g[neighbor], r] = m[g[neighbor], r] - 1
             m[best_color, g[neighbor]] = m[g[neighbor], best_color] = m[g[neighbor], best_color] + 1
 
-        w = compute_w2(n, m)
-        log_likelihood = calc_log_likelihood2(n, m, w)
+        w = compute_w(n, m)
+        log_likelihood = calc_log_likelihood(n, m, w)
         iteration += 1
         # print(f"iteration: {iteration}, log_likelihood: {log_likelihood}")
         log_likelihood_data[0].append(iteration)
         log_likelihood_data[1].append(log_likelihood)
-
-    return graph, log_likelihood_data, w
-
-def optimise_sbm(graph, color_set_size, algo_func):
-    '''
-    optimisation algorithm to maximise the likelihood of the adjacency matrix P(A) by optimising the group membership configuration (vector)
-    group membership assignment is like the color assignment of the graph
-    '''
-    # compute initial w, symmetric matrix of edge probabilities
-    w = compute_w(graph)
-    # compute inital log_likelihood
-    log_likelihood = calc_log_likelihood(graph, w)
-
-    # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
-    log_likelihood_data = [[0], [log_likelihood]]
-
-    for iteration in range(1, 10):
-        improved = False
-
-        for node in graph.nodes:
-            original_color = graph.nodes[node]['color']
-            best_likelihood = log_likelihood
-            best_color = original_color
-
-            for color in range(color_set_size):
-                if color == original_color:
-                    continue
-
-                graph.nodes[node]['color'] = color # temporarily recolor
-                # w_temp = compute_w(graph)
-                new_likelihood = calc_log_likelihood(graph, w)
-                # new_likelihood = calc_log_likelihood(graph, w_temp)
-
-                if new_likelihood > best_likelihood:
-                    best_likelihood = new_likelihood
-                    best_color = color
-                    improved = True
-
-            # assign the best color found
-            graph.nodes[node]['color'] = best_color
-            # w = compute_w(graph)
-        
-        if improved:
-            log_likelihood = best_likelihood
-            log_likelihood_data[0].append(iteration)
-            log_likelihood_data[1].append(log_likelihood)
-        else:
-            break
 
     return graph, log_likelihood_data, w
 

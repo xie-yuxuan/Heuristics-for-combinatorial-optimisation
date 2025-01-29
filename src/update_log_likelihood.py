@@ -4,7 +4,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import os
 
-from utils import calc_log_likelihood3, calc_log_likelihood, calc_log_likelihood2
+from utils import calc_log_likelihood
 from sbm_graph_processing import load_graph_from_json
 
 
@@ -12,7 +12,7 @@ from sbm_graph_processing import load_graph_from_json
 
 
 if __name__ == '__main__':
-    graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(20, 2, a).json"  # Use raw string for Windows path
+    graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(100, 2, a)weak.json"  # Use raw string for Windows path
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(graphs_path)
 
     # Open the file and load the data
@@ -34,17 +34,19 @@ if __name__ == '__main__':
         w[:, 0] = 0.1  # Small first column (low connections to loners)
         w[0, 0] = 0.1  # loners have low self-connections
 
+
+    print(len(graph.edges()))
     # print(calc_log_likelihood3(graph, w))
     # print(calc_log_likelihood2(graph, w, num_groups))
     # print(calc_log_likelihood(graph, w))
-    print(w)
-    print(calc_log_likelihood2(graph, w, num_groups))
-    print(calc_log_likelihood3(graph, w))
-    print(calc_log_likelihood(graph, w))
+    # print(w)
+    # print(calc_log_likelihood2(graph, w, num_groups))
+    # print(calc_log_likelihood3(graph, w))
+    # print(calc_log_likelihood(graph, w))
     
     # Update the value in the data dictionary
-    data['ground_truth_log_likelihood'] = calc_log_likelihood3(graph, w)
+    # data['ground_truth_log_likelihood'] = calc_log_likelihood3(graph, w)
 
     # Write the updated data back to the file
-    with open(graphs_path, 'w') as f:
-        json.dump(data, f, indent=2)  # Use json.dump to write the data with formatting
+    # with open(graphs_path, 'w') as f:
+    #     json.dump(data, f, indent=2)  # Use json.dump to write the data with formatting

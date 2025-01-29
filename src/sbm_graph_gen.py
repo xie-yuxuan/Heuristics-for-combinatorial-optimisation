@@ -6,7 +6,7 @@ import os
 from networkx.readwrite import json_graph
 
 from visualisation import draw_graph
-from utils import calc_log_likelihood2, compute_w
+from utils import calc_log_likelihood, compute_w
 
 def gen_sbm_graph(g, w):
     num_nodes = len(g)
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     num_nodes = 20
     num_groups = 2
     num_initial_colorings = 100
-    group_mode = ["association", "bipartite", "core-periphery"][2]
+    group_mode = ["association", "bipartite", "core-periphery"][0]
     graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
 
     # Generate the g vector (color assignment)
@@ -57,12 +57,12 @@ if __name__ == '__main__':
 
     if group_mode == "association":
         w += 1  # Small baseline for non-diagonal elements
-        np.fill_diagonal(w, 9)  # Large diagonal elements
+        np.fill_diagonal(w, 2)  # Large diagonal elements
     elif group_mode == "bipartite":
-        w += 9  # Large baseline for non-diagonal elements
+        w += 2  # Large baseline for non-diagonal elements
         np.fill_diagonal(w, 1)  # Small diagonal elements
     elif group_mode == "core-periphery":
-        w += 9  # Large baseline
+        w += 2  # Large baseline
         w[0, :] = 1  # Small first row (loners have low connections to all groups)
         w[:, 0] = 1  # Small first column (low connections to loners)
         w[0, 0] = 1  # loners have low self-connections
@@ -116,11 +116,11 @@ if __name__ == '__main__':
         "num_groups" : num_groups,
         "group_mode" : group_mode,
         "graph_data": graph_data,
-        "ground_truth_log_likelihood": calc_log_likelihood2(graph, w, num_groups),
+        "ground_truth_log_likelihood": calc_log_likelihood(n, m, w), #TODO: ground truth maybe not this, but instead the educated guess of w
         "initial_node_colors": initial_node_colors
     }
 
-    with open(os.path.join(graphs_path, f"{graph_name}.json"), 'w') as f:
+    with open(os.path.join(graphs_path, f"{graph_name}weak.json"), 'w') as f:
         json.dump(data, f, indent = 2)
 
-    print(f"Saved graph to {graphs_path}/{graph_name}.json")
+    print(f"Saved graph to {graphs_path}/{graph_name}weak.json")
