@@ -30,7 +30,7 @@ def load_graph_from_json(file_path):
     return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood
 
 if __name__ == "__main__":
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(20, 2, c).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(400, 2, a).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     results = {
@@ -74,6 +74,7 @@ if __name__ == "__main__":
     #     graph_copy.nodes[node]['color'] = 0
 
     # replace all colors with initial colorings
+    start_time = time.time()
     for i, initial_coloring in enumerate(initial_node_colors):
         for node, color in enumerate(initial_coloring):
             graph.nodes[node]['color'] = color
@@ -99,6 +100,9 @@ if __name__ == "__main__":
         }
 
         print(f"{i} initial coloring optimisation complete")
+    
+    end_time = time.time()
+    print(f"Execution time: {end_time - start_time:.4f} seconds")
 
     graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results"
 

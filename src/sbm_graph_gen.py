@@ -39,7 +39,7 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     # set parameters
-    num_nodes = 20
+    num_nodes = 100
     num_groups = 2
     num_initial_colorings = 100
     group_mode = ["association", "bipartite", "core-periphery"][0]
@@ -57,12 +57,12 @@ if __name__ == '__main__':
 
     if group_mode == "association":
         w += 1  # Small baseline for non-diagonal elements
-        np.fill_diagonal(w, 2)  # Large diagonal elements
+        np.fill_diagonal(w, 9)  # Large diagonal elements
     elif group_mode == "bipartite":
-        w += 2  # Large baseline for non-diagonal elements
+        w += 9  # Large baseline for non-diagonal elements
         np.fill_diagonal(w, 1)  # Small diagonal elements
     elif group_mode == "core-periphery":
-        w += 2  # Large baseline
+        w += 9  # Large baseline
         w[0, :] = 1  # Small first row (loners have low connections to all groups)
         w[:, 0] = 1  # Small first column (low connections to loners)
         w[0, 0] = 1  # loners have low self-connections
@@ -120,7 +120,7 @@ if __name__ == '__main__':
         "initial_node_colors": initial_node_colors
     }
 
-    with open(os.path.join(graphs_path, f"{graph_name}weak.json"), 'w') as f:
+    with open(os.path.join(graphs_path, f"{graph_name}.json"), 'w') as f:
         json.dump(data, f, indent = 2)
 
-    print(f"Saved graph to {graphs_path}/{graph_name}weak.json")
+    print(f"Saved graph to {graphs_path}/{graph_name}.json")
