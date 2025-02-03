@@ -91,8 +91,8 @@ if __name__ == "__main__":
         graph_copy = graph.copy()
 
         # optimise sbm and get final w and log likelihood
-        sbm_graph_g, log_likelihood_data_g, final_w_g = optimise_sbm(graph, num_groups, group_mode, algo_func="greedy", )
-        sbm_graph_r, log_likelihood_data_r, final_w_r = optimise_sbm(graph_copy, num_groups, group_mode, algo_func="reluctant")
+        sbm_graph_g, log_likelihood_data_g, final_w_g = optimise_sbm3(graph, num_groups, group_mode, algo_func="greedy")
+        sbm_graph_r, log_likelihood_data_r, final_w_r = optimise_sbm3(graph_copy, num_groups, group_mode, algo_func="reluctant")
 
         results["cost_data"][f"initial_coloring_{i}"] = {
             "cost_data_g": log_likelihood_data_g,
@@ -106,10 +106,10 @@ if __name__ == "__main__":
 
     graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results"
 
-    with open(os.path.join(graphs_path, f"{graph_name}_results.json"), 'w') as f:
+    with open(os.path.join(graphs_path, f"{graph_name}3_results.json"), 'w') as f:
         json.dump(results, f, indent = 2)
 
-    print(f"Saved results to {graphs_path}/{graph_name}_results.json")  
+    print(f"Saved results to {graphs_path}/{graph_name}3_results.json")  
 
 
     # DONT RECOLOR, INITIAL COLORING IS THE GROUND TRUTH --------------------------------------------------------------------
