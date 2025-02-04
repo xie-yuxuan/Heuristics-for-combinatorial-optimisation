@@ -72,6 +72,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
             )
         )
 
+    # Initialise cost change matrix, reluctant just needs to apply reciprocal function, need to know when to update back
     cost_change_matrix = np.zeros((len(graph.nodes), num_groups))
     for node in graph.nodes:
         current_color = graph.nodes[node]['color']
