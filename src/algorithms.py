@@ -154,10 +154,6 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
         # remove node and its neighbors from any heaps in C that has one or both component same as group change
         # e.g. 1->2, then heaps 01, 02, 03, 12, 21, 20 in C ... needs to be updated, 03, 30 doesn't need to be updated
         # then in those heaps, remove node and its neighbors by finding their index in the sortedset by reference to cost change matrix
-        # i.e. SortedSet([(0.0, 6), (4.394449154672438, 2), (4.394449154672438, 4), (8.788898309344876, 7)])
-        # find node 7, 1->2 cost change in cost change matrix, then use that to remove from sortedset of C by index
-        # print("start")
-        # print(C)
         for (r, s) in affected_pairs:
             heap = C[r, s]
             for node_to_remove in [node_to_move] + list(graph.neighbors(node_to_move)):
@@ -165,6 +161,8 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
 
         for affected_node in [node_to_move] + list(graph.neighbors(node_to_move)):
             current_color = graph.nodes[affected_node]['color']
+
+            # update cost change matrix
             cost_change_matrix[affected_node, current_color] = 0
             
             for color in range(num_groups):
