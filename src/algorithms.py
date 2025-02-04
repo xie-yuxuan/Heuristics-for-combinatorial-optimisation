@@ -93,22 +93,24 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                         )
                     )
 
-                C[current_color, color].add((cost_change_matrix[node, color], node))
+                C[current_color, color].add((algo_func(cost_change_matrix[node, color]), node))
 
     iteration = 0
 
     while True:
-    # for iteration in range(20):
+    # for iteration in range(200):
         
         C_processed = np.array([
-            [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in C
+            [0 if len(cell) == 0 else algo_func(cell[-1][0]) for cell in row] for row in C
         ], dtype=float)
-        
+
         log_likelihood_matrix = C_processed + N
+        log_likelihood_matrix = algo_func(log_likelihood_matrix)
 
         # recoloring choice
         group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix, axis=None), log_likelihood_matrix.shape)
-        log_likelihood_change = log_likelihood_matrix[group_change]
+        log_likelihood_change = algo_func(log_likelihood_matrix)[group_change]
+
         if log_likelihood_change <= 0:
             break
 
@@ -157,7 +159,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
         for (r, s) in affected_pairs:
             heap = C[r, s]
             for node_to_remove in [node_to_move] + list(graph.neighbors(node_to_move)):
-                heap.discard((cost_change_matrix[node_to_remove, s], node_to_remove))
+                heap.discard((algo_func(cost_change_matrix[node_to_remove, s]), node_to_remove))
 
         for affected_node in [node_to_move] + list(graph.neighbors(node_to_move)):
             current_color = graph.nodes[affected_node]['color']
@@ -179,10 +181,11 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                             (m_after - m) * np.log(w / (1 - w))
                             )
                         )
-
+                    
                     # add node and its neighbors to heaps in C
-                    C[current_color, color].add((cost_change_matrix[affected_node, color], affected_node))
-                
+                    C[current_color, color].add((algo_func(cost_change_matrix[affected_node, color]), affected_node))
+
+
         # update log likelihood data
         iteration += 1
         log_likelihood = log_likelihood + log_likelihood_change
@@ -190,11 +193,6 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
         log_likelihood_data[1].append(log_likelihood)
 
     return graph, log_likelihood_data, w
-
-
-
-
-
 
 def optimise_sbm3(graph, num_groups, group_mode, algo_func):
     """
