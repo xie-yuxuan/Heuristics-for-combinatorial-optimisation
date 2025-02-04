@@ -30,7 +30,7 @@ def load_graph_from_json(file_path):
     return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood
 
 if __name__ == "__main__":
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(10, 3, a).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(400, 3, a).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     results = {
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     for node, color in enumerate(initial_node_colors[0]):
         graph.nodes[node]['color'] = color
 
-    graph_g, log_likelihood_data_g, final_w_g = optimise_sbm2(graph, num_groups, group_mode, algo_func="greedy")
+    graph_g, log_likelihood_data_g, final_w_g = optimise_sbm4(graph, num_groups, group_mode, algo_func="greedy")
     # graph_r, log_likelihood_data_r, final_w_r = optimise_sbm4(graph, num_groups, group_mode, algo_func="reluctant")
 
     draw_graph(graph_g, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=log_likelihood_data_g,

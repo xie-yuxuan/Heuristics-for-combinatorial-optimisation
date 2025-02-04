@@ -93,53 +93,36 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                         )
                     )
 
-    for node in graph.nodes:
-        current_color = graph.nodes[node]['color']
-        for color in range(num_groups):
-            if color != current_color:
                 C[current_color, color].add((cost_change_matrix[node, color], node))
-
 
     iteration = 0
 
-
     while True:
-    # for iteration in range(10):
-
-        # C_processed = np.array([
-        #     [0 if cell is None else cell[-1][0] for cell in row] for row in C], 
-        #     dtype=float)
+    # for iteration in range(20):
         
         C_processed = np.array([
             [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in C
         ], dtype=float)
         
         log_likelihood_matrix = C_processed + N
-        # print(log_likelihood_matrix)
 
         # recoloring choice
         group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix, axis=None), log_likelihood_matrix.shape)
-        if bef == aft:
-            break
-        node_to_move = C[bef, aft][-1][-1]
         log_likelihood_change = log_likelihood_matrix[group_change]
         if log_likelihood_change <= 0:
             break
 
-        # print(log_likelihood_change)
-        # print(group_change)
-        # print(node_to_move)
+        node_to_move = C[bef, aft][-1][-1]
 
         # recolor best node and best color / group change
+        # print(node_to_move, bef, aft)
         graph.nodes[node_to_move]['color'] = aft
-
 
         # update n, m, g
         n[bef] -= 1
         n[aft] += 1
         g[node_to_move] = aft
-
-        m_bef = m.copy()
+        
         for neighbor in graph.neighbors(node_to_move):
             m[bef, g[neighbor]] = m[g[neighbor], bef] = m[g[neighbor], bef] - 1
             m[aft, g[neighbor]] = m[g[neighbor], aft] = m[g[neighbor], aft] + 1
@@ -156,8 +139,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                 affected_pairs.add((x, aft))
         affected_pairs = list(affected_pairs)
 
-
-        for (r, s) in affected_pairs:          
+        for (r, s) in affected_pairs:     
             n_after = n.copy()
             n_after[r] -= 1
             n_after[s] += 1
@@ -177,56 +159,37 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
         # print("start")
         # print(C)
         for (r, s) in affected_pairs:
-            # print((r, s))
             heap = C[r, s]
-            # print(heap)
             for node_to_remove in [node_to_move] + list(graph.neighbors(node_to_move)):
-                # print((cost_change_matrix[node_to_remove, s], node_to_remove))
                 heap.discard((cost_change_matrix[node_to_remove, s], node_to_remove))
-        # print("After")
-        # print(C)
 
-
-
-        # print(cost_change_matrix)
-        # update elements in cost change matrix
-        # update each node and neighbor row, every col
-        # for node row, col of current color now 0
         for affected_node in [node_to_move] + list(graph.neighbors(node_to_move)):
-            # print(affected_node)
             current_color = graph.nodes[affected_node]['color']
             cost_change_matrix[affected_node, current_color] = 0
+            
             for color in range(num_groups):
                 if color != current_color:
+                    m_after = m.copy()
+                    g_after = g.copy() 
+
+                    for neighbor in graph.neighbors(affected_node):
+                        m_after[current_color, g_after[neighbor]] = m_after[g_after[neighbor], current_color] = m_after[g_after[neighbor], current_color] - 1
+                        m_after[color, g_after[neighbor]] = m_after[g_after[neighbor], color] = m_after[g_after[neighbor], color] + 1    
 
                     cost_change_matrix[affected_node, color] = np.nansum(
                         np.triu(
-                            (m - m_bef) * np.log(w / (1 - w))
+                            (m_after - m) * np.log(w / (1 - w))
                             )
                         )
+
+                    # add node and its neighbors to heaps in C
+                    C[current_color, color].add((cost_change_matrix[affected_node, color], affected_node))
                 
-                
-
-        # print(cost_change_matrix)
-        # add node and its neighbors to heaps in C that has one or both component same as group change
-
-        for affected_node in [node_to_move] + list(graph.neighbors(node_to_move)):
-            current_color = graph.nodes[affected_node]['color']
-            for color in range(num_groups):
-                if color != current_color:
-                    C[current_color, color].add((cost_change_matrix[node, color], node))
-
         # update log likelihood data
-
         iteration += 1
         log_likelihood = log_likelihood + log_likelihood_change
         log_likelihood_data[0].append(iteration)
         log_likelihood_data[1].append(log_likelihood)
-
-        print(C)
-        # print(cost_change_matrix)
-        # print(C.shape)
-        # print(cost_change_matrix.shape)
 
     return graph, log_likelihood_data, w
 
@@ -371,7 +334,7 @@ def optimise_sbm2(graph, num_groups, group_mode, algo_func):
 
     iteration = 0
 
-    # for iteration in range(1, 100):
+    # for iteration in range(1):
     while True:
         best_increase = 0 if algo_func == "greedy" else float('inf')
         best_node, best_color = None, None
@@ -429,6 +392,7 @@ def optimise_sbm2(graph, num_groups, group_mode, algo_func):
         r = graph.nodes[best_node]['color']
 
         # Apply the best change
+        print(best_node, r, best_color)
         graph.nodes[best_node]['color'] = best_color
 
         # update n, m, g
