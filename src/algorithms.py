@@ -81,6 +81,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                 # current color, color, need to update m
                 m_after = m.copy()
                 g_after = g.copy() 
+                g_after[node] = color
                 
                 for neighbor in graph.neighbors(node):
                     m_after[current_color, g_after[neighbor]] = m_after[g_after[neighbor], current_color] = m_after[g_after[neighbor], current_color] - 1
@@ -171,6 +172,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                 if color != current_color:
                     m_after = m.copy()
                     g_after = g.copy() 
+                    g_after[affected_node] = color
 
                     for neighbor in graph.neighbors(affected_node):
                         m_after[current_color, g_after[neighbor]] = m_after[g_after[neighbor], current_color] = m_after[g_after[neighbor], current_color] - 1
