@@ -71,6 +71,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                 ((np.outer(n_after, n_after) - np.diag(0.5 * n_after * (n_after + 1))) -  (np.outer(n, n) - np.diag(0.5 * n * (n + 1)))) * np.log(1 - w)
             )
         )
+        N[np.abs(N) < 1e-13] = 0
 
     # Initialise cost change matrix, reluctant just needs to apply reciprocal function, need to know when to update back
     cost_change_matrix = np.zeros((len(graph.nodes), num_groups))
@@ -93,32 +94,49 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                         (m_after - m) * np.log(w / (1 - w))
                         )
                     )
+                cost_change_matrix[np.abs(cost_change_matrix) < 1e-13] = 0
 
                 C[current_color, color].add((algo_func(cost_change_matrix[node, color]), node))
 
     iteration = 0
 
-    while True:
-    # for iteration in range(200):
-        
+    # while True:
+    for iteration in range(1):
+        print(cost_change_matrix)
+        print(C)
         C_processed = np.array([
-            [0 if len(cell) == 0 else algo_func(cell[-1][0]) for cell in row] for row in C
+            [
+                0 if len(cell) == 0 else 
+                (cell[0][0] if all(t[0] < 0 for t in cell) else cell[-1][0])
+                for cell in row
+            ] 
+            for row in C
         ], dtype=float)
-
+        C_processed = algo_func(C_processed)
+        print(C_processed)
+        # print("This is N")
+        # print(N)
         log_likelihood_matrix = C_processed + N
+        log_likelihood_matrix[np.abs(log_likelihood_matrix) < 1e-13] = 0
+        print(log_likelihood_matrix)
         log_likelihood_matrix = algo_func(log_likelihood_matrix)
-
+        
+        print(log_likelihood_matrix)
         # recoloring choice
         group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix, axis=None), log_likelihood_matrix.shape)
         log_likelihood_change = algo_func(log_likelihood_matrix)[group_change]
+        # print(log_likelihood_change)
 
         if log_likelihood_change <= 0:
             break
 
-        node_to_move = C[bef, aft][-1][-1]
+        if all(t[0] < 0 for t in C[bef, aft]):
+            node_to_move = C[bef, aft][0][1]  # Take node from the first tuple
+        else:
+            node_to_move = C[bef, aft][-1][1]  # Take node from the last tuple
 
         # recolor best node and best color / group change
-        # print(node_to_move, bef, aft)
+        print(node_to_move, bef, aft)
         graph.nodes[node_to_move]['color'] = aft
 
         # update n, m, g
@@ -153,6 +171,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                     ((np.outer(n_after, n_after) - np.diag(0.5 * n_after * (n_after + 1))) -  (np.outer(n, n) - np.diag(0.5 * n * (n + 1)))) * np.log(1 - w)
                 )
             )
+            N[np.abs(N) < 1e-13] = 0
 
         # remove node and its neighbors from any heaps in C that has one or both component same as group change
         # e.g. 1->2, then heaps 01, 02, 03, 12, 21, 20 in C ... needs to be updated, 03, 30 doesn't need to be updated
@@ -183,6 +202,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                             (m_after - m) * np.log(w / (1 - w))
                             )
                         )
+                    cost_change_matrix[np.abs(cost_change_matrix) < 1e-13] = 0
                     
                     # add node and its neighbors to heaps in C
                     C[current_color, color].add((algo_func(cost_change_matrix[affected_node, color]), affected_node))

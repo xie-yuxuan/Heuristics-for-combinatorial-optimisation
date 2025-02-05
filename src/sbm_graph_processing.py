@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # ISOLATE TEST FOR ONE SPECIFIC INITIAL COLORING ------------------------
 
-    for node, color in enumerate(initial_node_colors[5]):
+    for node, color in enumerate(initial_node_colors[0]):
         graph.nodes[node]['color'] = color
 
     graph_g, log_likelihood_data_g, final_w_g = optimise_sbm4(graph, num_groups, group_mode, algo_func=fg)
