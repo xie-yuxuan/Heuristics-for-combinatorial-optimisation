@@ -96,47 +96,48 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                     )
                 cost_change_matrix[np.abs(cost_change_matrix) < 1e-13] = 0
 
-                C[current_color, color].add((algo_func(cost_change_matrix[node, color]), node))
+                C[current_color, color].add((cost_change_matrix[node, color], node))
+
+    #TODO: add N to all heaps in C here to get log_likelihood matrix
+    log_likelihood_matrix = np.empty(C.shape, dtype=object)
+
+    for i in range(C.shape[0]):
+        for j in range(C.shape[1]):
+            n_val = N[i, j]
+            updated_heap = SortedSet([(0.0 if abs(tup[0] + n_val) < 1e-13 else algo_func(tup[0] + n_val), tup[1]) for tup in C[i, j]])
+            log_likelihood_matrix[i, j] = updated_heap
 
     iteration = 0
 
-    # while True:
-    for iteration in range(1):
-        print(cost_change_matrix)
-        print(C)
-        C_processed = np.array([
-            [
-                0 if len(cell) == 0 else 
-                (cell[0][0] if all(t[0] < 0 for t in cell) else cell[-1][0])
-                for cell in row
-            ] 
-            for row in C
+    while True:
+    # for iteration in range(100):
+
+        # TODO: update log likelihood matrix here by adding N to all heaps in C
+        for i in range(C.shape[0]):
+            for j in range(C.shape[1]):
+                n_val = N[i, j]
+                updated_heap = SortedSet([(0.0 if abs(tup[0] + n_val) < 1e-13 else algo_func(tup[0] + n_val), tup[1]) for tup in C[i, j]])
+                log_likelihood_matrix[i, j] = updated_heap
+
+        # print(log_likelihood_matrix)
+
+        # TODO replace C processed with log likelihood processed
+        log_likelihood_matrix_processed = np.array([
+            [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in log_likelihood_matrix 
         ], dtype=float)
-        C_processed = algo_func(C_processed)
-        print(C_processed)
-        # print("This is N")
-        # print(N)
-        log_likelihood_matrix = C_processed + N
-        log_likelihood_matrix[np.abs(log_likelihood_matrix) < 1e-13] = 0
-        print(log_likelihood_matrix)
-        log_likelihood_matrix = algo_func(log_likelihood_matrix)
-        
-        print(log_likelihood_matrix)
+
         # recoloring choice
-        group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix, axis=None), log_likelihood_matrix.shape)
-        log_likelihood_change = algo_func(log_likelihood_matrix)[group_change]
-        # print(log_likelihood_change)
+        # TODO replace log likelihood matrix with log likelihood processed
+        group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix_processed, axis=None), log_likelihood_matrix.shape)
+        log_likelihood_change = algo_func(log_likelihood_matrix_processed)[group_change]
 
         if log_likelihood_change <= 0:
             break
 
-        if all(t[0] < 0 for t in C[bef, aft]):
-            node_to_move = C[bef, aft][0][1]  # Take node from the first tuple
-        else:
-            node_to_move = C[bef, aft][-1][1]  # Take node from the last tuple
+        node_to_move = log_likelihood_matrix[bef, aft][-1][-1]
 
         # recolor best node and best color / group change
-        print(node_to_move, bef, aft)
+        # print(node_to_move, bef, aft)
         graph.nodes[node_to_move]['color'] = aft
 
         # update n, m, g
@@ -179,7 +180,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
         for (r, s) in affected_pairs:
             heap = C[r, s]
             for node_to_remove in [node_to_move] + list(graph.neighbors(node_to_move)):
-                heap.discard((algo_func(cost_change_matrix[node_to_remove, s]), node_to_remove))
+                heap.discard((cost_change_matrix[node_to_remove, s], node_to_remove))
 
         for affected_node in [node_to_move] + list(graph.neighbors(node_to_move)):
             current_color = graph.nodes[affected_node]['color']
@@ -205,8 +206,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                     cost_change_matrix[np.abs(cost_change_matrix) < 1e-13] = 0
                     
                     # add node and its neighbors to heaps in C
-                    C[current_color, color].add((algo_func(cost_change_matrix[affected_node, color]), affected_node))
-
+                    C[current_color, color].add((cost_change_matrix[affected_node, color], affected_node))
 
         # update log likelihood data
         iteration += 1
