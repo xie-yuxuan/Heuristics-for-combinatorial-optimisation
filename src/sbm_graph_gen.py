@@ -39,7 +39,7 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     # set parameters
-    num_nodes = 100
+    num_nodes = 2000
     num_groups = 2
     num_initial_colorings = 100
     group_mode = ["association", "bipartite", "core-periphery"][2]
