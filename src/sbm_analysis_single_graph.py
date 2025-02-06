@@ -8,7 +8,7 @@ from visualisation import plot_cost_data, plot_final_costs, plot_cost_diff_histo
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\SBM(2000, 2, b)2_results.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\SBM(200, 3, c)2_results.json"
 
 
     with open(file_path, 'r') as f:

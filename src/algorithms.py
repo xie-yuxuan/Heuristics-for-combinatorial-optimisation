@@ -109,8 +109,8 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
 
     iteration = 0
 
-    while True:
-    # for iteration in range(100):
+    # while True:
+    for iteration in range(1000):
 
         #update log likelihood matrix here by adding corresponding N to aall 1st term difference in corresponding heaps in C
         for i in range(C.shape[0]):
@@ -134,7 +134,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
         node_to_move = log_likelihood_matrix[bef, aft][-1][-1]
 
         # recolor best node and best color / group change
-        # print(node_to_move, bef, aft)
+        print(node_to_move, bef, aft)
         graph.nodes[node_to_move]['color'] = aft
 
         # update n, m, g
@@ -207,6 +207,8 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
 
         # update log likelihood data
         iteration += 1
+        if iteration % 100 == 0:
+            print(iteration)
         log_likelihood = log_likelihood + log_likelihood_change
         log_likelihood_data[0].append(iteration)
         log_likelihood_data[1].append(log_likelihood)
