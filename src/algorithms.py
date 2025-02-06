@@ -51,10 +51,10 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
     # initial likelihood data = [[iteration count],[log likelihood at that iteration]] which is a list of list
     log_likelihood_data = [[0], [log_likelihood]]
 
-    # Initialise N matrix
+    # Initialise N matrix, 2nd term difference
     N = np.zeros((num_groups, num_groups))
 
-    # Initialise C matrix, a matrix of heaps, heap r,s represents the change in log likelihood for individual group moving from group r to group s
+    # Initialise C matrix, a matrix of heaps, heap r,s represents 1st term difference for individual group moving from group r to group s
     C = np.empty((num_groups, num_groups), dtype=object)
     
     for (r, s) in [(r, s) for r in range(num_groups) for s in range(num_groups)]:
@@ -98,7 +98,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
 
                 C[current_color, color].add((cost_change_matrix[node, color], node))
 
-    #TODO: add N to all heaps in C here to get log_likelihood matrix
+    #add corresponding N to all 1st term difference in corresponding heaps in C here to get log_likelihood matrix
     log_likelihood_matrix = np.empty(C.shape, dtype=object)
 
     for i in range(C.shape[0]):
@@ -112,22 +112,19 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
     while True:
     # for iteration in range(100):
 
-        # TODO: update log likelihood matrix here by adding N to all heaps in C
+        #update log likelihood matrix here by adding corresponding N to aall 1st term difference in corresponding heaps in C
         for i in range(C.shape[0]):
             for j in range(C.shape[1]):
                 n_val = N[i, j]
                 updated_heap = SortedSet([(0.0 if abs(tup[0] + n_val) < 1e-13 else algo_func(tup[0] + n_val), tup[1]) for tup in C[i, j]])
                 log_likelihood_matrix[i, j] = updated_heap
 
-        # print(log_likelihood_matrix)
-
-        # TODO replace C processed with log likelihood processed
+        #log likelihood processed to choose last tuple
         log_likelihood_matrix_processed = np.array([
             [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in log_likelihood_matrix 
         ], dtype=float)
 
         # recoloring choice
-        # TODO replace log likelihood matrix with log likelihood processed
         group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix_processed, axis=None), log_likelihood_matrix.shape)
         log_likelihood_change = algo_func(log_likelihood_matrix_processed)[group_change]
 

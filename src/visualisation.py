@@ -307,6 +307,48 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
 
     plt.show()
 
+
+def sbm_plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins, bin_range):
+    '''
+    Plot histogram of normalised cost diff for all initial colorings.
+    '''
+    cost_differences = []
+    
+    # Loop through all initial colorings and compute the cost difference for each one
+    for initial_coloring_key, iteration_data in cost_data.items():
+        cost_data_g = iteration_data["cost_data_g"]
+        cost_data_r = iteration_data["cost_data_r"]
+
+        # Get the final costs
+        final_cost_g = cost_data_g[1][-1]
+        final_cost_r = cost_data_r[1][-1]
+
+        # Calculate the cost difference between greedy and reluctant
+        cost_diff = final_cost_g - final_cost_r
+
+        # Calculate 1/n * cost_diff, where n is the number of nodes
+        normalized_cost_diff = (1 / num_nodes) * cost_diff
+
+        # Append to the list
+        cost_differences.append(normalized_cost_diff)
+    
+    # Set bin range if not provided
+    if bin_range is None:
+        bin_range = (min(cost_differences), max(cost_differences))
+    
+    plt.figure(figsize=(10, 6))
+    plt.hist(cost_differences, bins=np.linspace(bin_range[0], bin_range[1], num_bins), edgecolor='blue', alpha=0.7)
+    
+    plt.xlabel('Normalized Loglikelihood Difference (1/n * (Greedy - Reluctant))')
+    plt.ylabel('Frequency')
+    plt.title(f'Histogram of Normalized Loglikelihood Differences for {graph_name}')
+    
+    plt.grid(True)
+
+    plt.savefig(f"plots/{graph_name}_hist.png")
+
+    plt.show()
+
 def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins, bin_range):
     '''
     Plot histogram of normalised cost diff for all initial colorings.

@@ -39,10 +39,10 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     # set parameters
-    num_nodes = 10
-    num_groups = 3
+    num_nodes = 7500
+    num_groups = 2
     num_initial_colorings = 100
-    group_mode = ["association", "bipartite", "core-periphery"][2]
+    group_mode = ["association", "bipartite", "core-periphery"][0]
     graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
 
     # Generate the g vector (color assignment)
@@ -72,14 +72,14 @@ if __name__ == '__main__':
     graph, adjacency_matrix = gen_sbm_graph(g, w)
 
     # uncomment to view graphs before saving
-    draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
-               color_set_size=num_groups, 
-               degree=None, 
-               num_nodes=num_nodes, 
-               gaussian_mean=None, 
-               gaussian_variance=None,
-               ground_truth_log_likelihood = None
-               )
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
+    #            color_set_size=num_groups, 
+    #            degree=None, 
+    #            num_nodes=num_nodes, 
+    #            gaussian_mean=None, 
+    #            gaussian_variance=None,
+    #            ground_truth_log_likelihood = None
+    #            )
     
     # print("Color assignment vector (g):")
     # print(g)
