@@ -109,8 +109,8 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
 
     iteration = 0
 
-    # while True:
-    for iteration in range(1000):
+    while True:
+    # for iteration in range(49):
 
         #update log likelihood matrix here by adding corresponding N to aall 1st term difference in corresponding heaps in C
         for i in range(C.shape[0]):
@@ -119,10 +119,14 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                 updated_heap = SortedSet([(0.0 if abs(tup[0] + n_val) < 1e-13 else algo_func(tup[0] + n_val), tup[1]) for tup in C[i, j]])
                 log_likelihood_matrix[i, j] = updated_heap
 
+        # print(log_likelihood_matrix)
+
         #log likelihood processed to choose last tuple
         log_likelihood_matrix_processed = np.array([
             [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in log_likelihood_matrix 
         ], dtype=float)
+
+        # print(log_likelihood_matrix_processed)
 
         # recoloring choice
         group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix_processed, axis=None), log_likelihood_matrix.shape)
@@ -134,7 +138,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
         node_to_move = log_likelihood_matrix[bef, aft][-1][-1]
 
         # recolor best node and best color / group change
-        print(node_to_move, bef, aft)
+        # print(node_to_move, bef, aft)
         graph.nodes[node_to_move]['color'] = aft
 
         # update n, m, g
@@ -148,17 +152,18 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
 
         # update elements in N, only elements with one or both index same as group change
         # e.g. 1->2, then 01, 02, 03, 12, 21, 20 ... needs to be updated, 03, 30 doesn't need to be updated
-        affected_pairs = set()
-        for x in list(range(num_groups)):
-            if x != bef:
-                affected_pairs.add((x, bef))
-                affected_pairs.add((bef, x))
-            if x != aft:
-                affected_pairs.add((aft, x))
-                affected_pairs.add((x, aft))
-        affected_pairs = list(affected_pairs)
+        # affected_pairs = set()
+        # for x in list(range(num_groups)):
+        #     if x != bef:
+        #         affected_pairs.add((x, bef))
+        #         affected_pairs.add((bef, x))
+        #     if x != aft:
+        #         affected_pairs.add((aft, x))
+        #         affected_pairs.add((x, aft))
+        # affected_pairs = list(affected_pairs)
 
-        for (r, s) in affected_pairs:     
+        # for (r, s) in affected_pairs:
+        for (r, s) in [(r, s) for r in range(num_groups) for s in range(num_groups) if r != s]: #TODO: same issue here, what is this loop over   
             n_after = n.copy()
             n_after[r] -= 1
             n_after[s] += 1
@@ -174,7 +179,9 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
         # remove node and its neighbors from any heaps in C that has one or both component same as group change
         # e.g. 1->2, then heaps 01, 02, 03, 12, 21, 20 in C ... needs to be updated, 03, 30 doesn't need to be updated
         # then in those heaps, remove node and its neighbors by finding their index in the sortedset by reference to cost change matrix
-        for (r, s) in affected_pairs:
+        #TODO: this fails, why though. Previously I thought I just have to loop over affected pairs, now I am looping through all pairs
+        # for (r, s) in affected_pairs:
+        for (r, s) in [(r, s) for r in range(num_groups) for s in range(num_groups) if r != s]: #TODO: can this loop through lesser stuff
             heap = C[r, s]
             for node_to_remove in [node_to_move] + list(graph.neighbors(node_to_move)):
                 heap.discard((cost_change_matrix[node_to_remove, s], node_to_remove))
@@ -207,8 +214,6 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
 
         # update log likelihood data
         iteration += 1
-        if iteration % 100 == 0:
-            print(iteration)
         log_likelihood = log_likelihood + log_likelihood_change
         log_likelihood_data[0].append(iteration)
         log_likelihood_data[1].append(log_likelihood)

@@ -40,7 +40,7 @@ def fr(x): # reluctant transformation to cost change matrix
         return 0.0 if x == 0 else 1.0 / x
 
 if __name__ == "__main__":
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(200, 4, a).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 6, a).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     results = {
@@ -63,20 +63,20 @@ if __name__ == "__main__":
 
     # ISOLATE TEST FOR ONE SPECIFIC INITIAL COLORING ------------------------
 
-    for node, color in enumerate(initial_node_colors[0]):
-        graph.nodes[node]['color'] = color
+    # for node, color in enumerate(initial_node_colors[0]):
+    #     graph.nodes[node]['color'] = color
 
-    graph_g, log_likelihood_data_g, final_w_g = optimise_sbm4(graph, num_groups, group_mode, algo_func=fg)
-    # graph_r, log_likelihood_data_r, final_w_r = optimise_sbm4(graph, num_groups, group_mode, algo_func="reluctant")
+    # graph_g, log_likelihood_data_g, final_w_g = optimise_sbm4(graph, num_groups, group_mode, algo_func=fg)
+    # # graph_r, log_likelihood_data_r, final_w_r = optimise_sbm4(graph, num_groups, group_mode, algo_func="reluctant")
 
-    draw_graph(graph_g, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=log_likelihood_data_g,
-            color_set_size=num_groups, 
-            degree=None, 
-            num_nodes=num_nodes, 
-            gaussian_mean=None, 
-            gaussian_variance=None,
-            ground_truth_log_likelihood = ground_truth_log_likelihood
-            )
+    # draw_graph(graph_g, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=log_likelihood_data_g,
+    #         color_set_size=num_groups, 
+    #         degree=None, 
+    #         num_nodes=num_nodes, 
+    #         gaussian_mean=None, 
+    #         gaussian_variance=None,
+    #         ground_truth_log_likelihood = ground_truth_log_likelihood
+    #         )
 
     # print(log_likelihood_data_g)
     # ------------------------------------------------------------------------S
@@ -86,10 +86,10 @@ if __name__ == "__main__":
     #     graph_copy.nodes[node]['color'] = 0
 
     # replace all colors with initial colorings
-    # start_time = time.time()
-    # for i, initial_coloring in enumerate(initial_node_colors):
-    #     for node, color in enumerate(initial_coloring):
-    #         graph.nodes[node]['color'] = color
+    start_time = time.time()
+    for i, initial_coloring in enumerate(initial_node_colors):
+        for node, color in enumerate(initial_coloring):
+            graph.nodes[node]['color'] = color
 
     # # # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
     # # #         color_set_size=num_groups, 
@@ -100,28 +100,28 @@ if __name__ == "__main__":
     # # #         ground_truth_log_likelihood = ground_truth_log_likelihood
     # # #         )
 
-    #     graph_copy = graph.copy()
+        graph_copy = graph.copy()
 
-    #     # optimise sbm and get final w and log likelihood
-    #     sbm_graph_g, log_likelihood_data_g, final_w_g = optimise_sbm4(graph, num_groups, group_mode, algo_func=fg)
-    #     sbm_graph_r, log_likelihood_data_r, final_w_r = optimise_sbm4(graph_copy, num_groups, group_mode, algo_func=fr)
+        # optimise sbm and get final w and log likelihood
+        sbm_graph_g, log_likelihood_data_g, final_w_g = optimise_sbm4(graph, num_groups, group_mode, algo_func=fg)
+        sbm_graph_r, log_likelihood_data_r, final_w_r = optimise_sbm4(graph_copy, num_groups, group_mode, algo_func=fr)
 
-    #     results["cost_data"][f"initial_coloring_{i}"] = {
-    #         "cost_data_g": log_likelihood_data_g,
-    #         "cost_data_r": log_likelihood_data_r
-    #     }
+        results["cost_data"][f"initial_coloring_{i}"] = {
+            "cost_data_g": log_likelihood_data_g,
+            "cost_data_r": log_likelihood_data_r
+        }
 
-    #     print(f"{i} initial coloring optimisation complete")
+        print(f"{i} initial coloring optimisation complete")
     
-    # end_time = time.time()
-    # print(f"Execution time: {end_time - start_time:.4f} seconds")
+    end_time = time.time()
+    print(f"Execution time: {end_time - start_time:.4f} seconds")
 
-    # graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results"
+    graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results"
 
-    # with open(os.path.join(graphs_path, f"{graph_name}2_results.json"), 'w') as f:
-    #     json.dump(results, f, indent = 2)
+    with open(os.path.join(graphs_path, f"{graph_name}2_results.json"), 'w') as f:
+        json.dump(results, f, indent = 2)
 
-    # print(f"Saved results to {graphs_path}/{graph_name}2_results.json")  
+    print(f"Saved results to {graphs_path}/{graph_name}2_results.json")  
 
 
     # DONT RECOLOR, INITIAL COLORING IS THE GROUND TRUTH --------------------------------------------------------------------
