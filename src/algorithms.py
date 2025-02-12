@@ -47,7 +47,7 @@ class GreedyState:
         self.N = np.zeros((num_groups, num_groups))
         self.C = np.empty((num_groups, num_groups), dtype=object)
 
-        for (r, s) in [(r, s) for r in range(num_groups) for s in range(num_groups) if r != s]:
+        for (r, s) in [(r, s) for r in range(num_groups) for s in range(num_groups)]:
         # for (r, s) in [(r, s) for r in range(num_groups) for s in range(num_groups) if r != s]:
             self.C[r, s] = SortedSet()
             
@@ -96,7 +96,7 @@ class GreedyState:
     
     def find_best_move(self, algo_func):
         C_processed = np.array([
-            [0 if cell == None else cell[-1][0] for cell in row] for row in self.C
+            [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in self.C
         ], dtype=float)
         
         log_likelihood_matrix = C_processed + self.N
@@ -152,7 +152,7 @@ class GreedyState:
             if log_likelihood_change is None:
                 break
             self.change_color(node_to_move, new_color)
-            # print(iteration)
+            print(iteration)
             iteration += 1
             self.log_likelihood += log_likelihood_change
             self.log_likelihood_data[0].append(iteration)
@@ -371,6 +371,7 @@ def optimise_sbm5(graph, num_groups, group_mode, algo_func):
 
         # update log likelihood data
         iteration += 1
+        print(iteration)
         log_likelihood = log_likelihood + log_likelihood_change
         log_likelihood_data[0].append(iteration)
         log_likelihood_data[1].append(log_likelihood)

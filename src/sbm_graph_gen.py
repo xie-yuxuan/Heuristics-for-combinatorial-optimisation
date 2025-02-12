@@ -33,13 +33,29 @@ def gen_sbm_graph(g, w):
 
     return graph, adjacency_matrix
 
+def analyze_graph(graph, g):
+    num_edges = graph.number_of_edges()
+    avg_degree = num_edges / len(graph.nodes())
+
+    # Count edges within group 0, within group 1, and between groups
+    edges_within_0 = sum(1 for u, v in graph.edges() if g[u] == 0 and g[v] == 0)
+    edges_within_1 = sum(1 for u, v in graph.edges() if g[u] == 1 and g[v] == 1)
+    edges_between = sum(1 for u, v in graph.edges() if g[u] != g[v])
+
+    print(f"Adjacency matrix:\n{w}")
+    print(f"Number of edges: {num_edges}")
+    print(f"Average degree: {avg_degree:.2f}")
+    print(f"Edges within group 0: {edges_within_0}")
+    print(f"Edges within group 1: {edges_within_1}")
+    print(f"Edges between group 0 and 1: {edges_between}")
+
 if __name__ == '__main__':
     # Set a random seed for reproducibility
     seed = 1
     np.random.seed(seed)
 
     # set parameters
-    num_nodes = 10
+    num_nodes = 1000
     num_groups = 2
     num_initial_colorings = 100
     group_mode = ["association", "bipartite", "core-periphery"][0]
@@ -68,18 +84,19 @@ if __name__ == '__main__':
         w[0, 0] = 1  # loners have low self-connections
 
     w /= num_nodes
-
+    
     graph, adjacency_matrix = gen_sbm_graph(g, w)
+    analyze_graph(graph, g)
 
     # uncomment to view graphs before saving
-    draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
-               color_set_size=num_groups, 
-               degree=None, 
-               num_nodes=num_nodes, 
-               gaussian_mean=None, 
-               gaussian_variance=None,
-               ground_truth_log_likelihood = None
-               )
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
+    #            color_set_size=num_groups, 
+    #            degree=None, 
+    #            num_nodes=num_nodes, 
+    #            gaussian_mean=None, 
+    #            gaussian_variance=None,
+    #            ground_truth_log_likelihood = None
+    #            )
     
     # print("Color assignment vector (g):")
     # print(g)

@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     # ISOLATE TEST FOR ONE SPECIFIC INITIAL COLORING ------------------------
 
-    for node, color in enumerate(initial_node_colors[1]):
+    for node, color in enumerate(initial_node_colors[0]):
         graph.nodes[node]['color'] = color
 
     # **Instantiate GreedyState**
@@ -66,14 +66,14 @@ if __name__ == "__main__":
     # graph_g, log_likelihood_data_g, final_w_g = optimise_sbm5(graph, num_groups, group_mode, algo_func=fg)
     # # graph_r, log_likelihood_data_r, final_w_r = optimise_sbm4(graph, num_groups, group_mode, algo_func="reluctant")
 
-    draw_graph(graph_g, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=log_likelihood_data_g,
-            color_set_size=num_groups, 
-            degree=None, 
-            num_nodes=num_nodes, 
-            gaussian_mean=None, 
-            gaussian_variance=None,
-            ground_truth_log_likelihood = ground_truth_log_likelihood
-            )
+    # draw_graph(graph_g, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=log_likelihood_data_g,
+    #         color_set_size=num_groups, 
+    #         degree=None, 
+    #         num_nodes=num_nodes, 
+    #         gaussian_mean=None, 
+    #         gaussian_variance=None,
+    #         ground_truth_log_likelihood = ground_truth_log_likelihood
+    #         )
 
     # print(log_likelihood_data_g)
     # ------------------------------------------------------------------------S
