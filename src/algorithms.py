@@ -8,38 +8,24 @@ import time
 import copy
 from networkx.readwrite import json_graph
 
-from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_likelihood, compute_w
+from utils import calc_cost, calc_delta_cost, calc_delta_cost_edge, calc_log_likelihood, compute_w, bisect
 
 # implement object state to reduce boiler plate code
 
-class GreedyState:
-    def __init__(self, graph, num_groups, group_mode):
+class SBMState:
+    def __init__(self, graph, num_groups, w): # take w as an arugment, play with diff w
         self.graph = graph
         self.num_groups = num_groups
+
         self.g = np.array([graph.nodes[node]['color'] for node in graph.nodes])
-        
         self.n = np.zeros(num_groups)
         self.m = np.zeros((num_groups, num_groups))
-        
         for node in graph.nodes():
             self.n[self.g[node]] += 1
-        
         for u, v in graph.edges():
             self.m[self.g[v], self.g[u]] = self.m[self.g[u], self.g[v]] = self.m[self.g[u], self.g[v]] + 1
-        
-        self.w = np.zeros((num_groups, num_groups))
-        if group_mode == "association":
-            self.w += 1  # Small baseline for non-diagonal elements
-            np.fill_diagonal(self.w, 9)  # Large diagonal elements
-        elif group_mode == "bipartite":
-            self.w += 9  # Large baseline for non-diagonal elements
-            np.fill_diagonal(self.w, 1)  # Small diagonal elements
-        elif group_mode == "core-periphery":
-            self.w += 9  # Large baseline
-            self.w[0, :] = 1  # Small first row (loners have low connections to all groups)
-            self.w[:, 0] = 1  # Small first column (low connections to loners)
-            self.w[0, 0] = 1  # loners have low self-connections
-        self.w /= len(graph.nodes)
+
+        self.w = w.copy()
 
         self.log_likelihood = calc_log_likelihood(self.n, self.m, self.w)
         self.log_likelihood_data = [[0], [self.log_likelihood]]
@@ -49,7 +35,7 @@ class GreedyState:
 
         for (r, s) in [(r, s) for r in range(num_groups) for s in range(num_groups)]:
         # for (r, s) in [(r, s) for r in range(num_groups) for s in range(num_groups) if r != s]:
-            self.C[r, s] = SortedSet()
+            self.C[r, s] = SortedSet() # not sure what complexity this is
             
             n_after = self.n.copy()
             n_after[r] -= 1
@@ -71,7 +57,8 @@ class GreedyState:
         nodes_to_update = nodes_to_update or self.graph.nodes()
         
         for node in nodes_to_update:
-            current_color = self.graph.nodes[node]['color']
+            current_color = self.g[node]
+
             self.cost_change_matrix[node, current_color] = 0
             
             for color in range(self.num_groups):
@@ -93,25 +80,67 @@ class GreedyState:
                         self.cost_change_matrix[node, color] = 0
                     
                     self.C[current_color, color].add((self.cost_change_matrix[node, color], node))
-    
-    def find_best_move(self, algo_func):
-        C_processed = np.array([
-            [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in self.C
-        ], dtype=float)
+
+    def find_best_move(self, algo_func): #TODO change for reluctant
+        if algo_func == "greedy":
+            C_processed = np.array([
+                [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in self.C
+            ], dtype=float)
+            
+            log_likelihood_matrix = C_processed + self.N
+
+            group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix, axis=None), log_likelihood_matrix.shape)
+
+            log_likelihood_change = log_likelihood_matrix[group_change]
+
+            if log_likelihood_change <= 0:
+                return None, None, None
+            node_to_move = self.C[bef, aft][-1][-1]
+            return node_to_move, aft, log_likelihood_change
         
-        log_likelihood_matrix = C_processed + self.N
+        elif algo_func == "reluctant":
+        
+            # log_likelihood_matrix = np.empty_like(self.C, dtype=object)
+            log_likelihood_matrix = np.full_like(self.C, np.nan, dtype=float)
 
-        group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix, axis=None), log_likelihood_matrix.shape)
-        log_likelihood_change = log_likelihood_matrix[group_change]
+            # chosen_nodes = np.empty_like(self.C, dtype=object)
+            chosen_nodes = np.full_like(self.C, np.nan, dtype=object)
 
-        if log_likelihood_change <= 0:
+            for (r, s) in [(r, s) for r in range(self.num_groups) for s in range(self.num_groups) if r != s]:   
+                chosen_tuple = bisect(self.C[r, s], self.N[r, s])
+                result = chosen_tuple[0] + self.N[r, s] if chosen_tuple else np.nan # log likelihood matrix is after adding N
+                # need to threshold this matrix if element is less than 1e-13
+                log_likelihood_matrix[r, s] = result if result is np.nan or result >= 1e-13 else np.nan
+                chosen_nodes[r, s] = chosen_tuple[1] if chosen_tuple else np.nan 
+            # print(self.C)
+            # print(self.N)
+            # print(log_likelihood_matrix)
+            # print(chosen_nodes)
+
+            if np.all(log_likelihood_matrix == np.nan):
+                return None, None, None
+            
+            # Convert to NumPy array, replacing None with np.nan
+            arr = np.array(log_likelihood_matrix, dtype=float)
+            # arr[arr <= 0] = np.nan  # Set non-positive values to NaN
+            
+            # Find the minimum positive value
+            min_val = np.nanmin(arr) if np.any(np.isfinite(arr)) else None
+            
+            if min_val is not None:
+                # Get the index of the minimum positive value
+                group_change = bef, aft = np.argwhere(arr == min_val)[0]
+                # print(group_change)
+                node_to_move = chosen_nodes[bef, aft]
+                log_likelihood_change = log_likelihood_matrix[bef, aft]
+                return node_to_move, aft, log_likelihood_change
             return None, None, None
-        node_to_move = self.C[bef, aft][-1][-1]
-        return node_to_move, aft, log_likelihood_change
+
+
+
 
     def change_color(self, node, new_color):
-        old_color = self.graph.nodes[node]['color']
-        self.graph.nodes[node]['color'] = new_color
+        old_color = self.g[node]
         self.n[old_color] -= 1
         self.n[new_color] += 1
         self.g[node] = new_color
@@ -120,8 +149,8 @@ class GreedyState:
             self.m[old_color, self.g[neighbor]] = self.m[self.g[neighbor], old_color] = self.m[self.g[neighbor], old_color] - 1
             self.m[new_color, self.g[neighbor]] = self.m[self.g[neighbor], new_color] = self.m[self.g[neighbor], new_color] + 1
     
-        # update elements in N, TODO: can be turned into function to reduce boiler plate code
-        for (r, s) in [(r, s) for r in range(self.num_groups) for s in range(self.num_groups) if r != s]:  
+        # update elements in N
+        for (r, s) in [(r, s) for r in range(self.num_groups) for s in range(self.num_groups) if r != s]:   
             n_after = self.n.copy()
             n_after[r] -= 1
             n_after[s] += 1
@@ -138,25 +167,31 @@ class GreedyState:
         affected_nodes = [node] + list(self.graph.neighbors(node))
         # remove node and its neighbors from any heaps in C
         for (r, s) in [(r, s) for r in range(self.num_groups) for s in range(self.num_groups) if r != s]: 
-            heap = self.C[r, s]
             for node_to_remove in affected_nodes:
-                heap.discard((self.cost_change_matrix[node_to_remove, s], node_to_remove))
+                self.C[r, s].discard((self.cost_change_matrix[node_to_remove, s], node_to_remove))
 
         self._update_cost_change_matrix_and_C(affected_nodes)
 
     def optimise(self, algo_func):
         iteration = 0
         while True:
-        # for i in range(1000):
+        # for i in range(4):
+            # print(self.C)
+            # print(self.N)
             node_to_move, new_color, log_likelihood_change = self.find_best_move(algo_func)
+            # print(node_to_move, new_color, log_likelihood_change)
             if log_likelihood_change is None:
                 break
             self.change_color(node_to_move, new_color)
-            print(iteration)
             iteration += 1
             self.log_likelihood += log_likelihood_change
             self.log_likelihood_data[0].append(iteration)
             self.log_likelihood_data[1].append(self.log_likelihood)
+        
+        # loop through g and then recolor all nodes
+        for node, color in enumerate(self.g):
+            self.graph.nodes[node]['color'] = color
+
         return self.graph, self.log_likelihood_data, self.w
 
 
@@ -267,7 +302,7 @@ def optimise_sbm5(graph, num_groups, group_mode, algo_func):
                 # current color, color, need to update m
                 m_after = m.copy()
                 original_color = g[node]  # Save original color
-                g[node] = color           
+                g[node] = color
                 
                 for neighbor in graph.neighbors(node):
                     m_after[current_color, g[neighbor]] = m_after[g[neighbor], current_color] = m_after[g[neighbor], current_color] - 1
@@ -441,6 +476,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
         if abs(N[r, s]) < 1e-13:
             N[r, s] = 0
 
+
     # Initialise cost change matrix, reluctant just needs to apply reciprocal function, need to know when to update back
     cost_change_matrix = np.zeros((len(graph.nodes), num_groups))
     for node in graph.nodes:
@@ -450,7 +486,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                 # current color, color, need to update m
                 m_after = m.copy()
                 original_color = g[node]  # Save original color
-                g[node] = color           
+                g[node] = color  
                 
                 for neighbor in graph.neighbors(node):
                     m_after[current_color, g[neighbor]] = m_after[g[neighbor], current_color] = m_after[g[neighbor], current_color] - 1
@@ -481,7 +517,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
     iteration = 0
 
     while True:
-    # for iteration in range(4):
+    # for iteration in range(100):
 
         #update log likelihood matrix here by adding corresponding N to aall 1st term difference in corresponding heaps in C
         for r in range(C.shape[0]):
@@ -536,6 +572,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
             if abs(N[r, s]) < 1e-13:
                 N[r, s] = 0
 
+
         # remove node and its neighbors from any heaps in C
         for (r, s) in [(r, s) for r in range(num_groups) for s in range(num_groups) if r != s]: 
             heap = C[r, s]
@@ -551,14 +588,14 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
             for color in range(num_groups):
                 if color != current_color:
                     m_after = m.copy()
-                    original_color = g[node]  # Save original color
-                    g[node] = color           
+                    original_color = g[affected_node]  # Save original color
+                    g[affected_node] = color   
                     
                     for neighbor in graph.neighbors(affected_node):
                         m_after[current_color, g[neighbor]] = m_after[g[neighbor], current_color] = m_after[g[neighbor], current_color] - 1
                         m_after[color, g[neighbor]] = m_after[g[neighbor], color] = m_after[g[neighbor], color] + 1    
                     
-                    g[node] = original_color 
+                    g[affected_node] = original_color 
 
                     cost_change_matrix[affected_node, color] = np.nansum(
                         np.triu(
@@ -567,6 +604,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
                         )
                     if abs(cost_change_matrix[affected_node, color]) < 1e-13:
                         cost_change_matrix[affected_node, color] = 0
+
                     
                     # add node and its neighbors to heaps in C
                     C[current_color, color].add((cost_change_matrix[affected_node, color], affected_node))

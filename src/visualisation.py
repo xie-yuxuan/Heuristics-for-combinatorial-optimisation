@@ -80,7 +80,7 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
     # plt.savefig(graph_name)
     plt.show()
 
-def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode, ground_truth_log_likelihood, specific_coloring):
+def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode, ground_truth_w, ground_truth_log_likelihood, specific_coloring):
 
     plt.figure(figsize=(10, 6))
     # Iterate over each initial coloring in cost_data
@@ -117,8 +117,8 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
     
     param_text = (f"Number of Groups: {num_groups}\n"
                   f"Number of Nodes: {num_nodes}\n"
-                  f"Group Mode: {group_mode}")
-    plt.gcf().text(0.66, 0.3, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
+                  f"Ground truth w: {ground_truth_w}")
+    plt.gcf().text(0.5, 0.3, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
 
     plt.xlabel("Iterations")
     plt.ylabel("Log Likelihood")
@@ -213,7 +213,7 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
     plt.show()
 
 
-def sbm_plot_final_costs(cost_data, graph_name, num_nodes, num_groups, group_mode, ground_truth_log_likelihood):
+def sbm_plot_final_costs(cost_data, graph_name, num_nodes, num_groups, group_mode, ground_truth_w, ground_truth_log_likelihood):
     '''
     Plot a scatter plot of final log likelihood against initial coloring. 
     Show average final log likelihood.
@@ -252,7 +252,7 @@ def sbm_plot_final_costs(cost_data, graph_name, num_nodes, num_groups, group_mod
 
     experiment_text = (f"Number of Groups: {num_groups}\n"
                   f"Number of Nodes: {num_nodes}\n"
-                  f"Group Mode: {group_mode}")
+                  f"Ground truth w: {ground_truth_w}")
     
     plt.gca().text(0.05, 0.3, experiment_text, transform=plt.gca().transAxes, fontsize=8, 
                    verticalalignment='bottom', horizontalalignment='left', bbox=dict(facecolor='white', alpha=0.5))

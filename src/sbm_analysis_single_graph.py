@@ -8,7 +8,7 @@ from visualisation import plot_cost_data, plot_final_costs, plot_cost_diff_histo
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\SBM(1000, 6, b)2_results.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\SBM(100, 2, a)c_results.json"
 
 
     with open(file_path, 'r') as f:
@@ -19,14 +19,15 @@ if __name__ == '__main__':
     num_nodes = data['num_nodes']
     num_groups = data['num_groups']
     group_mode = data['group_mode']
+    ground_truth_w = data['ground_truth_w']
     ground_truth_log_likelihood = data['ground_truth_log_likelihood']
     all_cost_data = data['cost_data']
 
     # plot log likelihood against iterations for all initial colorings / specific coloring
-    sbm_plot_cost_data(all_cost_data, graph_name, num_groups, num_nodes, group_mode, ground_truth_log_likelihood, specific_coloring=None)
+    sbm_plot_cost_data(all_cost_data, graph_name, num_groups, num_nodes, group_mode, ground_truth_w, ground_truth_log_likelihood, specific_coloring=None)
 
     # plot scatter of final log likelihood against initial colorings 
-    sbm_plot_final_costs(all_cost_data, graph_name, num_nodes, num_groups, group_mode, ground_truth_log_likelihood)
+    sbm_plot_final_costs(all_cost_data, graph_name, num_nodes, num_groups, group_mode, ground_truth_w, ground_truth_log_likelihood)
 
     # plot histogram of normalised log likelihood diff for all initial colorings
     sbm_plot_cost_diff_histogram(all_cost_data, num_nodes, graph_name, num_bins=100, bin_range=(-0.2, 0.2))

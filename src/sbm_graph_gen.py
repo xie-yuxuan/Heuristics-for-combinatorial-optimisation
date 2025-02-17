@@ -55,10 +55,10 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     # set parameters
-    num_nodes = 1000
+    num_nodes = 100
     num_groups = 2
     num_initial_colorings = 100
-    group_mode = ["association", "bipartite", "core-periphery"][0]
+    group_mode = ["association", "bipartite", "core-periphery", "design"][0]
     graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
 
     # Generate the g vector (color assignment)
@@ -126,6 +126,9 @@ if __name__ == '__main__':
         # ensures m is symmetric
         m[g[v], g[u]] = m[g[u], g[v]] = m[g[u], g[v]] + 1
 
+        
+    # Serialize to JSON string
+    w_json = json.dumps(w.tolist())
 
     data = {
         "graph_name": graph_name,
@@ -133,6 +136,7 @@ if __name__ == '__main__':
         "num_groups" : num_groups,
         "group_mode" : group_mode,
         "graph_data": graph_data,
+        "ground_truth_w" : w_json,
         "ground_truth_log_likelihood": calc_log_likelihood(n, m, w), #TODO: ground truth maybe not this, but instead the educated guess of w
         "initial_node_colors": initial_node_colors
     }

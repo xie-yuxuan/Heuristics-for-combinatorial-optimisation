@@ -11,6 +11,40 @@ Utility functions including:
 - calc_delta_cost_edge (no longer used, logic included in optimise function)
 """
 
+def bisect(heap, offset):
+    if not heap:
+        return None
+
+    left, right = 0, len(heap) - 1
+
+    while right - left > 1:
+        mid = (left + right) // 2
+
+        left_val = heap[left][0] + offset
+        right_val = heap[right][0] + offset
+
+        if left_val > 0 and right_val > 0:
+            right = mid
+        elif left_val > 0 and right_val <= 0:
+            right = mid
+        elif left_val <= 0 and right_val > 0:
+            left = mid
+        else:
+            return None
+
+    # Evaluate final two candidates
+    left_val = heap[left][0] + offset
+    right_val = heap[right][0] + offset
+
+    if left_val > 0 and right_val > 0:
+        return heap[left] if left_val <= right_val else heap[right]
+    elif left_val > 0:
+        return heap[left]
+    elif right_val > 0:
+        return heap[right]
+
+    return None
+
 def load_graph_from_json(file_path):
     with open(file_path, 'r') as f:
         data = json.load(f)
