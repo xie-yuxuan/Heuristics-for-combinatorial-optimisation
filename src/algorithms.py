@@ -5,6 +5,7 @@ import json
 import os
 import networkx as nx
 import time
+import random
 import copy
 from networkx.readwrite import json_graph
 
@@ -97,6 +98,37 @@ class SBMState:
                 return None, None, None
             node_to_move = self.C[bef, aft][-1][-1]
             return node_to_move, aft, log_likelihood_change
+            
+        elif algo_func == "greedy_random":
+            total_nodes = self.C.shape[0]
+            checked_nodes = set()
+
+            random.seed(1)
+
+            while len(checked_nodes) < total_nodes:
+                node = random.randint(0, total_nodes - 1)
+                if node in checked_nodes:
+                    continue
+
+                checked_nodes.add(node)
+
+                best_change = None
+                best_color = None
+
+                for color in range(self.C.shape[1]):
+                    if self.C[node, color]:
+                        candidate = self.C[node, color][-1][0] + self.N[node, color]
+                        if abs(candidate) < 1e-13:
+                            candidate = 0
+                        if candidate > 0 and (best_change is None or candidate > best_change):
+                            best_change = candidate
+                            best_color = color
+
+                if best_change is not None:
+                    node_to_move = self.C[node, best_color][-1][-1]
+                    return node_to_move, best_color, best_change
+
+            return None, None, None
         
         elif algo_func == "reluctant":
         
@@ -174,12 +206,14 @@ class SBMState:
 
     def optimise(self, algo_func):
         iteration = 0
+        # changes = []
         while True:
         # for i in range(4):
-            # print(self.C)
-            # print(self.N)
+
             node_to_move, new_color, log_likelihood_change = self.find_best_move(algo_func)
-            # print(node_to_move, new_color, log_likelihood_change)
+            # if node_to_move != None:
+            #     changes.append([node_to_move, new_color])
+
             if log_likelihood_change is None:
                 break
             self.change_color(node_to_move, new_color)
@@ -515,6 +549,7 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
             log_likelihood_matrix[i, j] = updated_heap
 
     iteration = 0
+    changes = []
 
     while True:
     # for iteration in range(100):
@@ -543,6 +578,9 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
             break
 
         node_to_move = log_likelihood_matrix[bef, aft][-1][-1]
+
+        if node_to_move != None:
+            changes.append([node_to_move, aft])
 
         # recolor best node and best color / group change
         # print(node_to_move, bef, aft)
@@ -611,11 +649,12 @@ def optimise_sbm4(graph, num_groups, group_mode, algo_func):
 
         # update log likelihood data
         iteration += 1
+        print(iteration)
         log_likelihood = log_likelihood + log_likelihood_change
         log_likelihood_data[0].append(iteration)
         log_likelihood_data[1].append(log_likelihood)
 
-    return graph, log_likelihood_data, w
+    return graph, log_likelihood_data, w, changes
 
 def optimise_sbm3(graph, num_groups, group_mode, algo_func):
     """

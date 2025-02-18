@@ -32707,6 +32707,7 @@
       }
     ]
   },
+  "ground_truth_w": "[[0.0005, 0.0045], [0.0045, 0.0005]]",
   "ground_truth_log_likelihood": -32768.08216229118,
   "initial_node_colors": [
     [
