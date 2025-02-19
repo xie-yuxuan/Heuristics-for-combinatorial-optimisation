@@ -206,13 +206,13 @@ class SBMState:
 
     def optimise(self, algo_func):
         iteration = 0
-        # changes = []
+        changes = []
         while True:
         # for i in range(4):
 
             node_to_move, new_color, log_likelihood_change = self.find_best_move(algo_func)
-            # if node_to_move != None:
-            #     changes.append([node_to_move, new_color])
+            if node_to_move != None:
+                changes.append([node_to_move, new_color])
 
             if log_likelihood_change is None:
                 break
@@ -226,7 +226,7 @@ class SBMState:
         for node, color in enumerate(self.g):
             self.graph.nodes[node]['color'] = color
 
-        return self.graph, self.log_likelihood_data, self.w
+        return self.graph, self.log_likelihood_data, self.w, changes
 
 
 # class GreedyState(object):

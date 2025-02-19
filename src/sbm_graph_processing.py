@@ -48,7 +48,7 @@ def fr(x): # reluctant transformation to cost change matrix
         return 0.0 if x == 0 else 1.0 / x
 
 if __name__ == "__main__":
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 2, a).json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 6, a).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_w, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     color_map_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
@@ -94,35 +94,35 @@ if __name__ == "__main__":
         graph.nodes[node]['color'] = color
 
     # **Instantiate GreedyState**
-    # greedy_state = SBMState(graph, num_groups, w)
-    # graph_g, log_likelihood_data_g, final_w_g, changes_g = greedy_state.optimise(algo_func="reluctant")
+    greedy_state = SBMState(graph, num_groups, w)
+    graph_g, log_likelihood_data_g, final_w_g, changes_g = greedy_state.optimise(algo_func="reluctant")
 
-    graph_g, log_likelihood_data_g, final_w_g, changes_g = optimise_sbm4(graph, num_groups, group_mode, algo_func=fr)
+    # graph_g, log_likelihood_data_g, final_w_g, changes_g = optimise_sbm4(graph, num_groups, group_mode, algo_func=fr)
     # graph_r, log_likelihood_data_r, final_w_r, changes_g = optimise_sbm4(graph, num_groups, group_mode, algo_func=fr)
 
     # Visualise graph after optimisation
-    draw_graph(graph_g, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=log_likelihood_data_g,
-            color_set_size=num_groups, 
-            degree=None, 
-            num_nodes=num_nodes, 
-            gaussian_mean=None, 
-            gaussian_variance=None,
-            ground_truth_log_likelihood = ground_truth_log_likelihood
-            )
+    # draw_graph(graph_g, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=log_likelihood_data_g,
+    #         color_set_size=num_groups, 
+    #         degree=None, 
+    #         num_nodes=num_nodes, 
+    #         gaussian_mean=None, 
+    #         gaussian_variance=None,
+    #         ground_truth_log_likelihood = ground_truth_log_likelihood
+    #         )
 
     # Visualise heatmap of node changes against iterations
     generate_heatmap_of_color_changes(specific_coloring, changes_g, num_nodes, num_groups, color_map)
 
     # Visualise histogram of number of colorings per node index
-    recolor_counts = [0] * num_nodes
-    for change in changes_g:
-        node_index, _ = change  # We don't need the color, just the node index
-        recolor_counts[node_index] += 1
-    plt.bar(range(num_nodes), recolor_counts)
-    plt.xlabel('Node Index')
-    plt.ylabel('Number of Recolors')
-    plt.title('Histogram of Node Recolors')
-    plt.show()
+    # recolor_counts = [0] * num_nodes
+    # for change in changes_g:
+    #     node_index, _ = change  # We don't need the color, just the node index
+    #     recolor_counts[node_index] += 1
+    # plt.bar(range(num_nodes), recolor_counts)
+    # plt.xlabel('Node Index')
+    # plt.ylabel('Number of Recolors')
+    # plt.title('Histogram of Node Recolors')
+    # plt.show()
     # ------------------------------------------------------------------------S
 
     # # make all colors red which is 0
