@@ -23,9 +23,7 @@ def bisect(heap, offset):
         left_val = heap[left][0] + offset
         right_val = heap[right][0] + offset
 
-        if left_val > 0 and right_val > 0:
-            right = mid
-        elif left_val > 0 and right_val <= 0:
+        if left_val > 0:
             right = mid
         elif left_val <= 0 and right_val > 0:
             left = mid

@@ -82,7 +82,7 @@ class SBMState:
                     
                     self.C[current_color, color].add((self.cost_change_matrix[node, color], node))
 
-    def find_best_move(self, algo_func): #TODO change for reluctant
+    def find_best_move(self, algo_func):
         if algo_func == "greedy":
             C_processed = np.array([
                 [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in self.C
@@ -206,13 +206,13 @@ class SBMState:
 
     def optimise(self, algo_func):
         iteration = 0
-        changes = []
+        # changes = []
         while True:
         # for i in range(4):
 
             node_to_move, new_color, log_likelihood_change = self.find_best_move(algo_func)
-            if node_to_move != None:
-                changes.append([node_to_move, new_color])
+            # if node_to_move != None:
+            #     changes.append([node_to_move, new_color])
 
             if log_likelihood_change is None:
                 break
@@ -226,7 +226,7 @@ class SBMState:
         for node, color in enumerate(self.g):
             self.graph.nodes[node]['color'] = color
 
-        return self.graph, self.log_likelihood_data, self.w, changes
+        return self.graph, self.log_likelihood_data, self.w, self.g
 
 
 # class GreedyState(object):

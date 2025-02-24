@@ -65,10 +65,20 @@ if __name__ == '__main__':
 
     # set parameters
     num_nodes = 1000
-    num_groups = 6
+    num_groups = 3
     num_initial_colorings = 100
-    group_mode = ["association", "bipartite", "core-periphery", "design"][0]
-    graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
+    # group_mode = "association"
+    # group_mode = "bipartite"
+    # group_mode = "core-periphery"
+    # group_mode = "design"
+
+    # for group_mode in ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"]:
+
+    group_mode = "t0"
+    if group_mode[0] == "t":
+        graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode})"
+    else:
+        graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
 
     # Generate the g vector (color assignment)
     g = []
@@ -76,13 +86,14 @@ if __name__ == '__main__':
         g.extend([group] * (num_nodes // num_groups))
     g.extend([num_groups - 1] * (num_nodes % num_groups))
     g = np.array(g)
+    np.random.shuffle(g)
 
     # Generate the w matrix (edge probabilities)
     w = np.zeros((num_groups, num_groups))
 
     if group_mode == "association":
-        w += 0.001  # Small baseline for non-diagonal elements
-        np.fill_diagonal(w, 20)  # Large diagonal elements
+        w += 1  # Small baseline for non-diagonal elements
+        np.fill_diagonal(w, 9)  # Large diagonal elements
     elif group_mode == "bipartite":
         w += 9  # Large baseline for non-diagonal elements
         np.fill_diagonal(w, 1)  # Small diagonal elements
@@ -92,12 +103,16 @@ if __name__ == '__main__':
         w[:, 0] = 1  # Small first column (low connections to loners)
         w[0, 0] = 1  # loners have low self-connections
     elif group_mode == "design": # core peri + association
-        w += 0.001
-        np.fill_diagonal(w, 15)
-        w[0, :] = 0.001
-        w[:, 0] = 0.001
-        w[0, 0] = 0.001
-
+        w += 1
+        np.fill_diagonal(w, 30)
+        w[0, :] = 1
+        w[:, 0] = 1
+        w[0, 0] = 1
+    elif group_mode[0] == "t":
+        mode_number = int(group_mode[1:])  
+        mapped_value = np.linspace(-1+1e-13, 1-1e-13, 10)[mode_number]
+        w += 5*(1-mapped_value)
+        np.fill_diagonal(w, 5*(1+mapped_value))
 
     w /= num_nodes
     
@@ -105,14 +120,14 @@ if __name__ == '__main__':
     analyze_graph(graph, g)
 
     # uncomment to view graphs before saving
-    draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
-               color_set_size=num_groups, 
-               degree=None, 
-               num_nodes=num_nodes, 
-               gaussian_mean=None, 
-               gaussian_variance=None,
-               ground_truth_log_likelihood = None
-               )
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
+    #            color_set_size=num_groups, 
+    #            degree=None, 
+    #            num_nodes=num_nodes, 
+    #            gaussian_mean=None, 
+    #            gaussian_variance=None,
+    #            ground_truth_log_likelihood = None
+    #            )
     
     # print("Color assignment vector (g):")
     # print(g)

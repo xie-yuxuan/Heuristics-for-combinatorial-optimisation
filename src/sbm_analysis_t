@@ -1,0 +1,79 @@
+import os
+import json
+import re
+import numpy as np
+import matplotlib.pyplot as plt
+
+def sbm_plot_transition(results_folder, num_nodes, num_groups):
+    pattern = re.compile(rf"SBM\({num_nodes}, {num_groups}, t\d\)c_results\.json")
+    result_files = [f for f in os.listdir(results_folder) if pattern.match(f)]
+
+    if not result_files:
+        print("No matching results found.")
+        return
+
+    nmi_data = {}
+
+    for file in result_files:
+        file_path = os.path.join(results_folder, file)
+
+        with open(file_path, 'r') as f:
+            results = json.load(f)
+
+        # Extract "tX" (e.g., "t0", "t1", ..., "t9") from filename
+        match = re.search(r"t(\d)", file)
+        if not match:
+            continue
+        t_value = int(match.group(1))  # Extract number after 't'
+
+        nmi_g_list = []
+        nmi_r_list = []
+
+        for key in results.get("cost_data", {}):
+            cost_entry = results["cost_data"][key]
+            nmi_g = cost_entry.get("nmi_g")
+            nmi_r = cost_entry.get("nmi_r")
+
+            if nmi_g is not None:
+                nmi_g_list.append(nmi_g)
+            if nmi_r is not None:
+                nmi_r_list.append(nmi_r)
+
+        # Compute average NMI across all initial colorings
+        if nmi_g_list and nmi_r_list:
+            avg_nmi_g = np.mean(nmi_g_list)
+            avg_nmi_r = np.mean(nmi_r_list)
+            nmi_data[t_value] = (avg_nmi_g, avg_nmi_r)
+
+    if not nmi_data:
+        print("No valid NMI data found.")
+        return
+
+    # Convert available t-values into x-axis values
+    t_values = sorted(nmi_data.keys())  # Sort numerically
+    x_values = [(t - 4.5) / 4.5 for t in t_values]  # Scale to [-1, 1]
+    nmi_g_values = [nmi_data[t][0] for t in t_values]
+    nmi_r_values = [nmi_data[t][1] for t in t_values]
+
+    # Plot
+    plt.figure(figsize=(8, 5))
+    plt.plot(x_values, nmi_g_values, marker='o', linestyle='-', label='Greedy NMI', color='red')
+    plt.plot(x_values, nmi_r_values, marker='s', linestyle='-', label='Reluctant NMI', color='green')
+
+    plt.xlabel("Group Mode (Mapped from t0-t9 → [-1, 1])")
+    plt.ylabel("Average NMI")
+    plt.title(f"NMI Transition for SBM({num_nodes}, {num_groups}, tX)")
+    plt.legend()
+    plt.grid(True)
+
+    # Set dynamic x-ticks based on available data
+    plt.xticks(x_values, labels=[f"t{t}" for t in t_values])
+
+    plt.savefig(f"plots/SBM({num_nodes}, {num_groups}, t)_nmi.png")
+
+    plt.show()
+    
+
+if __name__ == "__main__":
+    results_folder = r'C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results'
+    sbm_plot_transition(results_folder, num_nodes=1000, num_groups=2)
