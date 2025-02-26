@@ -58,35 +58,52 @@ def analyze_graph(graph, g):
     for (group1, group2), count in intergroup_edges.items():
         print(f"Edges between group {group1} and group {group2}: {count}")
 
+    isolated_nodes = [node for node in graph.nodes() if len(list(graph.neighbors(node))) == 0]
+    if isolated_nodes:
+        print(f"Isolated nodes: {isolated_nodes}")
+    else:
+        print("No isolated nodes.")
+
 if __name__ == '__main__':
-    # Set a random seed for reproducibility
-    seed = 1
-    np.random.seed(seed)
 
     # set parameters
     num_nodes = 1000
-    num_groups = 3
+    num_groups = 2
     num_initial_colorings = 100
     # group_mode = "association"
     # group_mode = "bipartite"
     # group_mode = "core-periphery"
     # group_mode = "design"
+    group_mode = "t"
+    mode_number = 1
+    instance_number = 0
 
-    # for group_mode in ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"]:
-
-    group_mode = "t0"
-    if group_mode[0] == "t":
-        graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode})"
-    else:
-        graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
-
-    # Generate the g vector (color assignment)
     g = []
     for group in range(num_groups):
         g.extend([group] * (num_nodes // num_groups))
     g.extend([num_groups - 1] * (num_nodes % num_groups))
     g = np.array(g)
-    np.random.shuffle(g)
+
+    # for mode_number in range(10):  # X values (t0 to t9)
+    #     mapped_value = np.linspace(-0.95, 0.95, 10)[mode_number]
+        
+    #     for instance_number in range(10):  # Y values (00 to 09, 10 to 19, etc.)
+    #         seed = instance_number + 1  # Ensures repeatability
+    #         print(seed)
+
+
+    mapped_value = np.linspace(-0.95, 0.95, 10)[mode_number]
+    seed = instance_number+1
+    np.random.seed(seed)
+
+    # Generate g (same for all tX with the same instance_number)
+    g_copy = g.copy()
+    np.random.shuffle(g_copy)
+
+    if group_mode[0] == "t":
+        graph_name = f"SBM({num_nodes}, {num_groups}, t{mode_number}{instance_number})"
+    else:
+        graph_name = f"SBM({num_nodes}, {num_groups}, {group_mode[0]})"
 
     # Generate the w matrix (edge probabilities)
     w = np.zeros((num_groups, num_groups))
@@ -109,70 +126,46 @@ if __name__ == '__main__':
         w[:, 0] = 1
         w[0, 0] = 1
     elif group_mode[0] == "t":
-        mode_number = int(group_mode[1:])  
-        mapped_value = np.linspace(-1+1e-13, 1-1e-13, 10)[mode_number]
-        w += 5*(1-mapped_value)
-        np.fill_diagonal(w, 5*(1+mapped_value))
+        # mode_number = int(group_mode[1:])  
+        # mapped_value = np.linspace(-0.95, 0.95, 10)[mode_number]
+        w += 12*(1-mapped_value)
+        np.fill_diagonal(w, 12*(1+mapped_value))
 
     w /= num_nodes
-    
-    graph, adjacency_matrix = gen_sbm_graph(g, w)
-    analyze_graph(graph, g)
 
-    # uncomment to view graphs before saving
-    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
-    #            color_set_size=num_groups, 
-    #            degree=None, 
-    #            num_nodes=num_nodes, 
-    #            gaussian_mean=None, 
-    #            gaussian_variance=None,
-    #            ground_truth_log_likelihood = None
-    #            )
-    
-    # print("Color assignment vector (g):")
-    # print(g)
-    # print("Edge probability matrix (w):")
-    # print(w)
-    # print(adjacency_matrix)
+    graph, adjacency_matrix = gen_sbm_graph(g_copy, w)
+    analyze_graph(graph, g_copy)
 
-    # save graph into graphs folder
     graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
 
-    graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialised to JSON
+    graph_data = json_graph.node_link_data(graph)
     
-    # create a list of initial color states (list of lists)
     initial_node_colors = [
         [np.random.randint(0, num_groups) for _ in range(num_nodes)]
         for _ in range(num_initial_colorings)
     ]
 
-
     n, m = np.zeros(num_groups), np.zeros((num_groups, num_groups))
-
     for node in graph.nodes():
-        n[g[node]] += 1 # increment group count for each group
-
+        n[g_copy[node]] += 1
     for u, v in graph.edges():
-        # increment edge count between groups
-        # ensures m is symmetric
-        m[g[v], g[u]] = m[g[u], g[v]] = m[g[u], g[v]] + 1
+        m[g_copy[v], g_copy[u]] = m[g_copy[u], g_copy[v]] = m[g_copy[u], g_copy[v]] + 1
 
-        
-    # Serialize to JSON string
     w_json = json.dumps(w.tolist())
 
     data = {
         "graph_name": graph_name,
-        "num_nodes" : num_nodes,
-        "num_groups" : num_groups,
-        "group_mode" : group_mode,
+        "num_nodes": num_nodes,
+        "num_groups": num_groups,
+        "group_mode": f"t{mode_number}{instance_number}",
         "graph_data": graph_data,
-        "ground_truth_w" : w_json,
-        "ground_truth_log_likelihood": calc_log_likelihood(n, m, w), #TODO: ground truth maybe not this, but instead the educated guess of w
+        "ground_truth_w": w_json,
+        "ground_truth_log_likelihood": calc_log_likelihood(n, m, w),
         "initial_node_colors": initial_node_colors
     }
 
     with open(os.path.join(graphs_path, f"{graph_name}.json"), 'w') as f:
-        json.dump(data, f, indent = 2)
+        json.dump(data, f, indent=2)
 
     print(f"Saved graph to {graphs_path}/{graph_name}.json")
+

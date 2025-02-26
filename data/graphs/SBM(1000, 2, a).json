@@ -2,7 +2,7 @@
   "graph_name": "SBM(1000, 2, a)",
   "num_nodes": 1000,
   "num_groups": 2,
-  "group_mode": "association",
+  "group_mode": "t00",
   "graph_data": {
     "directed": false,
     "multigraph": false,

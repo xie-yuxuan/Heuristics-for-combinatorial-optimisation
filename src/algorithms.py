@@ -100,35 +100,53 @@ class SBMState:
             return node_to_move, aft, log_likelihood_change
             
         elif algo_func == "greedy_random":
-            total_nodes = self.C.shape[0]
-            checked_nodes = set()
+            if np.random.rand() < 0.05:  
+                valid_nodes = np.arange(len(self.g))  # All nodes are valid choices
+                node_to_move = np.random.choice(valid_nodes)  # Pick a random node
+                
+                # Get current color of the node
+                current_color = self.g[node_to_move]
+                
+                # Pick a different color (any color that is not the current color)
+                available_colors = np.delete(np.arange(self.num_groups), current_color)
+                aft = np.random.choice(available_colors)
 
-            random.seed(1)
+                # need to find the change in log_likelihood
+                old_log_likelihood = calc_log_likelihood(self.n, self.m, self.w)
 
-            while len(checked_nodes) < total_nodes:
-                node = random.randint(0, total_nodes - 1)
-                if node in checked_nodes:
-                    continue
+                m_copy = self.m.copy()
 
-                checked_nodes.add(node)
+                self.g[node_to_move] = aft
+                self.n[current_color] -= 1
+                self.n[aft] += 1
+                
+                for neighbor in self.graph.neighbors(node_to_move):
+                    m_copy[current_color, self.g[neighbor]] = m_copy[self.g[neighbor], current_color] = m_copy[self.g[neighbor], current_color] - 1
+                    m_copy[aft, self.g[neighbor]] = m_copy[self.g[neighbor], aft] = m_copy[self.g[neighbor], aft] + 1    
 
-                best_change = None
-                best_color = None
+                new_log_likelihood = calc_log_likelihood(self.n, self.m, self.w)
 
-                for color in range(self.C.shape[1]):
-                    if self.C[node, color]:
-                        candidate = self.C[node, color][-1][0] + self.N[node, color]
-                        if abs(candidate) < 1e-13:
-                            candidate = 0
-                        if candidate > 0 and (best_change is None or candidate > best_change):
-                            best_change = candidate
-                            best_color = color
+                self.g[node_to_move] = current_color
+                self.n[current_color] += 1
+                self.n[aft] -= 1
 
-                if best_change is not None:
-                    node_to_move = self.C[node, best_color][-1][-1]
-                    return node_to_move, best_color, best_change
+                return node_to_move, aft, new_log_likelihood-old_log_likelihood
+            else:
+                C_processed = np.array([
+                    [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in self.C
+                ], dtype=float)
+                
+                log_likelihood_matrix = C_processed + self.N
 
-            return None, None, None
+                group_change = bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix, axis=None), log_likelihood_matrix.shape)
+
+                log_likelihood_change = log_likelihood_matrix[group_change]
+
+                if log_likelihood_change <= 0:
+                    return None, None, None
+                node_to_move = self.C[bef, aft][-1][-1]
+                return node_to_move, aft, log_likelihood_change
+
         
         elif algo_func == "reluctant":
         
@@ -167,6 +185,73 @@ class SBMState:
                 log_likelihood_change = log_likelihood_matrix[bef, aft]
                 return node_to_move, aft, log_likelihood_change
             return None, None, None
+        
+        elif algo_func == "reluctant_random":
+            if np.random.rand() < 0.05:  
+                valid_nodes = np.arange(len(self.g))  # All nodes are valid choices
+                node_to_move = np.random.choice(valid_nodes)  # Pick a random node
+                
+                # Get current color of the node
+                current_color = self.g[node_to_move]
+                
+                # Pick a different color (any color that is not the current color)
+                available_colors = np.delete(np.arange(self.num_groups), current_color)
+                aft = np.random.choice(available_colors)
+
+                # need to find the change in log_likelihood
+                old_log_likelihood = calc_log_likelihood(self.n, self.m, self.w)
+
+                n_copy = self.n.copy()
+                g_copy = self.g.copy()
+                m_copy = self.m.copy()
+
+                n_copy[current_color] -= 1
+                n_copy[aft] += 1
+                g_copy[current_color] = aft
+                
+                for neighbor in self.graph.neighbors(node_to_move):
+                    m_copy[current_color, g_copy[neighbor]] = m_copy[g_copy[neighbor], current_color] = m_copy[g_copy[neighbor], current_color] - 1
+                    m_copy[aft, g_copy[neighbor]] = m_copy[g_copy[neighbor], aft] = m_copy[g_copy[neighbor], aft] + 1
+
+                new_log_likelihood = calc_log_likelihood(n_copy, m_copy, self.w)
+
+                return node_to_move, aft, new_log_likelihood-old_log_likelihood
+            else:
+                log_likelihood_matrix = np.full_like(self.C, np.nan, dtype=float)
+
+                # chosen_nodes = np.empty_like(self.C, dtype=object)
+                chosen_nodes = np.full_like(self.C, np.nan, dtype=object)
+
+                for (r, s) in [(r, s) for r in range(self.num_groups) for s in range(self.num_groups) if r != s]:   
+                    chosen_tuple = bisect(self.C[r, s], self.N[r, s])
+                    result = chosen_tuple[0] + self.N[r, s] if chosen_tuple else np.nan # log likelihood matrix is after adding N
+                    # need to threshold this matrix if element is less than 1e-13
+                    log_likelihood_matrix[r, s] = result if result is np.nan or result >= 1e-13 else np.nan
+                    chosen_nodes[r, s] = chosen_tuple[1] if chosen_tuple else np.nan 
+                # print(self.C)
+                # print(self.N)
+                # print(log_likelihood_matrix)
+                # print(chosen_nodes)
+
+                if np.all(log_likelihood_matrix == np.nan):
+                    return None, None, None
+                
+                # Convert to NumPy array, replacing None with np.nan
+                arr = np.array(log_likelihood_matrix, dtype=float)
+                # arr[arr <= 0] = np.nan  # Set non-positive values to NaN
+                
+                # Find the minimum positive value
+                min_val = np.nanmin(arr) if np.any(np.isfinite(arr)) else None
+                
+                if min_val is not None:
+                    # Get the index of the minimum positive value
+                    group_change = bef, aft = np.argwhere(arr == min_val)[0]
+                    # print(group_change)
+                    node_to_move = chosen_nodes[bef, aft]
+                    log_likelihood_change = log_likelihood_matrix[bef, aft]
+                    return node_to_move, aft, log_likelihood_change
+                return None, None, None
+
 
 
 
@@ -208,7 +293,7 @@ class SBMState:
         iteration = 0
         # changes = []
         while True:
-        # for i in range(4):
+        # for i in range(0):
 
             node_to_move, new_color, log_likelihood_change = self.find_best_move(algo_func)
             # if node_to_move != None:
@@ -225,6 +310,8 @@ class SBMState:
         # loop through g and then recolor all nodes
         for node, color in enumerate(self.g):
             self.graph.nodes[node]['color'] = color
+
+        # final_LL = calc_log_likelihood(self.n, self.m, self.w)
 
         return self.graph, self.log_likelihood_data, self.w, self.g
 
