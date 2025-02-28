@@ -65,13 +65,13 @@ if __name__ == "__main__":
 
 
 
-    mode_number = 3
+    mode_number = 7
     instance_number = 0
     seed = 1+instance_number
     np.random.seed(seed)
     
-    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 2, t{mode_number}{instance_number}).json"
-    # file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 2, t00).json"
+    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(10000, 2, t{mode_number}{instance_number}).json"
+    # file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 2, a).json"
 
 
     # file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 2, t9).json"
@@ -145,8 +145,11 @@ if __name__ == "__main__":
 
     # # # **Instantiate GreedyState**
     # greedy_state = SBMState(graph, num_groups, w)
-    # graph_g, log_likelihood_data_g, final_w_g, g_optimised_g = greedy_state.optimise(algo_func="reluctant_random")
+    # graph_g, log_likelihood_data_g, final_w_g, g_optimised_g, final_LL = greedy_state.optimise(algo_func="greedy_random")
 
+
+    # print(final_LL)
+    # print(log_likelihood_data_g[-1][-1])
 
     # # # print(normalized_mutual_info_score(g_copy, g_optimised_g))
     # # # print(g)

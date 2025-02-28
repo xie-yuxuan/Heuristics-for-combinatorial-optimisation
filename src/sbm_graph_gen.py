@@ -67,7 +67,7 @@ def analyze_graph(graph, g):
 if __name__ == '__main__':
 
     # set parameters
-    num_nodes = 1000
+    num_nodes = 10000
     num_groups = 2
     num_initial_colorings = 100
     # group_mode = "association"
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # group_mode = "core-periphery"
     # group_mode = "design"
     group_mode = "t"
-    mode_number = 1
+    mode_number = 7     
     instance_number = 0
 
     g = []
@@ -134,7 +134,19 @@ if __name__ == '__main__':
     w /= num_nodes
 
     graph, adjacency_matrix = gen_sbm_graph(g_copy, w)
+
     analyze_graph(graph, g_copy)
+
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
+    #         color_set_size=num_groups, 
+    #         degree=None, 
+    #         num_nodes=num_nodes, 
+    #         gaussian_mean=None, 
+    #         gaussian_variance=None,
+    #         ground_truth_log_likelihood = 0
+    #         )
+
+    
 
     graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
 

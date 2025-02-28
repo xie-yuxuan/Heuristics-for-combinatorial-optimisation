@@ -54,6 +54,7 @@ class SBMState:
         self.cost_change_matrix = np.zeros((len(graph.nodes), num_groups))
         self._update_cost_change_matrix_and_C() 
 
+
     def _update_cost_change_matrix_and_C(self, nodes_to_update=None):
         nodes_to_update = nodes_to_update or self.graph.nodes()
         
@@ -111,26 +112,11 @@ class SBMState:
                 available_colors = np.delete(np.arange(self.num_groups), current_color)
                 aft = np.random.choice(available_colors)
 
-                # need to find the change in log_likelihood
-                old_log_likelihood = calc_log_likelihood(self.n, self.m, self.w)
+                # log_likelihood_change = next((ll for ll, n in first_term_heap if n == node_to_move), None) + second_term
+                log_likelihood_change = self.cost_change_matrix[node_to_move][aft] + self.N[current_color][aft]
 
-                m_copy = self.m.copy()
+                return node_to_move, aft, log_likelihood_change
 
-                self.g[node_to_move] = aft
-                self.n[current_color] -= 1
-                self.n[aft] += 1
-                
-                for neighbor in self.graph.neighbors(node_to_move):
-                    m_copy[current_color, self.g[neighbor]] = m_copy[self.g[neighbor], current_color] = m_copy[self.g[neighbor], current_color] - 1
-                    m_copy[aft, self.g[neighbor]] = m_copy[self.g[neighbor], aft] = m_copy[self.g[neighbor], aft] + 1    
-
-                new_log_likelihood = calc_log_likelihood(self.n, self.m, self.w)
-
-                self.g[node_to_move] = current_color
-                self.n[current_color] += 1
-                self.n[aft] -= 1
-
-                return node_to_move, aft, new_log_likelihood-old_log_likelihood
             else:
                 C_processed = np.array([
                     [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in self.C
@@ -197,25 +183,32 @@ class SBMState:
                 # Pick a different color (any color that is not the current color)
                 available_colors = np.delete(np.arange(self.num_groups), current_color)
                 aft = np.random.choice(available_colors)
-
-                # need to find the change in log_likelihood
-                old_log_likelihood = calc_log_likelihood(self.n, self.m, self.w)
-
-                n_copy = self.n.copy()
-                g_copy = self.g.copy()
-                m_copy = self.m.copy()
-
-                n_copy[current_color] -= 1
-                n_copy[aft] += 1
-                g_copy[current_color] = aft
                 
-                for neighbor in self.graph.neighbors(node_to_move):
-                    m_copy[current_color, g_copy[neighbor]] = m_copy[g_copy[neighbor], current_color] = m_copy[g_copy[neighbor], current_color] - 1
-                    m_copy[aft, g_copy[neighbor]] = m_copy[g_copy[neighbor], aft] = m_copy[g_copy[neighbor], aft] + 1
+                # log_likelihood_change = next((ll for ll, n in first_term_heap if n == node_to_move), None) + second_term
+                log_likelihood_change = self.cost_change_matrix[node_to_move][aft] + self.N[current_color][aft]
 
-                new_log_likelihood = calc_log_likelihood(n_copy, m_copy, self.w)
+                return node_to_move, aft, log_likelihood_change
 
-                return node_to_move, aft, new_log_likelihood-old_log_likelihood
+                # # need to find the change in log_likelihood
+                # old_log_likelihood = calc_log_likelihood(self.n, self.m, self.w)
+
+                # m_copy = self.m.copy()
+
+                # self.g[node_to_move] = aft
+                # self.n[current_color] -= 1
+                # self.n[aft] += 1
+                
+                # for neighbor in self.graph.neighbors(node_to_move):
+                #     m_copy[current_color, self.g[neighbor]] = m_copy[self.g[neighbor], current_color] = m_copy[self.g[neighbor], current_color] - 1
+                #     m_copy[aft, self.g[neighbor]] = m_copy[self.g[neighbor], aft] = m_copy[self.g[neighbor], aft] + 1    
+
+                # new_log_likelihood = calc_log_likelihood(self.n, self.m, self.w)
+
+                # self.g[node_to_move] = current_color
+                # self.n[current_color] += 1
+                # self.n[aft] -= 1
+
+                # return node_to_move, aft, log_likelihood_change
             else:
                 log_likelihood_matrix = np.full_like(self.C, np.nan, dtype=float)
 
