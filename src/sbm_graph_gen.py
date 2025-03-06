@@ -67,7 +67,7 @@ def analyze_graph(graph, g):
 if __name__ == '__main__':
 
     # set parameters
-    num_nodes = 10000
+    num_nodes = 20000
     num_groups = 2
     num_initial_colorings = 100
     # group_mode = "association"

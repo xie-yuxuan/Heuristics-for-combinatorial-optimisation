@@ -149,10 +149,10 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
     plt.plot([], [], color="purple", label="Reluctant Random")
     plt.legend(loc="lower right")
     
-    param_text = (f"Number of Groups: {num_groups}\n"
-                  f"Number of Nodes: {num_nodes}\n"
-                  f"Ground truth w: {ground_truth_w}")
-    plt.gcf().text(0.5, 0.3, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
+    # param_text = (f"Number of Groups: {num_groups}\n"
+    #               f"Number of Nodes: {num_nodes}\n"
+    #               f"Ground truth w: {ground_truth_w}")
+    # plt.gcf().text(0.5, 0.3, param_text, fontsize=8, bbox=dict(facecolor='white', alpha=0.5))
 
     plt.xlabel("Iterations")
     plt.ylabel("Log Likelihood")
@@ -296,12 +296,12 @@ def sbm_plot_final_costs(cost_data, graph_name, num_nodes, num_groups, group_mod
     plt.ylabel('Final Log Likelihood')
     plt.title(f'Final Log likelihood for All Initial Colorings of {graph_name}')
 
-    experiment_text = (f"Number of Groups: {num_groups}\n"
-                  f"Number of Nodes: {num_nodes}\n"
-                  f"Ground truth w: {ground_truth_w}")
+    # experiment_text = (f"Number of Groups: {num_groups}\n"
+    #               f"Number of Nodes: {num_nodes}\n"
+    #               f"Ground truth w: {ground_truth_w}")
     
-    plt.gca().text(0.05, 0.3, experiment_text, transform=plt.gca().transAxes, fontsize=8, 
-                   verticalalignment='bottom', horizontalalignment='left', bbox=dict(facecolor='white', alpha=0.5))
+    # plt.gca().text(0.05, 0.3, experiment_text, transform=plt.gca().transAxes, fontsize=8, 
+    #                verticalalignment='bottom', horizontalalignment='left', bbox=dict(facecolor='white', alpha=0.5))
 
     plt.legend(loc='lower left')
 
