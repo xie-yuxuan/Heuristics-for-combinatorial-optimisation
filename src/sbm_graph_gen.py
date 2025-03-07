@@ -67,9 +67,16 @@ def analyze_graph(graph, g):
 if __name__ == '__main__':
 
     # set parameters
-    num_nodes = 20000
+    num_nodes = 1000
     num_groups = 2
     num_initial_colorings = 100
+
+    g = []
+    for group in range(num_groups):
+        g.extend([group] * (num_nodes // num_groups))
+    g.extend([num_groups - 1] * (num_nodes % num_groups))
+    g = np.array(g)
+
     # group_mode = "association"
     # group_mode = "bipartite"
     # group_mode = "core-periphery"
@@ -78,22 +85,17 @@ if __name__ == '__main__':
     mode_number = 7     
     instance_number = 0
 
-    g = []
-    for group in range(num_groups):
-        g.extend([group] * (num_nodes // num_groups))
-    g.extend([num_groups - 1] * (num_nodes % num_groups))
-    g = np.array(g)
+    mapped_value = np.linspace(-0.95, 0.95, 10)[mode_number]
+    seed = instance_number+1
 
     # for mode_number in range(10):  # X values (t0 to t9)
     #     mapped_value = np.linspace(-0.95, 0.95, 10)[mode_number]
         
-    #     for instance_number in range(10):  # Y values (00 to 09, 10 to 19, etc.)
+    #     for instance_number in range(0):  # Y values (00 to 09, 10 to 19, etc.)
     #         seed = instance_number + 1  # Ensures repeatability
     #         print(seed)
 
-
-    mapped_value = np.linspace(-0.95, 0.95, 10)[mode_number]
-    seed = instance_number+1
+    # set random seed
     np.random.seed(seed)
 
     # Generate g (same for all tX with the same instance_number)
@@ -119,35 +121,33 @@ if __name__ == '__main__':
         w[0, :] = 1  # Small first row (loners have low connections to all groups)
         w[:, 0] = 1  # Small first column (low connections to loners)
         w[0, 0] = 1  # loners have low self-connections
-    elif group_mode == "design": # core peri + association
+    elif group_mode == "design": # custom design
         w += 1
         np.fill_diagonal(w, 30)
         w[0, :] = 1
         w[:, 0] = 1
         w[0, 0] = 1
     elif group_mode[0] == "t":
-        # mode_number = int(group_mode[1:])  
-        # mapped_value = np.linspace(-0.95, 0.95, 10)[mode_number]
         w += 12*(1-mapped_value)
         np.fill_diagonal(w, 12*(1+mapped_value))
 
+    # normalise w such that average degree remains the same 
     w /= num_nodes
 
     graph, adjacency_matrix = gen_sbm_graph(g_copy, w)
 
     analyze_graph(graph, g_copy)
 
-    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
-    #         color_set_size=num_groups, 
-    #         degree=None, 
-    #         num_nodes=num_nodes, 
-    #         gaussian_mean=None, 
-    #         gaussian_variance=None,
-    #         ground_truth_log_likelihood = 0
-    #         )
+    draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
+            color_set_size=num_groups, 
+            degree=None, 
+            num_nodes=num_nodes, 
+            gaussian_mean=None, 
+            gaussian_variance=None,
+            ground_truth_log_likelihood = 0
+            )
 
-    
-
+    # save graph data
     graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
 
     graph_data = json_graph.node_link_data(graph)

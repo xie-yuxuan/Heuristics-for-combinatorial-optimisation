@@ -1,10 +1,8 @@
-# import nmi from sklearn
-from sklearn.metrics import normalized_mutual_info_score
+random_prob = 0
 
+graph_name = "SBM(10000, 2, t70)"
 
-def test_nmi():
-    print(normalized_mutual_info_score([1, 2, 3], [2, 3, 1]))
+if random_prob is not None:
+    graph_name = graph_name[:-1] + f", {random_prob})"
 
-for num_groups in range(3, 4):  # Loops from 3 to 7
-    for t in range(5,10):  # Loops from t0 to t9
-        print("num_groups:", num_groups, "t:", t)
+print(graph_name)
