@@ -170,12 +170,27 @@ def sbm_plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins, bin
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\SBM(10000, 2, t70, 0.05)_results.json"
+    # Define variables
+    num_nodes = 10000
+    num_groups = 2
+    group_mode = "t"
+    mode_number = 7
+    instance_number = 0
+    random_prob = 0.05  # Set to None if you don't want to include it
 
+    # file_path
+    base_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
+    if group_mode == "t":
+        if random_prob is not None:
+            file_path = f"SBM({num_nodes}, {num_groups}, {group_mode}{mode_number}{instance_number}, {random_prob})_results.json"
+        else:
+            file_path = f"SBM({num_nodes}, {num_groups}, {group_mode}{mode_number}{instance_number})_results.json"
+    else:
+        file_path = f"SBM({num_nodes}, {num_groups}, {group_mode})_results.json"
+    file_path = os.path.join(base_path, file_path)
 
     with open(file_path, 'r') as f:
         data = json.load(f)
-
 
     graph_name = data['graph_name']
     num_nodes = data['num_nodes']

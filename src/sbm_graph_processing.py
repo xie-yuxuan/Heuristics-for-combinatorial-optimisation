@@ -56,7 +56,7 @@ if __name__ == "__main__":
     mode_number = 7
     instance_number = 0
 
-    random_prob = 0.05
+    random_prob = 0.1
 
     seed = 1+instance_number
     np.random.seed(seed)
@@ -231,7 +231,7 @@ if __name__ == "__main__":
 
     # save results
 
-    graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results"
+    graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
 
     if random_prob is not None:
         graph_name = graph_name[:-1] + f", {random_prob})"

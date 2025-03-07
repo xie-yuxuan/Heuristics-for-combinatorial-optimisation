@@ -555,7 +555,6 @@ def optimise_sbm(graph, num_groups, group_mode, algo_func):
                 if color == current_color:
                     continue
 
-
                 temp_m = m.copy()
                 temp_n = n.copy()
                 temp_g = g.copy()
@@ -627,10 +626,7 @@ def optimise4(graph, color_set_size, algo_func):
     # print(cur_cost)
     iterations_taken = 0
     # collect data for cost plot
-    cost_data = {
-        'iterations': [0],
-        'costs': [cur_cost]
-    }
+    cost_data = [cur_cost]
 
     # initialise cost matrix, row is node, col is color, each element is cost change for that node and color
     cost_change_matrix = np.zeros((len(graph.nodes), color_set_size))
@@ -672,9 +668,9 @@ def optimise4(graph, color_set_size, algo_func):
         # print(delta_cost, node, new_color)
         delta_cost = -algo_func(delta_cost) # change back to +ve, represent cost reduction
 
+        
+
         if delta_cost <= 0:
-            cost_data['iterations'].append(iterations_taken)
-            cost_data['costs'].append(cur_cost)
             # reach convergence, no more choice that will res in cost reduction
             break
 
@@ -684,6 +680,8 @@ def optimise4(graph, color_set_size, algo_func):
         current_color = new_color
         cur_cost -= delta_cost
         iterations_taken += 1
+
+        cost_data.append(cur_cost)
 
         # print(cur_cost)
         # print(calc_cost(graph))
@@ -742,7 +740,7 @@ def optimise4(graph, color_set_size, algo_func):
     # print(cost_change_matrix)
     # print(sorted_cost_list)
 
-    return graph, cur_cost, iterations_taken, (cost_data['iterations'], cost_data['costs'])
+    return graph, cur_cost, iterations_taken, cost_data
 def optimise3(graph, color_set_size, algo_func):
     # initialise cost, iteration count
     cur_cost = calc_cost(graph)

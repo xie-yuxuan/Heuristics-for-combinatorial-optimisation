@@ -26,8 +26,10 @@ def get_best_final_cost(cost_data):
     # Iterate through all initial colorings in the cost data
     for value in cost_data.values():
         # Extract cost data for greedy and reluctant approaches
-        iterations_fg, costs_fg = value["cost_data_g"]
-        iterations_fr, costs_fr = value["cost_data_r"]
+        costs_fg = value["cost_data_g"]
+        iterations_fg = list(range(len(costs_fg)))
+        costs_fr = value["cost_data_r"]
+        iterations_fr = list(range(len(costs_fr)))
 
         # Get the final cost and total iterations for each approach
         final_cost_fg = costs_fg[-1]
@@ -65,8 +67,8 @@ def calculate_greedy_vs_reluctant_stats(cost_data):
         cost_data_g = iteration_data["cost_data_g"]
         cost_data_r = iteration_data["cost_data_r"]
 
-        final_cost_g = cost_data_g[1][-1]  # Last entry in the greedy cost data
-        final_cost_r = cost_data_r[1][-1]  # Last entry in the reluctant cost data
+        final_cost_g = cost_data_g[-1]  # Last entry in the greedy cost data
+        final_cost_r = cost_data_r[-1]  # Last entry in the reluctant cost data
 
         greedy_final_costs.append(final_cost_g)
         reluctant_final_costs.append(final_cost_r)
@@ -119,8 +121,8 @@ def avg_norm_cost_diff(cost_data, num_nodes):
         cost_data_g = iteration_data["cost_data_g"]
         cost_data_r = iteration_data["cost_data_r"]
 
-        final_cost_g = cost_data_g[1][-1]  # Last entry in the greedy cost data
-        final_cost_r = cost_data_r[1][-1]  # Last entry in the reluctant cost data
+        final_cost_g = cost_data_g[-1]  # Last entry in the greedy cost data
+        final_cost_r = cost_data_r[-1]  # Last entry in the reluctant cost data
 
         # Calculate the cost difference
         cost_difference = final_cost_g - final_cost_r
@@ -150,8 +152,11 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
             continue
 
         # Extract data for the greedy and reluctant algorithms
-        iterations_fg, costs_fg = value["cost_data_g"]
-        iterations_fr, costs_fr = value["cost_data_r"]
+        costs_fg = value["cost_data_g"]
+        iterations_fg = list(range(len(costs_fg)))
+        costs_fr = value["cost_data_r"]
+        iterations_fr = list(range(len(costs_fr)))
+
 
         # Final cost and total iterations for this coloring
         total_iterations_fg = iterations_fg[-1]
@@ -228,8 +233,8 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
         cost_data_g = iteration_data["cost_data_g"]
         cost_data_r = iteration_data["cost_data_r"]
 
-        final_cost_g = cost_data_g[1][-1]  # Last entry in the greedy cost data
-        final_cost_r = cost_data_r[1][-1]  # Last entry in the reluctant cost data
+        final_cost_g = cost_data_g[-1]  # Last entry in the greedy cost data
+        final_cost_r = cost_data_r[-1]  # Last entry in the reluctant cost data
 
         greedy_final_costs.append(final_cost_g)
         reluctant_final_costs.append(final_cost_r)
@@ -271,8 +276,8 @@ def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins, bin_ran
         cost_data_r = iteration_data["cost_data_r"]
 
         # Get the final costs
-        final_cost_g = cost_data_g[1][-1]
-        final_cost_r = cost_data_r[1][-1]
+        final_cost_g = cost_data_g[-1]
+        final_cost_r = cost_data_r[-1]
 
         # Calculate the cost difference between greedy and reluctant
         cost_diff = final_cost_g - final_cost_r
@@ -304,7 +309,7 @@ def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins, bin_ran
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results\(1000, 20, 8)_results.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\results\(1000, 20, 8)_results.json"
 
     with open(file_path, 'r') as f:
         data = json.load(f)

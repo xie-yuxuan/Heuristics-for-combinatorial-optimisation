@@ -49,8 +49,8 @@ def plot_histogram_for_all_num_nodes(results_folder, degree, color_set_size, num
                 cost_data_r = iteration_data["cost_data_r"]
 
                 # Get the final costs
-                final_cost_g = cost_data_g[1][-1]
-                final_cost_r = cost_data_r[1][-1]
+                final_cost_g = cost_data_g[-1]
+                final_cost_r = cost_data_r[-1]
 
                 # Calculate the cost difference between greedy and reluctant
                 cost_diff = final_cost_g - final_cost_r
@@ -140,8 +140,8 @@ def plot_final_cost_for_all_num_nodes(results_folder, degree, color_set_size):
                 cost_data_r = iteration_data["cost_data_r"]
 
                 # Get the final costs for both approaches
-                final_cost_g = cost_data_g[1][-1]
-                final_cost_r = cost_data_r[1][-1]
+                final_cost_g = cost_data_g[-1]
+                final_cost_r = cost_data_r[-1]
 
                 final_costs_greedy.append(final_cost_g)
                 final_costs_reluctant.append(final_cost_r)
@@ -240,8 +240,8 @@ def plot_norm_final_cost_for_all_num_nodes(results_folder, degree, color_set_siz
                 cost_data_r = iteration_data["cost_data_r"]
 
                 # Get the final costs for both approaches
-                final_cost_g = cost_data_g[1][-1]
-                final_cost_r = cost_data_r[1][-1]
+                final_cost_g = cost_data_g[-1]
+                final_cost_r = cost_data_r[-1]
 
                 final_costs_greedy.append(final_cost_g)
                 final_costs_reluctant.append(final_cost_r)
@@ -352,10 +352,10 @@ def plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size):
                 cost_data_r = iteration_data["cost_data_r"]
 
                 # Get the final costs and iterations for greedy and reluctant
-                final_cost_g = cost_data_g[1][-1]  # Last cost for Greedy
-                final_cost_r = cost_data_r[1][-1]  # Last cost for Reluctant
-                iterations_g = cost_data_g[0][-1]  # Last iteration for Greedy
-                iterations_r = cost_data_r[0][-1]  # Last iteration for Reluctant
+                final_cost_g = cost_data_g[-1]  # Last cost for Greedy
+                final_cost_r = cost_data_r[-1]  # Last cost for Reluctant
+                iterations_g = len(cost_data_g)
+                iterations_r = len(cost_data_r)
 
                 # Track all iterations for calculating the average
                 iterations_greedy.append(iterations_g)
@@ -428,7 +428,7 @@ def plot_iteration_for_all_num_nodes(results_folder, degree, color_set_size):
 
 
 if __name__ == "__main__":
-    results_folder = r'C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\results'
+    results_folder = r'C:\Projects\Heuristics for combinatorial optimisation\results'
 
     # set degree and color_set_size
     degree = 10

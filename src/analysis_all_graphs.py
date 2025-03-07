@@ -55,8 +55,8 @@ def plot_3d_final_costs(results_folder, filter_num_nodes, filter_color_set_size)
             cost_data_g = iteration_data["cost_data_g"]
             cost_data_r = iteration_data["cost_data_r"]
 
-            final_cost_g = cost_data_g[1][-1]
-            final_cost_r = cost_data_r[1][-1]
+            final_cost_g = cost_data_g[-1]
+            final_cost_r = cost_data_r[-1]
 
             final_costs_greedy.append(final_cost_g)
             final_costs_reluctant.append(final_cost_r)
@@ -195,8 +195,8 @@ def plot_3d_normalized_costs(results_folder, filter_num_nodes, filter_color_set_
             cost_data_g = iteration_data["cost_data_g"]
             cost_data_r = iteration_data["cost_data_r"]
 
-            final_cost_g = cost_data_g[1][-1]
-            final_cost_r = cost_data_r[1][-1]
+            final_cost_g = cost_data_g[-1]
+            final_cost_r = cost_data_r[-1]
 
             final_costs_greedy.append(final_cost_g)
             final_costs_reluctant.append(final_cost_r)
@@ -337,8 +337,8 @@ def plot_best_normalized_costs_for_uniform_edgeweight(results_folder, filter_num
             cost_data_g = iteration_data["cost_data_g"]
             cost_data_r = iteration_data["cost_data_r"]
 
-            final_cost_g = cost_data_g[1][-1]
-            final_cost_r = cost_data_r[1][-1]
+            final_cost_g = cost_data_g[-1]
+            final_cost_r = cost_data_r[-1]
 
             final_costs_greedy.append(final_cost_g)
             final_costs_reluctant.append(final_cost_r)
@@ -635,7 +635,7 @@ def plot_2d_avg_norm_cost_diff(results_folder, num_nodes):
     plt.show()
 
 if __name__ == "__main__":
-    results_folder = "C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/results"
+    results_folder = "C:/Projects/Heuristics for combinatorial optimisation/results"
     num_nodes = 5000
     color_set_size = None
     # plot_3d_final_costs(results_folder, filter_num_nodes=num_nodes, filter_color_set_size=color_set_size)
