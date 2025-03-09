@@ -53,10 +53,10 @@ if __name__ == "__main__":
             # file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 2, t{mode_number}{instance_number}).json"
 
 
-    mode_number = 7
+    mode_number = 2
     instance_number = 0
 
-    random_prob = 0.1
+    random_prob = 0.15
 
     seed = 1+instance_number
     np.random.seed(seed)

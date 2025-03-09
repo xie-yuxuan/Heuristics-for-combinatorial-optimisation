@@ -174,9 +174,9 @@ if __name__ == '__main__':
     num_nodes = 10000
     num_groups = 2
     group_mode = "t"
-    mode_number = 7
+    mode_number = 2
     instance_number = 0
-    random_prob = 0.05  # Set to None if you don't want to include it
+    random_prob = 0.15  # Set to None if you don't want to include it
 
     # file_path
     base_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
@@ -193,6 +193,8 @@ if __name__ == '__main__':
         data = json.load(f)
 
     graph_name = data['graph_name']
+    if random_prob is not None:
+        graph_name = graph_name[:-1] + f", {random_prob})"
     num_nodes = data['num_nodes']
     num_groups = data['num_groups']
     group_mode = data['group_mode']
