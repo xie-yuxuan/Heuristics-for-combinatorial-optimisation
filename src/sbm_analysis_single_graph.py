@@ -24,10 +24,10 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
         iterations_frr = list(range(len(costs_frr)))
 
         # Final cost and total iterations for this coloring
-        # total_iterations_fg = iterations_fg[-1]
-        # final_cost_fg = costs_fg[-1]
-        # total_iterations_fr = iterations_fr[-1]
-        # final_cost_fr = costs_fr[-1]
+        total_iterations_fg = iterations_fg[-1]
+        final_cost_fg = costs_fg[-1]
+        total_iterations_fr = iterations_fr[-1]
+        final_cost_fr = costs_fr[-1]
 
         # Plot "Greedy" (fg) with transparency for multiple colorings
         plt.plot(iterations_fg, costs_fg, color="red", alpha=0.6)
@@ -174,9 +174,9 @@ if __name__ == '__main__':
     num_nodes = 10000
     num_groups = 2
     group_mode = "t"
-    mode_number = 2
+    mode_number = 7
     instance_number = 0
-    random_prob = 0.15  # Set to None if you don't want to include it
+    random_prob = 0 # Set to None if you don't want to include it
 
     # file_path
     base_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
@@ -209,4 +209,4 @@ if __name__ == '__main__':
     sbm_plot_final_costs(all_cost_data, graph_name, num_nodes, num_groups, group_mode, ground_truth_w, ground_truth_log_likelihood)
 
     # plot histogram of normalised log likelihood diff for all initial colorings
-    sbm_plot_cost_diff_histogram(all_cost_data, num_nodes, graph_name, num_bins=100, bin_range=(-0.2, 0.2))
+    # sbm_plot_cost_diff_histogram(all_cost_data, num_nodes, graph_name, num_bins=100, bin_range=(-0.2, 0.2))

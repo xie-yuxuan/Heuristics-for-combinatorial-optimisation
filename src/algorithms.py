@@ -282,6 +282,8 @@ class SBMState:
                 break
             self.change_color(node_to_move, new_color)
             iteration += 1
+            # if iteration % 1000 == 0:
+            #     print(iteration)
             self.log_likelihood += log_likelihood_change
             # self.log_likelihood_data[0].append(iteration)
             self.log_likelihood_data.append(self.log_likelihood)

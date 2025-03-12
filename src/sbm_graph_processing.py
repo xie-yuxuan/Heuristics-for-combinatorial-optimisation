@@ -53,10 +53,10 @@ if __name__ == "__main__":
             # file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 2, t{mode_number}{instance_number}).json"
 
 
-    mode_number = 2
+    mode_number = 7
     instance_number = 0
 
-    random_prob = 0.15
+    random_prob = 0
 
     seed = 1+instance_number
     np.random.seed(seed)
@@ -208,10 +208,10 @@ if __name__ == "__main__":
         graph_g, log_likelihood_data_g, final_w_g, g_optimised_g = greedy_state.optimise(algo_func="greedy", random_prob=random_prob, max_iterations=None)
         reluctant_state = SBMState(graph_copy, num_groups, w)
         graph_r, log_likelihood_data_r, final_w_r, g_optimised_r = reluctant_state.optimise(algo_func="reluctant", random_prob=random_prob, max_iterations=None)
-        reluctant_state = SBMState(graph_copy2, num_groups, w)
-        graph_gr, log_likelihood_data_gr, final_w_gr, g_optimised_gr = reluctant_state.optimise(algo_func="greedy_random", random_prob=random_prob, max_iterations=None)
-        reluctant_state = SBMState(graph_copy3, num_groups, w)
-        graph_rr, log_likelihood_data_rr, final_w_rr, g_optimised_rr = reluctant_state.optimise(algo_func="reluctant_random", random_prob=random_prob, max_iterations=None)
+        greedy_random_state = SBMState(graph_copy2, num_groups, w)
+        graph_gr, log_likelihood_data_gr, final_w_gr, g_optimised_gr = greedy_random_state.optimise(algo_func="greedy_random", random_prob=random_prob, max_iterations=None)
+        reluctant_random_state = SBMState(graph_copy3, num_groups, w)
+        graph_rr, log_likelihood_data_rr, final_w_rr, g_optimised_rr = reluctant_random_state.optimise(algo_func="reluctant_random", random_prob=random_prob, max_iterations=None)
 
         results["cost_data"][f"initial_coloring_{i}"] = {
             "cost_data_g": log_likelihood_data_g,
