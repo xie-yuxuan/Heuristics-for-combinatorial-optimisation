@@ -53,15 +53,15 @@ if __name__ == "__main__":
             # file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(1000, 2, t{mode_number}{instance_number}).json"
 
 
-    mode_number = 7
+    mode_number = 8
     instance_number = 0
 
-    random_prob = 0
+    random_prob = 0.05
 
     seed = 1+instance_number
     np.random.seed(seed)
     
-    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(10000, 2, t{mode_number}{instance_number}).json"
+    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(10000, 4, t{mode_number}{instance_number}).json"
 
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_w, ground_truth_log_likelihood = load_graph_from_json(file_path)
 

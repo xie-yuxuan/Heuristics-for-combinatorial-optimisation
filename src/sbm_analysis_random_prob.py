@@ -98,9 +98,8 @@ def extract_final_nmi_vs_random_prob_greedy_and_reluctant(results_folder, num_no
     for method, label in zip(["gr", "rr"], ["Greedy Random", "Reluctant Random"]):
         plt.plot(random_probs, nmi_values[method], marker='o', label=label, color=colors[method])
     
-    # include horizontal line from reluctant random
     plt.xlim(0, 1)
-    # include horizontal line from reluctant randomS
+    # include horizontal line from reluctant random
     last_rr_idx = next(i for i in reversed(range(len(nmi_values["rr"]))) if not np.isnan(nmi_values["rr"][i]))
     plt.axhline(y=nmi_values["rr"][last_rr_idx], color=colors["rr"], linestyle='--', xmin=0.15, xmax=1)
     
@@ -113,9 +112,67 @@ def extract_final_nmi_vs_random_prob_greedy_and_reluctant(results_folder, num_no
     plt.show()
 
 
+def extract_num_higher_than_ground_truth_vs_random_prob(results_folder, num_nodes, num_groups, mode_number):
+    pattern = re.compile(rf"SBM\({num_nodes}, {num_groups}, t{mode_number}0, ([0-9.]+)\)_results\.json")
+    
+    random_probs = []
+    counts = {"gr": [], "rr": []}
+    
+    for file in os.listdir(results_folder):
+        match = pattern.match(file)
+        if match:
+            random_prob = float(match.group(1))
+            random_probs.append(random_prob)
+            
+            with open(os.path.join(results_folder, file), 'r') as f:
+                data = json.load(f)
+            
+            ground_truth_ll = data.get("ground_truth_log_likelihood", float("inf"))
+            
+            count_gr, count_rr = 0, 0
+            for key in data["cost_data"]:
+                if "cost_data_gr" in data["cost_data"][key]:
+                    if data["cost_data"][key]["cost_data_gr"][-1] > ground_truth_ll:
+                        count_gr += 1
+                if "cost_data_rr" in data["cost_data"][key] and random_prob <= 0.15:
+                    if data["cost_data"][key]["cost_data_rr"][-1] > ground_truth_ll:
+                        count_rr += 1
+            
+            counts["gr"].append(count_gr)
+            counts["rr"].append(count_rr if random_prob <= 0.15 else np.nan)
+
+    sorted_indices = np.argsort(random_probs)
+    random_probs = np.array(random_probs)[sorted_indices]
+    
+    for method in counts:
+        counts[method] = np.array(counts[method])[sorted_indices]
+    
+    plt.figure(figsize=(10, 6))
+    colors = {"gr": "orange", "rr": "purple"}
+    for method, label in zip(["gr", "rr"], ["Greedy Random", "Reluctant Random"]):
+        valid_indices = ~np.isnan(counts[method])
+        plt.plot(random_probs[valid_indices], counts[method][valid_indices], marker='o', label=label, color=colors[method])
+    
+
+    plt.xlim(0, 1)
+    # include horizontal line from reluctant random
+    last_rr_idx = next(i for i in reversed(range(len(counts["rr"]))) if not np.isnan(counts["rr"][i]))
+    plt.axhline(y=counts["rr"][last_rr_idx], color=colors["rr"], linestyle='--', xmin=0.15, xmax=1)
+    
+
+    plt.xlabel("Random Prob")
+    plt.ylabel("Number of Colorings with Final LL > Ground Truth")
+    plt.title(f"Number of Colorings with Final LL > Ground Truth vs Random Prob (Nodes: {num_nodes}, Groups: {num_groups}, Mode: {mode_number})")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"plots/SBM({num_nodes}, {num_groups}, t{mode_number}0, X)_beat_ground_truth.png")
+    plt.show()
+
 if __name__ == "__main__":
     results_folder = r'C:\Projects\Heuristics for combinatorial optimisation\results'
 
-    extract_final_ll_vs_random_prob_random_greedy_and_reluctant(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)
+    # extract_final_ll_vs_random_prob_random_greedy_and_reluctant(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)
 
-    extract_final_nmi_vs_random_prob_greedy_and_reluctant(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)
+    # extract_final_nmi_vs_random_prob_greedy_and_reluctant(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)
+
+    extract_num_higher_than_ground_truth_vs_random_prob(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)

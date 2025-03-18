@@ -172,11 +172,11 @@ if __name__ == '__main__':
 
     # Define variables
     num_nodes = 10000
-    num_groups = 2
+    num_groups = 4
     group_mode = "t"
     mode_number = 7
     instance_number = 0
-    random_prob = 0 # Set to None if you don't want to include it
+    random_prob = 0.05 # Set to None if you don't want to include it
 
     # file_path
     base_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
