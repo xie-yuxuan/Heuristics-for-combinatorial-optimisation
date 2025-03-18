@@ -7,7 +7,7 @@ import copy
 from networkx.readwrite import json_graph
 
 from visualisation import draw_graph, plot_cost_data
-from algorithms import optimise, optimise2, optimise3, optimise4, optimise_sbm
+from algorithms import optimise, optimise2, optimise3, optimise4
 from graph_gen import generate_random_regular_graph
 
 '''

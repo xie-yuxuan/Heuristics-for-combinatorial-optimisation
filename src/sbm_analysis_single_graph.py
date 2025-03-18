@@ -41,9 +41,10 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
 
         plt.plot(iterations_frr, costs_frr, color="purple", alpha=0.6)
 
-    plt.axhline(y=ground_truth_log_likelihood, color='b', linestyle='--', label='Ground Truth')
-    plt.text(0.5, ground_truth_log_likelihood, f'{ground_truth_log_likelihood:.2f}', 
-               color='b', ha='center', va='bottom', fontsize=10)
+    if ground_truth_log_likelihood != None:
+        plt.axhline(y=ground_truth_log_likelihood, color='b', linestyle='--', label='Ground Truth')
+        plt.text(0.5, ground_truth_log_likelihood, f'{ground_truth_log_likelihood:.2f}', 
+                color='b', ha='center', va='bottom', fontsize=10)
 
     plt.plot([], [], color="red", label="Greedy")
     plt.plot([], [], color="green", label="Reluctant")
@@ -106,9 +107,10 @@ def sbm_plot_final_costs(cost_data, graph_name, num_nodes, num_groups, group_mod
     plt.axhline(np.mean(reluctant_final_costs), color='green', linestyle='--', label=f'Mean Reluctant: {np.mean(reluctant_final_costs)}')
     plt.axhline(np.mean(greedy_random_final_costs), color='orange', linestyle='--', label=f'Mean Greedy Random: {np.mean(greedy_random_final_costs)}')
     plt.axhline(np.mean(reluctant_random_final_costs), color='purple', linestyle='--', label=f'Mean Reluctant Random: {np.mean(reluctant_random_final_costs)}')
-    plt.axhline(ground_truth_log_likelihood, color='b', linestyle='--', label=f'Ground Truth: {ground_truth_log_likelihood}')
-    plt.text(0.5, ground_truth_log_likelihood, f'{ground_truth_log_likelihood:.2f}', 
-               color='b', ha='center', va='bottom', fontsize=10)
+    if ground_truth_log_likelihood != None:
+        plt.axhline(ground_truth_log_likelihood, color='b', linestyle='--', label=f'Ground Truth: {ground_truth_log_likelihood}')
+        plt.text(0.5, ground_truth_log_likelihood, f'{ground_truth_log_likelihood:.2f}', 
+                    color='b', ha='center', va='bottom', fontsize=10)
 
     plt.xlabel('Initial Coloring Index')
     plt.ylabel('Final Log Likelihood')

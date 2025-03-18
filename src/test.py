@@ -1,8 +1,10 @@
-random_prob = 0
+import matplotlib.pyplot as plt
 
-graph_name = "SBM(10000, 2, t70)"
+data = [0, 1, 0, 2, 0, 4, 1, 4]
 
-if random_prob is not None:
-    graph_name = graph_name[:-1] + f", {random_prob})"
+plt.hist(data, bins=5, edgecolor='black')  # Adjust bins as needed
+plt.xlabel('Value')
+plt.ylabel('Frequency')
+plt.title('Histogram of Data')
 
-print(graph_name)
+plt.show()
