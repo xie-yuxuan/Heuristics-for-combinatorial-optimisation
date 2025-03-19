@@ -132,40 +132,43 @@ def plot_color_mapping(Sg, Sr):
     plt.show()
 
 def plot_hist_color_mapping(Sg, Sr):
-    """
-    Plots histograms showing the distribution of initial colorings mapped to each final coloring
-    using the greedy (red) and reluctant (green) algorithms.
-    
-    Args:
-    - Sg (dict): Dictionary containing initial colorings as keys and final colorings as values for the greedy algorithm.
-    - Sr (dict): Dictionary containing initial colorings as keys and final colorings as values for the reluctant algorithm.
-    - graph_name (str): Name of the graph for saving the plot.
-    """
-    
-    final_colorings_greedy = list(Sg.values())
-    final_colorings_reluctant = list(Sr.values())
-    
-    plt.figure(figsize=(10, 6))
+    Sum_count_greedy = [0] * (2 ** num_nodes)
+    Sum_count_reluctant = [0] * (2 ** num_nodes)
 
-    print(final_colorings_greedy)
+    for key, final_g in Sg.items():
+        Sum_count_greedy[int(final_g)] += 1
+
+    for key, final_r in Sr.items():
+        Sum_count_reluctant[int(final_r)] += 1
+
+    # remove all 0s from the lists
+    Sum_count_greedy = [x for x in Sum_count_greedy if x != 0]
+    Sum_count_reluctant = [x for x in Sum_count_reluctant if x != 0]
+
+    num_bins_greedy = len(Sum_count_greedy)
+    num_bins_reluctant = len(Sum_count_reluctant)
+
+    plt.figure(figsize=(10, 6))
+    print(Sum_count_greedy)
+    print(Sum_count_reluctant)
+    plt.hist(Sum_count_greedy, bins = num_bins_greedy, color='red', alpha=0.5, label='Greedy')
+    plt.hist(Sum_count_reluctant, bins = num_bins_reluctant, color='green', alpha=0.5, label='Reluctant')
     
-    plt.hist(final_colorings_greedy, bins=30, color='red', alpha=0.5, label='Greedy')
-    plt.hist(final_colorings_reluctant, bins=30, color='green', alpha=0.5, label='Reluctant')
-    
-    plt.xlabel('Final Coloring')
-    plt.ylabel('Number of Initial Colorings')
-    plt.title('Distribution of Initial Colorings Mapped to Final Colorings')
-    
+    plt.xlabel("Basin Size")
+    plt.ylabel("Count")
+    plt.title(f"Histogram of Basin Sizes for N={num_nodes}, k={regular_degree}, c={color_set_size}")
     plt.legend()
-    
-    plt.tight_layout()
+
     plt.savefig(f"plots/{graph_name}_basin_hist.png")
+    
     plt.show()
+
+
 
 if __name__ == "__main__":
 
-    num_nodes = 10
-    regular_degree = 5
+    num_nodes = 16
+    regular_degree = 8
     color_set_size = 2
 
     base_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
