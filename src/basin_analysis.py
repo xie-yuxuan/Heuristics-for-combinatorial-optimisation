@@ -6,6 +6,30 @@ import networkx as nx
 import numpy as np
 from matplotlib.sankey import Sankey
 from collections import Counter
+from networkx.readwrite import json_graph
+
+from utils import calc_cost
+
+def load_graph_from_json(file_path):
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    
+    # load graph_name and attibutes
+    graph_name = data["graph_name"]
+    color_set_size = data["color_set_size"]
+    degree = data["degree"]
+    num_nodes = data["num_nodes"]
+    gaussian_mean = data["gaussian_mean"]
+    gaussian_variance = data["gaussian_variance"]
+    initial_node_colors = data["initial_node_colors"]
+    
+    graph_data = data["graph_data"]
+    graph = json_graph.node_link_graph(graph_data)
+
+    # uncomment to get adj matrix
+    # adj_matrix = nx.adjacency_matrix(graph, weight='weight').toarray()
+    
+    return graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, initial_node_colors
 
 def sankey_basin_data(Sg, Sr):
     plt.figure(figsize=(10, 6))
@@ -163,23 +187,73 @@ def plot_hist_color_mapping(Sg, Sr):
     
     plt.show()
 
+def plot_scatter_basin_cost(Sg, Sr, graph):
 
+    # Process greedy data
+    basin_sizes_greedy = Counter(Sg.values())
+
+    costs_greedy = {}
+    for final_coloring, basin_size in basin_sizes_greedy.items():
+
+        binary_coloring = format(final_coloring, f'0{len(graph.nodes)}b')
+        # coloring_dict = {node: int(binary_coloring[node_idx]) for node_idx, node in enumerate(graph.nodes)}
+
+        # convert binary coloring to a list of numbers 
+        coloring_dict = [int(binary_coloring[i]) for i in range(len(binary_coloring))]
+        # coloring_dict = [0, 0, 0, 0, 1, 1, 1, 1, 0, 0]
+        for node, color in enumerate(coloring_dict):
+            graph.nodes[node]['color'] = color
+        final_cost_g = calc_cost(graph)
+
+        costs_greedy[final_coloring] = final_cost_g
+
+    # Process reluctant data
+    basin_sizes_reluctant = Counter(Sr.values())
+    costs_reluctant = {}
+    for final_coloring, basin_size in basin_sizes_reluctant.items():
+        binary_coloring = format(final_coloring, f'0{len(graph.nodes)}b')
+        coloring_dict = [int(binary_coloring[i]) for i in range(len(binary_coloring))]
+        for node, color in enumerate(coloring_dict):
+            graph.nodes[node]['color'] = color
+        final_cost_r = calc_cost(graph)
+
+        costs_reluctant[final_coloring] = final_cost_r
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    plt.scatter(basin_sizes_greedy.values(), costs_greedy.values(), color='red', alpha=0.5, label='Greedy')
+    plt.scatter(basin_sizes_reluctant.values(), costs_reluctant.values(), color='green', alpha=0.5, label='Reluctant')
+
+    plt.xlabel("Basin Size")
+    plt.ylabel("Cost Function")
+    plt.title(f"Scatter Plot of Basin Size vs Cost Function for N={len(graph.nodes)}")
+    plt.legend()
+    
+    plt.savefig(f"plots/{graph_name}_basin_scatter.png")
+    plt.show()
 
 if __name__ == "__main__":
 
-    num_nodes = 16
-    regular_degree = 8
+    num_nodes = 20
+    regular_degree = 10
     color_set_size = 2
 
-    base_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
+    graph_path = f"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\({num_nodes}, {regular_degree}, {color_set_size}).json"
+    
+    graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, initial_node_colors = load_graph_from_json(graph_path)
 
-    file_path = f"({num_nodes}, {regular_degree}, {color_set_size})_basin_results.json"
-    file_path = os.path.join(base_path, file_path)
+    # results_path = f"C:\Projects\Heuristics for combinatorial optimisation\results\({num_nodes}, {regular_degree}, {color_set_size})_basin_results.json"
 
-    with open(file_path, 'r') as f:
+    # with open(results_path, 'r') as f:
+    #     data = json.load(f)
+
+    results_folder = r"C:\Projects\Heuristics for combinatorial optimisation\results"
+    results_path = f"({num_nodes}, {regular_degree}, {color_set_size})_basin_results.json"
+    results_path = os.path.join(results_folder, results_path)
+
+    with open(results_path, 'r') as f:
         data = json.load(f)
 
-    graph_name = data['graph_name']
     basin_data = data['basin_data']
     Sg = basin_data['Sg']
     Sr = basin_data['Sr']
@@ -188,8 +262,10 @@ if __name__ == "__main__":
 
     # heatmap_basin_data(Sg, Sr)
 
-    # plot_color_mapping(Sg, Sr)
+    plot_color_mapping(Sg, Sr)
 
     plot_hist_color_mapping(Sg, Sr)
+
+    plot_scatter_basin_cost(Sg, Sr, graph)
 
 

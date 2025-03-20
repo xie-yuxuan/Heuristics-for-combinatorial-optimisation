@@ -31,7 +31,7 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
     with open(color_map_path, 'r') as f:
         color_map = json.load(f)['color_map']
 
-    vertex_colors = [color_map.get(str(graph.nodes[node].get('color', 0)), 'gray') for node in range(graph.number_of_nodes())] #TODO
+    vertex_colors = [color_map.get(str(graph.nodes[node].get('color', 0)), 'gray') for node in graph.nodes] #TODO
 
     edge_weights = nx.get_edge_attributes(graph, 'weight')
 

@@ -6,7 +6,7 @@ import time
 import copy
 from networkx.readwrite import json_graph
 
-from visualisation import draw_graph, plot_cost_data
+from visualisation import draw_graph
 from algorithms import optimise, optimise2, optimise3, optimise4
 from graph_gen import generate_random_regular_graph
 
@@ -77,35 +77,57 @@ if __name__ == '__main__':
 
     # get list of greedy and reluctant op given list of initial colorings and graph J --------------------------------------------
     
-    # loop through list of initial colorings, assign colors and run optimisation
-    for i, initial_coloring in enumerate(initial_node_colors):
-        # assign one of the initial colorings
-        for node, color in enumerate(initial_coloring): #TODO: slow, looping through all nodes to recolor
-            graph.nodes[node]['color'] = color
+    # # loop through list of initial colorings, assign colors and run optimisation
+    # for i, initial_coloring in enumerate(initial_node_colors):
+    #     # assign one of the initial colorings
+    #     for node, color in enumerate(initial_coloring): #TODO: slow, looping through all nodes to recolor
+    #         graph.nodes[node]['color'] = color
 
-        # graph_copy1 = copy.deepcopy(graph)
-        graph_copy1 = copy.deepcopy(graph)
-        graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise4(graph, color_set_size, algo_func=fg) 
-        graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise4(graph_copy1, color_set_size, algo_func=fr) 
+    #     # graph_copy1 = copy.deepcopy(graph)
+    #     graph_copy1 = copy.deepcopy(graph)
+    #     graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise4(graph, color_set_size, algo_func=fg) 
+    #     graph_r, final_cost_r, iterations_taken_r, cost_data_r = optimise4(graph_copy1, color_set_size, algo_func=fr) 
 
-        results["cost_data"][f"initial_coloring_{i}"] = {
-            "cost_data_g": cost_data_g,
-            "cost_data_r": cost_data_r
-        }
+    #     results["cost_data"][f"initial_coloring_{i}"] = {
+    #         "cost_data_g": cost_data_g,
+    #         "cost_data_r": cost_data_r
+    #     }
 
-        print(f"{i} initial coloring optimisation complete")
-
-
+    #     print(f"{i} initial coloring optimisation complete")
 
 
-    graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
 
-    with open(os.path.join(graphs_path, f"{graph_name}_results.json"), 'w') as f:
-        json.dump(results, f, indent = 2)
 
-    print(f"Saved results to {graphs_path}/{graph_name}_results.json")  
+    # graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
+
+    # with open(os.path.join(graphs_path, f"{graph_name}_results.json"), 'w') as f:
+    #     json.dump(results, f, indent = 2)
+
+    # print(f"Saved results to {graphs_path}/{graph_name}_results.json")  
 
     # # testing optimisation code on one graph and one coloring -----------------------------------------------------------------
+
+    # color everything 0 
+    for node, color in enumerate([0]*10):
+        graph.nodes[node]['color'] = color
+    draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=None, iterations_taken=None, cost_data=None, 
+               color_set_size=2, 
+               degree=5, 
+               num_nodes=10, 
+               gaussian_mean=0, 
+               gaussian_variance=1, 
+               ground_truth_log_likelihood=None)
+    graph_g, final_cost_g, iterations_taken_g, cost_data_g = optimise4(graph, color_set_size, algo_func=fg) 
+    draw_graph(graph_g, pos=nx.spring_layout(graph, seed=1), graph_name=None, iterations_taken=None, cost_data=None, 
+               color_set_size=2, 
+               degree=5, 
+               num_nodes=10, 
+               gaussian_mean=0, 
+               gaussian_variance=1, 
+               ground_truth_log_likelihood=None)
+    print(final_cost_g)
+    
+
 
     # for node, color in enumerate(initial_node_colors[1]): # assign idx 0 initial colors
     #         graph.nodes[node]['color'] = color

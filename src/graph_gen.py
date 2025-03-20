@@ -83,8 +83,8 @@ def generate_random_graph(num_nodes, max_degree, gaussian_mean, gaussian_varianc
 
 if __name__ == '__main__':
     # set parameters
-    num_nodes = 16
-    degree = 8
+    num_nodes = 10
+    degree = 5
     color_set_size = 2
     gaussian_mean = 0
     gaussian_variance = 1

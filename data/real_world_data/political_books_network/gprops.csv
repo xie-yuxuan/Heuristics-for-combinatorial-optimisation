@@ -1,0 +1,7 @@
+# prop_name, value
+name,polbooks
+description,"A network of books about U.S. politics published close to the 2004 U.S. presidential election, and sold by Amazon.com. Edges between books represent frequent copurchasing of those books by the same buyers. The network was compiled by V. Krebs and is unpublished."
+citation,"['V. Krebs, unpublished, http://www.orgnet.com/, http://www.orgnet.com/']"
+url,http://www-personal.umich.edu/~mejn/netdata
+tags,"['Informational', 'Relatedness', 'Unweighted', 'Metadata']"
+directed,0.0
