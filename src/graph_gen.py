@@ -83,8 +83,11 @@ def generate_random_graph(num_nodes, max_degree, gaussian_mean, gaussian_varianc
 
 if __name__ == '__main__':
     # set parameters
-    num_nodes = 10
-    degree = 5
+    seed = 5
+    np.random.seed(seed)
+
+    num_nodes = 14
+    degree = 13
     color_set_size = 2
     gaussian_mean = 0
     gaussian_variance = 1
@@ -93,7 +96,7 @@ if __name__ == '__main__':
     if gaussian_mean == None and gaussian_variance == None and random_regular:
         graph_name = f"{num_nodes, degree, color_set_size, 'uniform'}"
     elif random_regular:
-        graph_name = f"{num_nodes, degree, color_set_size}"
+        graph_name = f"{num_nodes, degree, color_set_size, seed}"
     elif gaussian_mean == None and gaussian_variance == None and not random_regular:
         graph_name = f"{num_nodes, degree, color_set_size, 'uniform', 'not regular'}"
     else:
@@ -101,9 +104,9 @@ if __name__ == '__main__':
 
     # generate graph, get J
     if random_regular:
-        graph = generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed=1)
+        graph = generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed=seed)
     else:
-        graph = generate_random_graph(num_nodes, degree, gaussian_mean, gaussian_variance, seed=1)
+        graph = generate_random_graph(num_nodes, degree, gaussian_mean, gaussian_variance, seed=seed)
 
 
     # create a list of initial color states (list of lists)

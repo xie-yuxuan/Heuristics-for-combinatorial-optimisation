@@ -1,5 +1,5 @@
 {
-  "graph_name": "(20, 10, 2)",
+  "graph_name": "(20, 10, 2, 1)",
   "degree": 10,
   "num_nodes": 20,
   "color_set_size": 2,

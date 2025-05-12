@@ -296,6 +296,7 @@ class SBMState:
 
         return self.graph, self.log_likelihood_data, self.w, self.g
 
+
 def optimise_sbm3(graph, num_groups, group_mode, algo_func):
     """
     EM-style SBM optimisation: 
@@ -621,6 +622,90 @@ def optimise_sbm(graph, num_groups, group_mode, algo_func):
         log_likelihood_data[1].append(log_likelihood)
 
     return graph, log_likelihood_data, w
+
+
+def optimise_random(graph, color_set_size, algo_func, random_prob):
+    cur_cost = calc_cost(graph)
+    iterations_taken = 0
+    cost_data = [cur_cost]
+
+    cost_change_matrix = np.zeros((len(graph.nodes), color_set_size), dtype=float)
+
+    for node in graph.nodes:
+        current_color = graph.nodes[node]['color']
+        for color in range(color_set_size):
+            if color != current_color:
+                delta_cost = calc_delta_cost(graph, node, current_color, color)
+                cost_change_matrix[node][color] = -delta_cost
+
+    sorted_cost_set = SortedSet()
+
+    min_indices = np.argmin(algo_func(cost_change_matrix), axis=1)
+    min_values = cost_change_matrix[np.arange(cost_change_matrix.shape[0]), min_indices]
+
+    for node, (cost_change, best_color) in enumerate(zip(algo_func(min_values), min_indices)):
+        sorted_cost_set.add((cost_change, node, best_color))
+
+    while True:
+        is_random_move = np.random.rand() < random_prob
+
+        if is_random_move:
+            rand_idx = np.random.randint(len(sorted_cost_set))
+            delta_cost, node, new_color = sorted_cost_set[rand_idx]
+        else:
+            delta_cost, node, new_color = sorted_cost_set[0]
+            if -algo_func(delta_cost) <= 0:
+                break  # Greedy step would not improve cost — stop
+
+        delta_cost = -algo_func(delta_cost)  # actual change in cost (+ve means improvement)
+
+        node_color_bef = graph.nodes[node]['color']
+        graph.nodes[node]['color'] = new_color
+        current_color = new_color
+        cur_cost -= delta_cost
+        iterations_taken += 1
+        cost_data.append(cur_cost)
+
+        nodes_to_remove = [node] + list(graph.neighbors(node))
+        for removing_node in nodes_to_remove:
+            min_idx = np.argmin(algo_func(cost_change_matrix[removing_node]))
+            sorted_cost_set.discard((algo_func(cost_change_matrix[removing_node][min_idx]), removing_node, min_idx))
+
+        for neighbor in graph.neighbors(node):
+            edge_weight = graph[node][neighbor].get('weight')
+            neighbor_color_bef = graph.nodes[neighbor]['color']
+
+            for color in range(color_set_size):
+                node_delta_update = edge_weight * (
+                    int(node_color_bef == neighbor_color_bef) -
+                    int(new_color == neighbor_color_bef)
+                )
+                cost_change_matrix[node][color] += node_delta_update
+                if abs(cost_change_matrix[node][color]) < 1e-13:
+                    cost_change_matrix[node][color] = 0
+
+                neighbor_delta_update = edge_weight * (
+                    int(new_color == color) -
+                    int(new_color == neighbor_color_bef) -
+                    int(node_color_bef == color) +
+                    int(node_color_bef == neighbor_color_bef)
+                )
+                cost_change_matrix[neighbor][color] += neighbor_delta_update
+                if abs(cost_change_matrix[neighbor][color]) < 1e-13:
+                    cost_change_matrix[neighbor][color] = 0
+
+        recolored_row = algo_func(cost_change_matrix[node])
+        recolored_best_idx = np.argmin(recolored_row)
+        sorted_cost_set.add((recolored_row[recolored_best_idx], node, recolored_best_idx))
+
+        for neighbor in graph.neighbors(node):
+            neighbor_row = algo_func(cost_change_matrix[neighbor])
+            neighbor_best_idx = np.argmin(neighbor_row)
+            sorted_cost_set.add((neighbor_row[neighbor_best_idx], neighbor, neighbor_best_idx))
+
+    return graph, cur_cost, iterations_taken, cost_data
+
+
 
 def optimise4(graph, color_set_size, algo_func):
     # initialise cost, iteration count
