@@ -91,7 +91,7 @@ class SBMState:
                     
                     self.C[current_color, color].add((self.cost_change_matrix[node, color], node))
 
-    def find_best_move(self, algo_func, random_prob):
+    def find_best_move(self, algo_func, random_prob, iteration):
         if algo_func == "greedy":
             C_processed = np.array([
                 [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in self.C
@@ -141,6 +141,31 @@ class SBMState:
                 node_to_move = self.C[bef, aft][-1][-1]
                 return node_to_move, aft, log_likelihood_change
 
+        elif algo_func == "greedy_sa":
+            random_prob = 0.9999 ** iteration
+
+            if np.random.rand() < random_prob:
+                valid_nodes = np.arange(len(self.g))
+                node_to_move = np.random.choice(valid_nodes)
+                current_color = self.g[node_to_move]
+                available_colors = np.delete(np.arange(self.num_groups), current_color)
+                aft = np.random.choice(available_colors)
+                log_likelihood_change = self.cost_change_matrix[node_to_move][aft] + self.N[current_color][aft]
+                return node_to_move, aft, log_likelihood_change
+            
+            else:
+                C_processed = np.array([
+                    [0 if len(cell) == 0 else cell[-1][0] for cell in row] for row in self.C
+                ], dtype=float)
+                log_likelihood_matrix = C_processed + self.N
+                bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix, axis=None), log_likelihood_matrix.shape)
+                log_likelihood_change = log_likelihood_matrix[bef, aft]
+
+                if log_likelihood_change <= 0:
+                    return None, None, None
+
+                node_to_move = self.C[bef, aft][-1][-1]
+                return node_to_move, aft, log_likelihood_change
         
         elif algo_func == "reluctant":
         
@@ -233,6 +258,40 @@ class SBMState:
                     return node_to_move, aft, log_likelihood_change
                 return None, None, None
             
+        elif algo_func == "reluctant_sa":
+            random_prob = 0.9999 ** iteration
+
+            if np.random.rand() < random_prob:
+                valid_nodes = np.arange(len(self.g))
+                node_to_move = np.random.choice(valid_nodes)
+                current_color = self.g[node_to_move]
+                available_colors = np.delete(np.arange(self.num_groups), current_color)
+                aft = np.random.choice(available_colors)
+                log_likelihood_change = self.cost_change_matrix[node_to_move][aft] + self.N[current_color][aft]
+                return node_to_move, aft, log_likelihood_change
+
+            else:
+                log_likelihood_matrix = np.full_like(self.C, np.nan, dtype=float)
+                chosen_nodes = np.full_like(self.C, np.nan, dtype=object)
+
+                for r in range(self.num_groups):
+                    for s in range(self.num_groups):
+                        if r == s:
+                            continue
+                        chosen_tuple = bisect(self.C[r, s], self.N[r, s])
+                        result = chosen_tuple[0] + self.N[r, s] if chosen_tuple else np.nan
+                        log_likelihood_matrix[r, s] = result if np.isnan(result) or result >= 1e-13 else np.nan
+                        chosen_nodes[r, s] = chosen_tuple[1] if chosen_tuple else np.nan
+
+                if np.all(np.isnan(log_likelihood_matrix)):
+                    return None, None, None
+
+                min_val = np.nanmin(log_likelihood_matrix)
+                bef, aft = np.argwhere(log_likelihood_matrix == min_val)[0]
+                node_to_move = chosen_nodes[bef, aft]
+                log_likelihood_change = log_likelihood_matrix[bef, aft]
+                return node_to_move, aft, log_likelihood_change
+            
     def change_color(self, node, new_color):
         old_color = self.g[node]
         self.n[old_color] -= 1
@@ -272,7 +331,7 @@ class SBMState:
         while True:
         # for i in range(0):
 
-            node_to_move, new_color, log_likelihood_change = self.find_best_move(algo_func, random_prob)
+            node_to_move, new_color, log_likelihood_change = self.find_best_move(algo_func, random_prob, iteration)
             # if node_to_move != None:
             #     changes.append([node_to_move, new_color])
 
@@ -622,6 +681,89 @@ def optimise_sbm(graph, num_groups, group_mode, algo_func):
         log_likelihood_data[1].append(log_likelihood)
 
     return graph, log_likelihood_data, w
+
+def optimise_sa(graph, color_set_size, algo_func):
+    cur_cost = calc_cost(graph)
+    iterations_taken = 0
+    cost_data = [cur_cost]
+
+    cost_change_matrix = np.zeros((len(graph.nodes), color_set_size), dtype=float)
+
+    for node in graph.nodes:
+        current_color = graph.nodes[node]['color']
+        for color in range(color_set_size):
+            if color != current_color:
+                delta_cost = calc_delta_cost(graph, node, current_color, color)
+                cost_change_matrix[node][color] = -delta_cost
+
+    sorted_cost_set = SortedSet()
+
+    min_indices = np.argmin(algo_func(cost_change_matrix), axis=1)
+    min_values = cost_change_matrix[np.arange(cost_change_matrix.shape[0]), min_indices]
+
+    for node, (cost_change, best_color) in enumerate(zip(algo_func(min_values), min_indices)):
+        sorted_cost_set.add((cost_change, node, best_color))
+
+    while True:
+        random_prob = 0.9999 ** iterations_taken
+        is_random_move = np.random.rand() < random_prob
+
+        if is_random_move:
+            rand_idx = np.random.randint(len(sorted_cost_set))
+            delta_cost, node, new_color = sorted_cost_set[rand_idx]
+        else:
+            delta_cost, node, new_color = sorted_cost_set[0]
+            if -algo_func(delta_cost) <= 0:
+                break  # Greedy step would not improve cost — stop
+
+        delta_cost = -algo_func(delta_cost)
+
+        node_color_bef = graph.nodes[node]['color']
+        graph.nodes[node]['color'] = new_color
+        current_color = new_color
+        cur_cost -= delta_cost
+        iterations_taken += 1
+        cost_data.append(cur_cost)
+
+        nodes_to_remove = [node] + list(graph.neighbors(node))
+        for removing_node in nodes_to_remove:
+            min_idx = np.argmin(algo_func(cost_change_matrix[removing_node]))
+            sorted_cost_set.discard((algo_func(cost_change_matrix[removing_node][min_idx]), removing_node, min_idx))
+
+        for neighbor in graph.neighbors(node):
+            edge_weight = graph[node][neighbor].get('weight')
+            neighbor_color_bef = graph.nodes[neighbor]['color']
+
+            for color in range(color_set_size):
+                node_delta_update = edge_weight * (
+                    int(node_color_bef == neighbor_color_bef) -
+                    int(new_color == neighbor_color_bef)
+                )
+                cost_change_matrix[node][color] += node_delta_update
+                if abs(cost_change_matrix[node][color]) < 1e-13:
+                    cost_change_matrix[node][color] = 0
+
+                neighbor_delta_update = edge_weight * (
+                    int(new_color == color) -
+                    int(new_color == neighbor_color_bef) -
+                    int(node_color_bef == color) +
+                    int(node_color_bef == neighbor_color_bef)
+                )
+                cost_change_matrix[neighbor][color] += neighbor_delta_update
+                if abs(cost_change_matrix[neighbor][color]) < 1e-13:
+                    cost_change_matrix[neighbor][color] = 0
+
+        recolored_row = algo_func(cost_change_matrix[node])
+        recolored_best_idx = np.argmin(recolored_row)
+        sorted_cost_set.add((recolored_row[recolored_best_idx], node, recolored_best_idx))
+
+        for neighbor in graph.neighbors(node):
+            neighbor_row = algo_func(cost_change_matrix[neighbor])
+            neighbor_best_idx = np.argmin(neighbor_row)
+            sorted_cost_set.add((neighbor_row[neighbor_best_idx], neighbor, neighbor_best_idx))
+
+    return graph, cur_cost, iterations_taken, cost_data
+
 
 
 def optimise_random(graph, color_set_size, algo_func, random_prob):

@@ -83,11 +83,11 @@ def generate_random_graph(num_nodes, max_degree, gaussian_mean, gaussian_varianc
 
 if __name__ == '__main__':
     # set parameters
-    seed = 5
+    seed = 1
     np.random.seed(seed)
 
-    num_nodes = 14
-    degree = 13
+    num_nodes = 5000
+    degree = 2
     color_set_size = 2
     gaussian_mean = 0
     gaussian_variance = 1
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     if gaussian_mean == None and gaussian_variance == None and random_regular:
         graph_name = f"{num_nodes, degree, color_set_size, 'uniform'}"
     elif random_regular:
-        graph_name = f"{num_nodes, degree, color_set_size, seed}"
+        graph_name = f"{num_nodes, degree, color_set_size}"
     elif gaussian_mean == None and gaussian_variance == None and not random_regular:
         graph_name = f"{num_nodes, degree, color_set_size, 'uniform', 'not regular'}"
     else:
@@ -118,14 +118,14 @@ if __name__ == '__main__':
     # print(initial_node_colors)
 
     # uncomment to view graphs before saving
-    draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
-               color_set_size=color_set_size, 
-               degree=degree, 
-               num_nodes=num_nodes, 
-               gaussian_mean=gaussian_mean, 
-               gaussian_variance=gaussian_variance,
-               ground_truth_log_likelihood = None
-               )
+    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
+    #            color_set_size=color_set_size, 
+    #            degree=degree, 
+    #            num_nodes=num_nodes, 
+    #            gaussian_mean=gaussian_mean, 
+    #            gaussian_variance=gaussian_variance,
+    #            ground_truth_log_likelihood = None
+    #            )
 
     graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
 
