@@ -8,7 +8,7 @@ from sbm_analysis_single_graph import sbm_plot_cost_data, sbm_plot_final_costs
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\results\SBM_spanish_results.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\results\spanish_high_school, 0.05, static_w_results.json"
     
     with open(file_path, 'r') as f:
         data = json.load(f)

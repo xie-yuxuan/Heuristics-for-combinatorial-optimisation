@@ -16,23 +16,23 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
         costs_fg = value["cost_data_g"]
         costs_fr = value["cost_data_r"]
         costs_fgr = value["cost_data_gr"]
-        # costs_frr = value["cost_data_rr"]
-        # costs_fgsa = value["cost_data_gsa"]
-        # costs_frsa = value["cost_data_rsa"]
+        costs_frr = value["cost_data_rr"]
+        costs_fgsa = value["cost_data_gsa"]
+        costs_frsa = value["cost_data_rsa"]
 
         iterations_fg = list(range(len(costs_fg)))
         iterations_fr = list(range(len(costs_fr)))
         iterations_fgr = list(range(len(costs_fgr)))
-        # iterations_frr = list(range(len(costs_frr)))
-        # iterations_fgsa = list(range(len(costs_fgsa)))
-        # iterations_frsa = list(range(len(costs_frsa)))
+        iterations_frr = list(range(len(costs_frr)))
+        iterations_fgsa = list(range(len(costs_fgsa)))
+        iterations_frsa = list(range(len(costs_frsa)))
 
         plt.plot(iterations_fg, costs_fg, color="red", alpha=0.6)
         plt.plot(iterations_fr, costs_fr, color="green", alpha=0.6)
         plt.plot(iterations_fgr, costs_fgr, color="orange", alpha=0.6)
-        # plt.plot(iterations_frr, costs_frr, color="purple", alpha=0.6)
-        # plt.plot(iterations_fgsa, costs_fgsa, color="brown", alpha=0.6)
-        # plt.plot(iterations_frsa, costs_frsa, color="blue", alpha=0.6)
+        plt.plot(iterations_frr, costs_frr, color="purple", alpha=0.6)
+        plt.plot(iterations_fgsa, costs_fgsa, color="brown", alpha=0.6)
+        plt.plot(iterations_frsa, costs_frsa, color="blue", alpha=0.6)
 
     if ground_truth_log_likelihood is not None:
         plt.axhline(y=ground_truth_log_likelihood, color='b', linestyle='--', label='Ground Truth')
@@ -43,9 +43,9 @@ def sbm_plot_cost_data(cost_data, graph_name, num_groups, num_nodes, group_mode,
     plt.plot([], [], color="red", label="Greedy")
     plt.plot([], [], color="green", label="Reluctant")
     plt.plot([], [], color="orange", label="Greedy Random")
-    # plt.plot([], [], color="purple", label="Reluctant Random")
-    # plt.plot([], [], color="brown", label="Greedy SA")
-    # plt.plot([], [], color="blue", label="Reluctant SA")
+    plt.plot([], [], color="purple", label="Reluctant Random")
+    plt.plot([], [], color="brown", label="Greedy SA")
+    plt.plot([], [], color="blue", label="Reluctant SA")
     plt.legend(loc="lower right")
 
     plt.xlabel("Iterations")
@@ -64,17 +64,17 @@ def sbm_plot_final_costs(cost_data, graph_name, num_nodes, num_groups, group_mod
     greedy_final_costs = []
     reluctant_final_costs = []
     greedy_random_final_costs = []
-    # reluctant_random_final_costs = []
-    # greedy_sa_final_costs = []
-    # reluctant_sa_final_costs = []
+    reluctant_random_final_costs = []
+    greedy_sa_final_costs = []
+    reluctant_sa_final_costs = []
 
     for _, iteration_data in cost_data.items():
         greedy_final_costs.append(iteration_data["cost_data_g"][-1])
         reluctant_final_costs.append(iteration_data["cost_data_r"][-1])
         greedy_random_final_costs.append(iteration_data["cost_data_gr"][-1])
-        # reluctant_random_final_costs.append(iteration_data["cost_data_rr"][-1])
-        # greedy_sa_final_costs.append(iteration_data["cost_data_gsa"][-1])
-        # reluctant_sa_final_costs.append(iteration_data["cost_data_rsa"][-1])
+        reluctant_random_final_costs.append(iteration_data["cost_data_rr"][-1])
+        greedy_sa_final_costs.append(iteration_data["cost_data_gsa"][-1])
+        reluctant_sa_final_costs.append(iteration_data["cost_data_rsa"][-1])
 
     plt.figure(figsize=(10, 6))
 
@@ -84,17 +84,17 @@ def sbm_plot_final_costs(cost_data, graph_name, num_nodes, num_groups, group_mod
     plt.scatter(indices, greedy_final_costs, label='Greedy', color='red', alpha=0.6)
     plt.scatter(indices, reluctant_final_costs, label='Reluctant', color='green', alpha=0.6)
     plt.scatter(indices, greedy_random_final_costs, label='Greedy Random', color='orange', alpha=0.6)
-    # plt.scatter(indices, reluctant_random_final_costs, label='Reluctant Random', color='purple', alpha=0.6)
-    # plt.scatter(indices, greedy_sa_final_costs, label='Greedy SA', color='brown', alpha=0.6)
-    # plt.scatter(indices, reluctant_sa_final_costs, label='Reluctant SA', color='blue', alpha=0.6)
+    plt.scatter(indices, reluctant_random_final_costs, label='Reluctant Random', color='purple', alpha=0.6)
+    plt.scatter(indices, greedy_sa_final_costs, label='Greedy SA', color='brown', alpha=0.6)
+    plt.scatter(indices, reluctant_sa_final_costs, label='Reluctant SA', color='blue', alpha=0.6)
 
     # Mean lines
     plt.axhline(np.mean(greedy_final_costs), color='red', linestyle='--', label=f'Mean Greedy: {np.mean(greedy_final_costs):.2f}')
     plt.axhline(np.mean(reluctant_final_costs), color='green', linestyle='--', label=f'Mean Reluctant: {np.mean(reluctant_final_costs):.2f}')
     plt.axhline(np.mean(greedy_random_final_costs), color='orange', linestyle='--', label=f'Mean Greedy Random: {np.mean(greedy_random_final_costs):.2f}')
-    # plt.axhline(np.mean(reluctant_random_final_costs), color='purple', linestyle='--', label=f'Mean Reluctant Random: {np.mean(reluctant_random_final_costs):.2f}')
-    # plt.axhline(np.mean(greedy_sa_final_costs), color='brown', linestyle='--', label=f'Mean Greedy SA: {np.mean(greedy_sa_final_costs):.2f}')
-    # plt.axhline(np.mean(reluctant_sa_final_costs), color='blue', linestyle='--', label=f'Mean Reluctant SA: {np.mean(reluctant_sa_final_costs):.2f}')
+    plt.axhline(np.mean(reluctant_random_final_costs), color='purple', linestyle='--', label=f'Mean Reluctant Random: {np.mean(reluctant_random_final_costs):.2f}')
+    plt.axhline(np.mean(greedy_sa_final_costs), color='brown', linestyle='--', label=f'Mean Greedy SA: {np.mean(greedy_sa_final_costs):.2f}')
+    plt.axhline(np.mean(reluctant_sa_final_costs), color='blue', linestyle='--', label=f'Mean Reluctant SA: {np.mean(reluctant_sa_final_costs):.2f}')
 
     # Ground truth line
     if ground_truth_log_likelihood is not None:
@@ -159,9 +159,9 @@ if __name__ == '__main__':
     num_nodes = 10000
     num_groups = 2
     group_mode = "t"
-    mode_number = 7
+    mode_number = 2
     instance_number = 0
-    random_prob = 0.51 # Set to None if you don't want to include it
+    random_prob = 0.5 # Set to None if you don't want to include it
 
     # file_path
     base_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"

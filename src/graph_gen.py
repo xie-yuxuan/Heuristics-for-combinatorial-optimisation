@@ -87,7 +87,7 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     num_nodes = 5000
-    degree = 2
+    degree = 18
     color_set_size = 2
     gaussian_mean = 0
     gaussian_variance = 1

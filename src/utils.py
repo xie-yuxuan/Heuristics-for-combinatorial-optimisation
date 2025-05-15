@@ -76,6 +76,24 @@ def compute_w(n, m):
     #     # ensures m is symmetric
     #     m[graph.nodes[v]['color'], graph.nodes[u]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] + 1 
 
+
+    # num_groups = len(n)
+    # w = np.zeros((num_groups, num_groups), dtype=float)
+
+    # for r in range(num_groups):
+    #     for s in range(num_groups):
+    #         if r == s:
+    #             possible_edges = n[r] * (n[r] - 1) / 2
+    #         else:
+    #             possible_edges = n[r] * n[s]
+
+    #         if possible_edges > 0:
+    #             w[r, s] = m[r, s] / possible_edges
+    #         else:
+    #             w[r, s] = 0.0  # Avoid division by zero
+
+    # return w
+
     w = 0
 
     # Suppress warnings and handle division safely
@@ -154,11 +172,33 @@ def calc_log_likelihood(n, m, w): # or pass g, n, m in here as argument, not gra
     #e = 1e-10  # Small value to avoid log(0) or log(1)
     
 
+    # try:
+    #     log_term_1 = np.log(w)
+    #     log_term_2 = np.log(1 - w)
+    # except Exception as e:
+    #     print("Exception occurred while taking log:")
+    #     print("w matrix:")
+    #     print(w)
+    #     raise e
+
+    # # Check for invalid values in log(w) or log(1 - w)
+    # if np.any((w <= 0) | (w >= 1)):
+    #     print("Warning: w contains values outside (0, 1) which will result in invalid log.")
+    #     print("w matrix:")
+    #     print(w)
+
+    # log_likelihood = np.nansum(
+    #     np.triu(
+    #         m * log_term_1 + (np.outer(n, n) - np.diag(0.5 * n * (n + 1)) - m) * log_term_2
+    #     )
+    # )
+    # return log_likelihood
+
     log_likelihood = np.nansum(
         np.triu(
             m * np.log(w) + (np.outer(n, n) - np.diag(0.5 * n * (n + 1)) - m) * np.log(1 - w)
         )
-    ) # \sum_{r>s} m_rs log w_rw + (n_r n_s -m_rs ) log(1-w_rs) + \sum_r m_rr log w_rr + (nr(nr-1)/2 - m_rr) log(1-w_rr)
+    ) 
 
     return log_likelihood
 

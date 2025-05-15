@@ -7,7 +7,7 @@ import copy
 from networkx.readwrite import json_graph
 
 from visualisation import draw_graph
-from algorithms import optimise, optimise2, optimise3, optimise4, optimise_random
+from algorithms import optimise, optimise2, optimise3, optimise4, optimise_random, optimise_sa
 from graph_gen import generate_random_regular_graph
 
 '''
@@ -100,77 +100,97 @@ if __name__ == '__main__':
 
     # print(f"Saved results to {graphs_path}/{graph_name}_results.json")  
 
-    
-    
-    random_prob = 0.5
+    number_of_nodes = 5000
+    degree = 10
+    color_set_size = 2
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\(5000, 2, 2).json"
-    graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, initial_node_colors = load_graph_from_json(file_path)
+    for random_prob in [0.05]:
+        print(f"Running with random_prob: {random_prob}, degree: {degree}, color_set_size: {color_set_size}")
 
-    # Generate updated graph name with random_prob
-    graph_name_with_prob = str((num_nodes, degree, color_set_size, random_prob))
+        file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\({number_of_nodes}, {degree}, {color_set_size}).json"
+        graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, initial_node_colors = load_graph_from_json(file_path)
 
-    results_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
-    os.makedirs(results_path, exist_ok=True)
-    output_file = os.path.join(results_path, f"{graph_name_with_prob}_results.json")
+        # Generate updated graph name with random_prob
+        graph_name_with_prob = str((num_nodes, degree, color_set_size, random_prob))
 
-    # Load or initialize results
-    if os.path.exists(output_file):
-        with open(output_file, 'r') as f:
-            results = json.load(f)
-    else:
-        results = {
-            "graph_name": graph_name_with_prob,
-            "degree": degree,
-            "num_nodes": num_nodes,
-            "color_set_size": color_set_size,
-            "gaussian_mean": gaussian_mean,
-            "gaussian_variance": gaussian_variance,
-            "cost_data": {}
-        }
+        results_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
+        os.makedirs(results_path, exist_ok=True)
+        output_file = os.path.join(results_path, f"{graph_name_with_prob}_results.json")
 
-    for i, initial_coloring in enumerate(initial_node_colors):
-        key = f"initial_coloring_{i}"
-        if key not in results["cost_data"]:
-            results["cost_data"][key] = {}
+        # Load or initialize results
+        if os.path.exists(output_file):
+            with open(output_file, 'r') as f:
+                results = json.load(f)
+        else:
+            results = {
+                "graph_name": graph_name_with_prob,
+                "degree": degree,
+                "num_nodes": num_nodes,
+                "color_set_size": color_set_size,
+                "gaussian_mean": gaussian_mean,
+                "gaussian_variance": gaussian_variance,
+                "cost_data": {}
+            }
 
-        entry = results["cost_data"][key]
+        start_time = time.time()
 
-        for node, color in enumerate(initial_coloring):
-            graph.nodes[node]['color'] = color
+        for i, initial_coloring in enumerate(initial_node_colors):
+            key = f"initial_coloring_{i}"
+            if key not in results["cost_data"]:
+                results["cost_data"][key] = {}
 
-        # ==== Greedy ====
-        if "cost_data_g" not in entry:
-            graph_copy_g = copy.deepcopy(graph)
-            graph_g, final_cost_g, iters_g, cost_data_g = optimise4(graph_copy_g, color_set_size, algo_func=fg)
-            entry["cost_data_g"] = cost_data_g
+            entry = results["cost_data"][key]
 
-        # ==== Reluctant ====
-        if "cost_data_r" not in entry:
-            graph_copy_r = copy.deepcopy(graph)
-            graph_r, final_cost_r, iters_r, cost_data_r = optimise4(graph_copy_r, color_set_size, algo_func=fr)
-            entry["cost_data_r"] = cost_data_r
+            for node, color in enumerate(initial_coloring):
+                graph.nodes[node]['color'] = color
 
-        # ==== Greedy Random ====
-        if "cost_data_gr" not in entry:
-            graph_copy_gr = copy.deepcopy(graph)
-            graph_gr, final_cost_gr, iters_gr, cost_data_gr = optimise_random(graph_copy_gr, color_set_size, algo_func=fg, random_prob=random_prob)
-            entry["cost_data_gr"] = cost_data_gr
+            # ==== Greedy ====
+            if "cost_data_g" not in entry:
+                graph_copy_g = copy.deepcopy(graph)
+                graph_g, final_cost_g, iters_g, cost_data_g = optimise4(graph_copy_g, color_set_size, algo_func=fg)
+                entry["cost_data_g"] = cost_data_g
 
-        # ==== Reluctant Random ====
-        if "cost_data_rr" not in entry:
-            graph_copy_rr = copy.deepcopy(graph)
-            graph_rr, final_cost_rr, iters_rr, cost_data_rr = optimise_random(graph_copy_rr, color_set_size, algo_func=fr, random_prob=random_prob)
-            entry["cost_data_rr"] = cost_data_rr
+            # ==== Reluctant ====
+            if "cost_data_r" not in entry:
+                graph_copy_r = copy.deepcopy(graph)
+                graph_r, final_cost_r, iters_r, cost_data_r = optimise4(graph_copy_r, color_set_size, algo_func=fr)
+                entry["cost_data_r"] = cost_data_r
 
-        results["cost_data"][key] = entry
-        print(f"{i} initial coloring optimisation complete")
+            # ==== Greedy Random ====
+            if "cost_data_gr" not in entry:
+                graph_copy_gr = copy.deepcopy(graph)
+                graph_gr, final_cost_gr, iters_gr, cost_data_gr = optimise_random(graph_copy_gr, color_set_size, algo_func=fg, random_prob=random_prob)
+                entry["cost_data_gr"] = cost_data_gr
 
-    # Save updated results
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2)
+            # ==== Reluctant Random ====
+            if "cost_data_rr" not in entry:
+                graph_copy_rr = copy.deepcopy(graph)
+                graph_rr, final_cost_rr, iters_rr, cost_data_rr = optimise_random(graph_copy_rr, color_set_size, algo_func=fr, random_prob=random_prob)
+                entry["cost_data_rr"] = cost_data_rr
 
-    print(f"Saved results to {output_file}")
+            # ==== Greedy SA ====
+            if "cost_data_gsa" not in entry:
+                graph_copy_gsa = copy.deepcopy(graph)
+                graph_gsa, final_cost_gsa, iters_gsa, cost_data_gsa = optimise_sa(graph_copy_gsa, color_set_size, algo_func=fg)
+                entry["cost_data_gsa"] = cost_data_gsa
+
+            # ==== Reluctant SA ====
+            if "cost_data_rsa" not in entry:
+                graph_copy_rsa = copy.deepcopy(graph)
+                graph_rsa, final_cost_rsa, iters_rsa, cost_data_rsa = optimise_sa(graph_copy_rsa, color_set_size, algo_func=fr)
+                entry["cost_data_rsa"] = cost_data_rsa
+
+            results["cost_data"][key] = entry
+            print(f"{i} initial coloring optimisation complete")
+
+        end_time = time.time()
+        print(f"Execution time: {end_time - start_time:.4f} seconds")
+
+        # Save updated results
+        with open(output_file, 'w') as f:
+            json.dump(results, f, indent=2)
+
+        print(f"Saved results to {output_file}")
 
 
 

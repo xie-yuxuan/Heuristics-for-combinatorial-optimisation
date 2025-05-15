@@ -103,8 +103,9 @@ class SBMState:
 
             log_likelihood_change = log_likelihood_matrix[group_change]
 
-            if log_likelihood_change <= 0:
+            if log_likelihood_change <= 0 or len(self.C[bef, aft]) == 0:
                 return None, None, None
+
             node_to_move = self.C[bef, aft][-1][-1]
             return node_to_move, aft, log_likelihood_change
             
@@ -136,7 +137,7 @@ class SBMState:
 
                 log_likelihood_change = log_likelihood_matrix[group_change]
 
-                if log_likelihood_change <= 0:
+                if log_likelihood_change <= 0 or len(self.C[bef, aft]) == 0:
                     return None, None, None
                 node_to_move = self.C[bef, aft][-1][-1]
                 return node_to_move, aft, log_likelihood_change
@@ -161,7 +162,7 @@ class SBMState:
                 bef, aft = np.unravel_index(np.argmax(log_likelihood_matrix, axis=None), log_likelihood_matrix.shape)
                 log_likelihood_change = log_likelihood_matrix[bef, aft]
 
-                if log_likelihood_change <= 0:
+                if log_likelihood_change <= 0 or len(self.C[bef, aft]) == 0:
                     return None, None, None
 
                 node_to_move = self.C[bef, aft][-1][-1]
@@ -709,8 +710,14 @@ def optimise_sa(graph, color_set_size, algo_func):
         is_random_move = np.random.rand() < random_prob
 
         if is_random_move:
-            rand_idx = np.random.randint(len(sorted_cost_set))
-            delta_cost, node, new_color = sorted_cost_set[rand_idx]
+            # Pick a random node and a different color
+            node = np.random.randint(len(graph.nodes))
+            current_color = graph.nodes[node]['color']
+            available_colors = [c for c in range(color_set_size) if c != current_color]
+            if not available_colors:
+                continue  # skip if no valid colors
+            new_color = np.random.choice(available_colors)
+            delta_cost = algo_func(cost_change_matrix)[node][new_color]
         else:
             delta_cost, node, new_color = sorted_cost_set[0]
             if -algo_func(delta_cost) <= 0:
@@ -792,8 +799,14 @@ def optimise_random(graph, color_set_size, algo_func, random_prob):
         is_random_move = np.random.rand() < random_prob
 
         if is_random_move:
-            rand_idx = np.random.randint(len(sorted_cost_set))
-            delta_cost, node, new_color = sorted_cost_set[rand_idx]
+            # Pick a random node and a different color
+            node = np.random.randint(len(graph.nodes))
+            current_color = graph.nodes[node]['color']
+            available_colors = [c for c in range(color_set_size) if c != current_color]
+            if not available_colors:
+                continue  # skip if no valid colors
+            new_color = np.random.choice(available_colors)
+            delta_cost = algo_func(cost_change_matrix)[node][new_color]
         else:
             delta_cost, node, new_color = sorted_cost_set[0]
             if -algo_func(delta_cost) <= 0:

@@ -8,167 +8,157 @@ import numpy as np
 import json
 import time
 from sklearn.metrics import normalized_mutual_info_score
+from utils import calc_log_likelihood, compute_w
 
 from visualisation import draw_graph
 from algorithms import optimise_sbm, optimise_sbm2, optimise_sbm3, SBMState
 
+def load_graph_from_json(file_path):
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    
+    # load graph_name and attibutes
+    graph_name = data["graph_name"]
+    num_groups = data["num_groups"]
+    num_nodes = data["num_nodes"]
+    group_mode = data["group_mode"]
+    initial_node_colors = data["initial_node_colors"]
+    ground_truth_w = data["ground_truth_w"]
+    ground_truth_log_likelihood = data["ground_truth_log_likelihood"]
+
+    graph_data = data["graph_data"]
+    graph = json_graph.node_link_graph(graph_data)
+
+    # uncomment to get adj matrix
+    # adj_matrix = nx.adjacency_matrix(graph, weight='weight').toarray()
+    
+    return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_w, ground_truth_log_likelihood
 
 if __name__ == '__main__':
 
     np.random.seed(seed=1)
+    random_prob = 0.05
+    use_dynamic_w = False
 
-    real_world_data_path = r'C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\real_world_data\spanish_high_school'
-    num_groups = 2 # Set number of groups
-    graph_name = "SBM_spanish" 
+    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\within_organisation_facebook_friendships_L2, a.json"
+    graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_w, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
-    # construct network -------------------------------------------------------
-    edges_df = pd.read_csv(real_world_data_path + '/edges.csv')
-    nodes_df = pd.read_csv(real_world_data_path + '/nodes.csv')
-
-    nodes_df.columns = nodes_df.columns.str.strip()
-    edges_df.columns = edges_df.columns.str.strip()
-
-    # Initialize graph
-    graph = nx.Graph()
-
-    # class_to_color = {'Applied': 0, 'Formal': 1, 'Natural': 2, 'Social': 3}  # Adjust according to your actual class names
-    # class_to_color = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4}  # Adjust according to your actual class names
-    class_to_color = {1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5}  # Adjust according to your actual class names
-    # class_to_color = {'Female': 0, 'Male': 1}  # Adjust according to your actual class names
-
-    # Add nodes with attributes
-    for _, row in nodes_df.iterrows():
-        node_id = row['# index']
-        # position_str = row['_pos']
-        class_name = row['Curso']
-        
-        # position_list = eval(position_str[6:-1])  # Remove 'array(' and ')'
-        # position = np.array(position_list)  # Convert list to a NumPy array
-
-        # G.add_node(node_id, color=class_to_color.get(class_name, 0))
-        graph.add_node(node_id)
-
-    # Add edges with attributes
-    for _, row in edges_df.iterrows():
-        # if row['weight'] > 0:
-        source = row['# source']
-        target = row['target']
-        weight = 1  # You can use other attributes like fiber_length_mean, etc.
-        graph.add_edge(source, target, weight=weight)
-
-    # pos = nx.get_node_attributes(G, 'pos')
-
-    # Plot the graph
-    # draw_graph(graph=G, pos=nx.spring_layout(G, seed=1), graph_name="spanish_high_school", iterations_taken=None, cost_data=None, 
-    #            color_set_size=None, 
-    #            degree=None, 
-    #            num_nodes=num_nodes,
-    #            gaussian_mean=None, 
-    #            gaussian_variance=None, 
-    #            ground_truth_log_likelihood=None)
-
-    # determine graph parameters ------------------------------------------
-    num_nodes = len(graph.nodes)
-
-    initial_node_colors = [
-            [np.random.randint(0, num_groups) for _ in range(num_nodes)]
-            for _ in range(100)
-        ]
-    
     g = []
     for group in range(num_groups):
         g.extend([group] * (num_nodes // num_groups))
     g.extend([num_groups - 1] * (num_nodes % num_groups))
     g = np.array(g)
-
     g_copy = g.copy()
     np.random.shuffle(g_copy)
 
-    n, m = np.zeros(num_groups), np.zeros((num_groups, num_groups))
-    for node in graph.nodes():
-        n[g_copy[node]] += 1
-    for u, v in graph.edges():
-        m[g_copy[v], g_copy[u]] = m[g_copy[u], g_copy[v]] = m[g_copy[u], g_copy[v]] + 1
-    
-    # w_json = json.dumps(w.tolist())
+    w = np.array(json.loads(ground_truth_w), dtype=float)
 
-    # print(g)
-    # print(g_copy)
-    # print(n)
-    # print(m)
-    # print(num_nodes)
+    # Prepare output path
+    graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
+    os.makedirs(graphs_path, exist_ok=True)
 
+    suffix = "dynamic_w" if use_dynamic_w else "static_w"
+    graph_name_full = graph_name + f", {random_prob}, {suffix}"
+    output_path = os.path.join(graphs_path, f"{graph_name_full}_results.json")
 
-    # optimisation ------------------------------------------------
-    
-    w = np.zeros((num_groups, num_groups))
-    # set an estimate of w
-    w += 1
-    np.fill_diagonal(w, 9)
-    w /= num_nodes
+    # Load existing results if any
+    if os.path.exists(output_path):
+        with open(output_path, 'r') as f:
+            results = json.load(f)
+    else:
+        results = {
+            "graph_name": graph_name,
+            "num_nodes": num_nodes,
+            "num_groups": num_groups,
+            "group_mode": group_mode,
+            "ground_truth_w": ground_truth_w,
+            "ground_truth_log_likelihood": ground_truth_log_likelihood,
+            "cost_data": {}
+        }
 
-    random_prob = 0.05 # Set random prob
-
-    color_map_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
-    with open(color_map_path, 'r') as f:
-        color_map = json.load(f)['color_map']
-    color_to_int = {name: int(key) for key, name in color_map.items()}
-
-    results = {
-        "graph_name": graph_name,
-        "num_nodes" : num_nodes,
-        "num_groups" : num_groups,
-        # "ground_truth_w" : ground_truth_w,
-        # "ground_truth_log_likelihood" : ground_truth_log_likelihood,
-        "cost_data" : {}
-    }
-
-    # replace all colors with initial colorings
     start_time = time.time()
+
+    print(f"Processing graph: {graph_name_full}")
+    print(f"Number of nodes: {num_nodes}")
+    print(f"Number of groups: {num_groups}")
+    print(f"Group mode: {group_mode}")
+
     for i, initial_coloring in enumerate(initial_node_colors):
+
+        key = f"initial_coloring_{i}"
+        if key not in results["cost_data"]:
+            results["cost_data"][key] = {}
+
+        entry = results["cost_data"][key]
+
         for node, color in enumerate(initial_coloring):
             graph.nodes[node]['color'] = color
 
-        graph_copy = graph.copy()
-        graph_copy2 = graph.copy()
-        graph_copy3 = graph.copy()
+        def optimise_and_update(algorithm_name):
+            graph_copy = graph.copy()
+            current_w = w.copy()
+            data_all = []
+            g_final = None
+            while True:
+                state = SBMState(graph_copy, num_groups, current_w)
+                _, data_step, _, g_final = state.optimise(algorithm_name, random_prob, None)
+                data_all.extend(data_step[1:] if data_all else data_step)
+                if not use_dynamic_w:
+                    break
+                # compute new w
+                n = np.zeros(num_groups)
+                m = np.zeros((num_groups, num_groups))
+                for node in graph_copy.nodes():
+                    n[graph_copy.nodes[node]['color']] += 1
+                for u, v in graph_copy.edges():
+                    u = int(u)
+                    v = int(v)
+                    m[graph_copy.nodes[u]['color'], graph_copy.nodes[v]['color']] += 1
+                    m[graph_copy.nodes[v]['color'], graph_copy.nodes[u]['color']] += 1
+                new_w = compute_w(n, m)
+                if np.allclose(new_w, current_w, atol=1e-6):
+                    break
+                current_w = new_w
+            return data_all, g_final
 
-        # **Instantiate class**
-        greedy_state = SBMState(graph, num_groups, w)
-        graph_g, log_likelihood_data_g, final_w_g, g_optimised_g = greedy_state.optimise(algo_func="greedy", random_prob=random_prob, max_iterations=None)
-        reluctant_state = SBMState(graph_copy, num_groups, w)
-        graph_r, log_likelihood_data_r, final_w_r, g_optimised_r = reluctant_state.optimise(algo_func="reluctant", random_prob=random_prob, max_iterations=None)
-        greedy_random_state = SBMState(graph_copy2, num_groups, w)
-        graph_gr, log_likelihood_data_gr, final_w_gr, g_optimised_gr = greedy_random_state.optimise(algo_func="greedy_random", random_prob=random_prob, max_iterations=None)
-        reluctant_random_state = SBMState(graph_copy3, num_groups, w)
-        graph_rr, log_likelihood_data_rr, final_w_rr, g_optimised_rr = reluctant_random_state.optimise(algo_func="reluctant_random", random_prob=random_prob, max_iterations=None)
+        if "cost_data_g" not in entry:
+            data_g, g_optimised = optimise_and_update("greedy")
+            entry["cost_data_g"] = data_g
+            entry["nmi_g"] = normalized_mutual_info_score(g_copy, g_optimised)
 
-        results["cost_data"][f"initial_coloring_{i}"] = {
-            "cost_data_g": log_likelihood_data_g,
-            "cost_data_r": log_likelihood_data_r,
-            "cost_data_gr" : log_likelihood_data_gr,
-            "cost_data_rr" : log_likelihood_data_rr
-            # "nmi_g" : normalized_mutual_info_score(g_copy, g_optimised_g),
-            # "nmi_r" : normalized_mutual_info_score(g_copy, g_optimised_r),
-            # "nmi_gr" : normalized_mutual_info_score(g_copy, g_optimised_gr),
-            # "nmi_rr" : normalized_mutual_info_score(g_copy, g_optimised_rr)
-        }
+        if "cost_data_r" not in entry:
+            data_r, g_optimised = optimise_and_update("reluctant")
+            entry["cost_data_r"] = data_r
+            entry["nmi_r"] = normalized_mutual_info_score(g_copy, g_optimised)
 
+        if "cost_data_gr" not in entry:
+            data_gr, g_optimised = optimise_and_update("greedy_random")
+            entry["cost_data_gr"] = data_gr
+            entry["nmi_gr"] = normalized_mutual_info_score(g_copy, g_optimised)
+
+        if "cost_data_rr" not in entry:
+            data_rr, g_optimised = optimise_and_update("reluctant_random")
+            entry["cost_data_rr"] = data_rr
+            entry["nmi_rr"] = normalized_mutual_info_score(g_copy, g_optimised)
+
+        # if "cost_data_gsa" not in entry:
+        #     data_gsa, g_optimised = optimise_and_update("greedy_sa")
+        #     entry["cost_data_gsa"] = data_gsa
+        #     entry["nmi_gsa"] = normalized_mutual_info_score(g_copy, g_optimised)
+
+        # if "cost_data_rsa" not in entry:
+        #     data_rsa, g_optimised = optimise_and_update("reluctant_sa")
+        #     entry["cost_data_rsa"] = data_rsa
+        #     entry["nmi_rsa"] = normalized_mutual_info_score(g_copy, g_optimised)
+
+        results["cost_data"][key] = entry
         print(f"{i} initial coloring optimisation complete")
 
     end_time = time.time()
     print(f"Execution time: {end_time - start_time:.4f} seconds")
 
-    # save results --------------------------------------------------
-    graphs_path = r"C:\Projects\Heuristics for combinatorial optimisation\results"
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
 
-    # if random_prob is not None:
-    #     graph_name = graph_name[:-1] + f", {random_prob})"
+    print(f"Saved results to {output_path}")
 
-    with open(os.path.join(graphs_path, f"{graph_name}_results.json"), 'w') as f:
-        json.dump(results, f, indent = 2)
-
-    print(f"Saved results to {graphs_path}/{graph_name}_results.json")  
-    
-    
-    

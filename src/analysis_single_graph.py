@@ -146,7 +146,9 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
         "g": {"cost": float('inf'), "iter": None, "color": "red"},
         "r": {"cost": float('inf'), "iter": None, "color": "green"},
         "gr": {"cost": float('inf'), "iter": None, "color": "orange"},
-        "rr": {"cost": float('inf'), "iter": None, "color": "purple"}
+        "rr": {"cost": float('inf'), "iter": None, "color": "purple"},
+        "gsa": {"cost": float('inf'), "iter": None, "color": "brown"},
+        "rsa": {"cost": float('inf'), "iter": None, "color": "blue"}
     }
 
     for i, (key, value) in enumerate(cost_data.items()):
@@ -156,7 +158,11 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
         for label, color, field in [("g", "red", "cost_data_g"),
                                     ("r", "green", "cost_data_r"),
                                     ("gr", "orange", "cost_data_gr"),
-                                    ("rr", "purple", "cost_data_rr")]:
+                                    ("rr", "purple", "cost_data_rr"),
+                                    ("gsa", "brown", "cost_data_gsa"),
+                                    ("rsa", "blue", "cost_data_rsa")
+                                    ]:
+            
             if field not in value:
                 continue
             costs = value[field]
@@ -186,6 +192,8 @@ def plot_cost_data(cost_data, graph_name, color_set_size, degree, num_nodes, gau
     plt.plot([], [], color="green", label="Reluctant")
     plt.plot([], [], color="orange", label="Greedy Random")
     plt.plot([], [], color="purple", label="Reluctant Random")
+    plt.plot([], [], color="brown", label="Greedy SA")
+    plt.plot([], [], color="blue", label="Reluctant SA")
     plt.legend(loc="upper right")
 
     param_text = (f"Color Set Size: {color_set_size}\n"
@@ -215,6 +223,8 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
     reluctant_final_costs = []
     greedy_random_final_costs = []
     reluctant_random_final_costs = []
+    greedy_sa_final_costs = []
+    reluctant_sa_final_costs = []
 
     for initial_coloring_key, iteration_data in cost_data.items():
         if "cost_data_g" in iteration_data:
@@ -225,6 +235,11 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
             greedy_random_final_costs.append(iteration_data["cost_data_gr"][-1])
         if "cost_data_rr" in iteration_data:
             reluctant_random_final_costs.append(iteration_data["cost_data_rr"][-1])
+        if "cost_data_gsa" in iteration_data:
+            greedy_sa_final_costs.append(iteration_data["cost_data_gsa"][-1])
+        if "cost_data_rsa" in iteration_data:
+            reluctant_sa_final_costs.append(iteration_data["cost_data_rsa"][-1])
+
 
     plt.figure(figsize=(10, 6))
 
@@ -241,6 +256,12 @@ def plot_final_costs(cost_data, graph_name, degree, num_nodes, color_set_size, g
     if reluctant_random_final_costs:
         plt.scatter(range(len(reluctant_random_final_costs)), reluctant_random_final_costs, label='Reluctant Random', color='purple', alpha=0.6)
         plt.axhline(np.mean(reluctant_random_final_costs), color='purple', linestyle='--', label=f'Mean Reluctant Random: {np.mean(reluctant_random_final_costs):.2f}')
+    if greedy_sa_final_costs:
+        plt.scatter(range(len(greedy_sa_final_costs)), greedy_sa_final_costs, label='Greedy SA', color='brown', alpha=0.6)
+        plt.axhline(np.mean(greedy_sa_final_costs), color='brown', linestyle='--', label=f'Mean Greedy SA: {np.mean(greedy_sa_final_costs):.2f}')
+    if reluctant_sa_final_costs:
+        plt.scatter(range(len(reluctant_sa_final_costs)), reluctant_sa_final_costs, label='Reluctant SA', color='blue', alpha=0.6)
+        plt.axhline(np.mean(reluctant_sa_final_costs), color='blue', linestyle='--', label=f'Mean Reluctant SA: {np.mean(reluctant_sa_final_costs):.2f}')
 
     # Labels and styling
     plt.xlabel('Initial Coloring Index')
@@ -302,7 +323,7 @@ def plot_cost_diff_histogram(cost_data, num_nodes, graph_name, num_bins, bin_ran
 
 if __name__ == '__main__':
 
-    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\results\(5000, 2, 2, 0.5)_results.json"
+    file_path = r"C:\Projects\Heuristics for combinatorial optimisation\results\(5000, 10, 2, 0.05)_results.json"
 
     with open(file_path, 'r') as f:
         data = json.load(f)
