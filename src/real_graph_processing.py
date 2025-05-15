@@ -38,9 +38,9 @@ if __name__ == '__main__':
 
     np.random.seed(seed=1)
     random_prob = 0.05
-    use_dynamic_w = False
+    use_dynamic_w = True
 
-    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\within_organisation_facebook_friendships_L2, a.json"
+    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\wikipedia_map_of_science, a.json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_w, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     g = []
@@ -49,6 +49,7 @@ if __name__ == '__main__':
     g.extend([num_groups - 1] * (num_nodes % num_groups))
     g = np.array(g)
     g_copy = g.copy()
+    g_copy2 = g.copy()
     np.random.shuffle(g_copy)
 
     w = np.array(json.loads(ground_truth_w), dtype=float)
@@ -105,16 +106,13 @@ if __name__ == '__main__':
                 data_all.extend(data_step[1:] if data_all else data_step)
                 if not use_dynamic_w:
                     break
-                # compute new w
-                n = np.zeros(num_groups)
-                m = np.zeros((num_groups, num_groups))
-                for node in graph_copy.nodes():
-                    n[graph_copy.nodes[node]['color']] += 1
-                for u, v in graph_copy.edges():
-                    u = int(u)
-                    v = int(v)
-                    m[graph_copy.nodes[u]['color'], graph_copy.nodes[v]['color']] += 1
-                    m[graph_copy.nodes[v]['color'], graph_copy.nodes[u]['color']] += 1
+
+                n, m = np.zeros(num_groups), np.zeros((num_groups, num_groups))
+                for node in graph.nodes():
+                    n[g_copy2[node]] += 1
+                for u, v in graph.edges():
+                    m[g_copy2[v], g_copy2[u]] = m[g_copy2[u], g_copy2[v]] = m[g_copy2[u], g_copy2[v]] + 1
+
                 new_w = compute_w(n, m)
                 if np.allclose(new_w, current_w, atol=1e-6):
                     break

@@ -63,50 +63,40 @@ def load_graph_from_json(file_path):
     
     return graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_log_likelihood
 
+# def compute_w(n, m):
+#     num_groups = len(n)
+#     w = np.zeros((num_groups, num_groups), dtype=float)
+
+#     for r in range(num_groups):
+#         for s in range(num_groups):
+#             if r == s:
+#                 possible_edges = n[r] * (n[r] - 1) / 2
+#                 actual_edges = m[r, r] / 2  # because we double-counted
+#             else:
+#                 possible_edges = n[r] * n[s]
+#                 actual_edges = m[r, s]  # total edge count between r and s
+
+#             if possible_edges > 0:
+#                 w[r, s] = actual_edges / possible_edges
+#             else:
+#                 w[r, s] = 0.0
+
+#     return np.clip(w, 1e-10, 1 - 1e-10)  # prevent log(0) or log(>1)
+
 def compute_w(n, m):
-
-    # n, m = np.zeros(total_groups), np.zeros((total_groups, total_groups))
-    # # g = np.array(color for color in graph.nodes)
-
-    # for node in graph.nodes():
-    #     n[graph.nodes[node]['color']] += 1 # increment group count for each group
-    # # print(n)
-    # for u, v in graph.edges():
-    #     # increment edge count between groups
-    #     # ensures m is symmetric
-    #     m[graph.nodes[v]['color'], graph.nodes[u]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] = m[graph.nodes[u]['color'], graph.nodes[v]['color']] + 1 
-
-
-    # num_groups = len(n)
-    # w = np.zeros((num_groups, num_groups), dtype=float)
-
-    # for r in range(num_groups):
-    #     for s in range(num_groups):
-    #         if r == s:
-    #             possible_edges = n[r] * (n[r] - 1) / 2
-    #         else:
-    #             possible_edges = n[r] * n[s]
-
-    #         if possible_edges > 0:
-    #             w[r, s] = m[r, s] / possible_edges
-    #         else:
-    #             w[r, s] = 0.0  # Avoid division by zero
-
-    # return w
-
-    w = 0
-
-    # Suppress warnings and handle division safely
+    """
+    Compute the SBM w matrix based on node group sizes (n) and edge counts (m).
+    Assumes undirected graph with m symmetric, where m[r,s] counts all edges between groups r and s.
+    """
+    denominator = np.outer(n, n) - np.diag(0.5 * n * (n + 1))  # account for undirected self-edges
     with np.errstate(divide='ignore', invalid='ignore'):
         w = np.divide(
-            m,
-            (np.outer(n, n) - np.diag(0.5 * n * (n + 1))),
-            where=(np.outer(n, n) - np.diag(0.5 * n * (n + 1))) != 0
-        )
-    
-    
-    # subtracts within-group combinations for diagonal elements
+            m, 
+            denominator, 
+            where=denominator != 0)
 
+    # Prevent numerical instability in log(0) or log(>1)
+    w = np.clip(w, 1e-10, 1 - 1e-10)
     return w
 
 # def compute_w(graph, total_groups):
