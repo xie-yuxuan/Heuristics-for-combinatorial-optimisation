@@ -87,62 +87,65 @@ if __name__ == '__main__':
     np.random.seed(seed)
 
     num_nodes = 5000
-    degree = 18
-    color_set_size = 2
-    gaussian_mean = 0
-    gaussian_variance = 1
-    random_regular = True
-    num_initial_colorings = 100
-    if gaussian_mean == None and gaussian_variance == None and random_regular:
-        graph_name = f"{num_nodes, degree, color_set_size, 'uniform'}"
-    elif random_regular:
-        graph_name = f"{num_nodes, degree, color_set_size}"
-    elif gaussian_mean == None and gaussian_variance == None and not random_regular:
-        graph_name = f"{num_nodes, degree, color_set_size, 'uniform', 'not regular'}"
-    else:
-        graph_name = f"{num_nodes, degree, color_set_size, 'not regular'}"
 
-    # generate graph, get J
-    if random_regular:
-        graph = generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed=seed)
-    else:
-        graph = generate_random_graph(num_nodes, degree, gaussian_mean, gaussian_variance, seed=seed)
+    for degree in [2, 6, 10, 14, 18]:
+        for color_set_size in [2, 4, 6, 8]:
+            seed = 1
+            np.random.seed(seed)
+    # degree = 10
+    # color_set_size = 2
+            gaussian_mean = 0
+            gaussian_variance = 1
+            random_regular = True
+            num_initial_colorings = 100
+            if gaussian_mean == None and gaussian_variance == None and random_regular:
+                graph_name = f"{num_nodes, degree, color_set_size, 'uniform'}"
+            elif random_regular:
+                graph_name = f"{num_nodes, degree, color_set_size}"
+            elif gaussian_mean == None and gaussian_variance == None and not random_regular:
+                graph_name = f"{num_nodes, degree, color_set_size, 'uniform', 'not regular'}"
+            else:
+                graph_name = f"{num_nodes, degree, color_set_size, 'not regular'}"
+
+            # generate graph, get J
+            if random_regular:
+                graph = generate_random_regular_graph(degree, num_nodes, gaussian_mean, gaussian_variance, seed=seed)
+            else:
+                graph = generate_random_graph(num_nodes, degree, gaussian_mean, gaussian_variance, seed=seed)
 
 
-    # create a list of initial color states (list of lists)
-    initial_node_colors = [
-        [np.random.randint(0, color_set_size) for _ in range(num_nodes)]
-        for _ in range(num_initial_colorings)
-    ]
+            # create a list of initial color states (list of lists)
+            initial_node_colors = [
+                [np.random.randint(0, color_set_size) for _ in range(num_nodes)]
+                for _ in range(num_initial_colorings)
+            ]
 
-    # print(initial_node_colors)
+            # uncomment to view graphs before saving
+            # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
+            #            color_set_size=color_set_size, 
+            #            degree=degree, 
+            #            num_nodes=num_nodes, 
+            #            gaussian_mean=gaussian_mean, 
+            #            gaussian_variance=gaussian_variance,
+            #            ground_truth_log_likelihood = None
+            #            )
 
-    # uncomment to view graphs before saving
-    # draw_graph(graph, pos=nx.spring_layout(graph, seed=1), graph_name=graph_name, iterations_taken=0, cost_data=None,
-    #            color_set_size=color_set_size, 
-    #            degree=degree, 
-    #            num_nodes=num_nodes, 
-    #            gaussian_mean=gaussian_mean, 
-    #            gaussian_variance=gaussian_variance,
-    #            ground_truth_log_likelihood = None
-    #            )
+            graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
 
-    graphs_path = "C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs"
+            graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialised to JSON
 
-    graph_data = json_graph.node_link_data(graph) # node_link_data converts graph into dictionary to be serialised to JSON
+            data = {
+                "graph_name": graph_name,
+                "degree" : degree,
+                "num_nodes" : num_nodes,
+                "color_set_size" : color_set_size,
+                "gaussian_mean" : gaussian_mean,
+                "gaussian_variance" : gaussian_variance,
+                "initial_node_colors" : initial_node_colors,
+                "graph_data": graph_data
+            }
 
-    data = {
-        "graph_name": graph_name,
-        "degree" : degree,
-        "num_nodes" : num_nodes,
-        "color_set_size" : color_set_size,
-        "gaussian_mean" : gaussian_mean,
-        "gaussian_variance" : gaussian_variance,
-        "initial_node_colors" : initial_node_colors,
-        "graph_data": graph_data
-    }
+            with open(os.path.join(graphs_path, f"{graph_name}.json"), 'w') as f:
+                json.dump(data, f, indent = 2)
 
-    with open(os.path.join(graphs_path, f"{graph_name}.json"), 'w') as f:
-        json.dump(data, f, indent = 2)
-
-    print(f"Saved graph to {graphs_path}/{graph_name}.json")
+            print(f"Saved graph to {graphs_path}/{graph_name}.json")
