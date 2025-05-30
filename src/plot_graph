@@ -1,0 +1,214 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def plot_reluctant():
+
+    # Set font sizes to visually match 12pt printed size on large figure
+    plt.rcParams.update({
+        "font.size": 16,             # Base font size for text
+        "axes.labelsize": 16,        # Axis labels
+        "xtick.labelsize": 16,       # Tick labels
+        "ytick.labelsize": 16,
+        "legend.fontsize": 16,       # Legend text
+        "figure.titlesize": 16       # Title
+    })
+
+    # Parameters
+    amp = 1.5
+    A = 1.2
+    sigma = 0.1
+    K = 1
+    x = np.linspace(-0.5 * np.pi, 1.5 * np.pi, 2000)
+
+    # Define the function
+    def f(x):
+        base = amp * np.cos(x)
+        dip = np.zeros_like(x)
+        for k in range(-K, K + 1):
+            dip += np.exp(-((x - 2 * np.pi * k) ** 2) / (2 * sigma**2))
+        return base - A * dip
+
+    # Evaluate function
+    y = f(x)
+
+    # Points of interest
+    x0_idx = np.argmin(np.abs(x - 0))
+    xpi_idx = np.argmin(np.abs(x - np.pi))
+
+    x_interval = x[(x >= 0) & (x <= np.pi)]
+    y_interval = y[(x >= 0) & (x <= np.pi)]
+    x_max = x_interval[np.argmax(y_interval)]
+    y_max = np.max(y_interval)
+
+    # Plot
+    plt.figure(figsize=(10, 6))  # suitable for side-by-side on A4
+    plt.plot(x, y, label=fr'$f(x) = {amp}\cos(x) - {A} \sum e^{{- \frac{{(x - 2\pi k)^2}}{{2({sigma}^2)}}}}$', color='green')
+
+    # Mark points
+    plt.plot(x[x0_idx], y[x0_idx], 'ro', label='Greedy solution (min at $x=0$)')
+    plt.plot(x[xpi_idx], y[xpi_idx], 'go', label='Reluctant solution (min at $x=\pi$)')
+    plt.plot(x_max, y_max, 'bo', label='Initial state (max in $[0, \pi]$)')
+
+    # Axes and limits
+    plt.axhline(0, color='gray', linewidth=0.5)
+    plt.axvline(0, color='gray', linewidth=0.5)
+    plt.xlim(-0.5 * np.pi, 1.5 * np.pi)
+    plt.ylim(-4, 4)
+
+    # π Ticks
+    xticks = [r * np.pi for r in [-0.5, 0, 0.5, 1, 1.5]]
+    xtick_labels = [r"$-\frac{1}{2}\pi$", "0", r"$\frac{1}{2}\pi$", r"$\pi$", r"$\frac{3}{2}\pi$"]
+    plt.xticks(xticks, xtick_labels)
+
+    plt.title("2D Solution Landscape Favouring Reluctant Heuristic")
+    plt.xlabel("x")
+    plt.ylabel("f(x)")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("2D_solution_landscape_reluctant.png", dpi=300)
+    plt.show()
+
+def plot_greedy():
+    # Font sizes scaled x2 for side-by-side A4 print (final = ~12pt)
+    plt.rcParams.update({
+        "font.size": 16,
+        "axes.labelsize": 16,
+        "xtick.labelsize": 16,
+        "ytick.labelsize": 16,
+        "legend.fontsize": 16,
+        "figure.titlesize": 16
+    })
+
+    # Greedy landscape parameters
+    amp = 0.5
+    A = 3
+    sigma = 0.1
+    K = 1
+    x = np.linspace(-0.5 * np.pi, 1.5 * np.pi, 2000)
+
+    def f(x):
+        base = amp * np.cos(x)
+        dip = np.zeros_like(x)
+        for k in range(-K, K + 1):
+            dip += np.exp(-((x - 2 * np.pi * k) ** 2) / (2 * sigma**2))
+        return base - A * dip
+
+    y = f(x)
+
+    # Identify key points
+    x0_idx = np.argmin(np.abs(x - 0))
+    xpi_idx = np.argmin(np.abs(x - np.pi))
+    x_interval = x[(x >= 0) & (x <= np.pi)]
+    y_interval = y[(x >= 0) & (x <= np.pi)]
+    x_max = x_interval[np.argmax(y_interval)]
+    y_max = np.max(y_interval)
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, y, color='red', label=fr'$f(x) = {amp}\cos(x) - {A} \sum e^{{- \frac{{(x - 2\pi k)^2}}{{2({sigma}^2)}}}}$')
+
+    # Mark points
+    plt.plot(x[x0_idx], y[x0_idx], 'ro', label='Greedy solution (min at $x=0$)')
+    plt.plot(x[xpi_idx], y[xpi_idx], 'go', label='Reluctant solution (min at $x=\pi$)')
+    plt.plot(x_max, y_max, 'bo', label='Initial state (max in $[0, \pi]$)')
+
+    # Axis lines and limits
+    plt.axhline(0, color='gray', linewidth=0.5)
+    plt.axvline(0, color='gray', linewidth=0.5)
+    plt.xlim(-0.5 * np.pi, 1.5 * np.pi)
+    plt.ylim(-4, 4)
+
+    # π ticks
+    xticks = [r * np.pi for r in [-0.5, 0, 0.5, 1, 1.5]]
+    xtick_labels = [r"$-\frac{1}{2}\pi$", "0", r"$\frac{1}{2}\pi$", r"$\pi$", r"$\frac{3}{2}\pi$"]
+    plt.xticks(xticks, xtick_labels)
+
+    plt.title("2D Solution Landscape Favouring Greedy Heuristic")
+    plt.xlabel("x")
+    plt.ylabel("f(x)")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("2D_solution_landscape_greedy.png", dpi=300)
+    plt.show()
+
+
+# plot_reluctant()
+# plot_greedy()
+
+# for mode_number in range(10):  
+#     mapped_value = np.linspace(-0.95, 0.95, 10)[mode_number]
+#     print(mapped_value)
+
+def plot_cost_ratio():
+    plt.rcParams.update({
+        "font.size": 16,
+        "axes.labelsize": 16,
+        "xtick.labelsize": 16,
+        "ytick.labelsize": 16,
+        "legend.fontsize": 14,
+        "figure.titlesize": 16
+    })
+
+    # Input data
+    N = np.array([100, 200, 500, 1000, 2000, 5000, 7500, 10000])
+
+    # Greedy and Reluctant - Normal Distribution
+    G_normal = np.array([-159.01, -296.98, -732.55, -1386.13, -2841.53, -7259.81, -10570.28, -14026.94])
+    G_normal_ci = np.array([1.68, 2.12, 4.71, 5.07, 7.65, 11.32, 17.07, 15.23])
+
+    R_normal = np.array([-162.67, -300.65, -748.09, -1420.43, -2905.07, -7429.05, -10849.75, -14362.30])
+    R_normal_ci = np.array([1.56, 1.93, 3.80, 5.37, 7.83, 10.28, 13.60, 15.11])
+
+    # Greedy and Reluctant - Uniform Distribution
+    G_uniform = np.array([-83.14, -148.92, -416.74, -848.56, -1642.87, -4215.68, -6290.11, -8435.45])
+    G_uniform_ci = np.array([0.89, 1.36, 2.81, 3.12, 4.81, 6.67, 9.21, 9.96])
+
+    R_uniform = np.array([-84.56, -154.06, -427.10, -869.45, -1686.37, -4323.21, -6460.43, -8672.00])
+    R_uniform_ci = np.array([0.75, 1.26, 2.27, 2.35, 4.06, 6.65, 7.71, 8.71])
+
+    # Compute ratios and their confidence intervals
+    ratio_G_R_normal = G_normal / R_normal
+    ratio_G_R_normal_ci = ratio_G_R_normal * np.sqrt((G_normal_ci / G_normal)**2 + (R_normal_ci / R_normal)**2)
+
+    ratio_G_R_uniform = G_uniform / R_uniform
+    ratio_G_R_uniform_ci = ratio_G_R_uniform * np.sqrt((G_uniform_ci / G_uniform)**2 + (R_uniform_ci / R_uniform)**2)
+
+    ratio_G_normal_uniform = G_normal / G_uniform
+    ratio_G_normal_uniform_ci = ratio_G_normal_uniform * np.sqrt((G_normal_ci / G_normal)**2 + (G_uniform_ci / G_uniform)**2)
+
+    ratio_R_normal_uniform = R_normal / R_uniform
+    ratio_R_normal_uniform_ci = ratio_R_normal_uniform * np.sqrt((R_normal_ci / R_normal)**2 + (R_uniform_ci / R_uniform)**2)
+
+    # Plot Figure 1: G/R on normal vs uniform
+    plt.figure(figsize=(10, 6))
+    plt.plot(N, ratio_G_R_normal, label="G/R (Normal)", color='blue', linestyle='-', marker='o')
+    plt.fill_between(N, ratio_G_R_normal - ratio_G_R_normal_ci, ratio_G_R_normal + ratio_G_R_normal_ci, color='blue', alpha=0.2)
+    plt.plot(N, ratio_G_R_uniform, label="G/R (Uniform)", color='orange', linestyle='--', marker='o')
+    plt.fill_between(N, ratio_G_R_uniform - ratio_G_R_uniform_ci, ratio_G_R_uniform + ratio_G_R_uniform_ci, color='orange', alpha=0.2)
+    plt.xlabel("Number of Nodes N")
+    plt.ylabel("Greedy / Reluctant Cost Ratio")
+    plt.title("Greedy / Reluctant Cost Ratio for Normal and Uniform w")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("Greedy_Reluctant_Cost_Ratio.png", dpi=300)
+    plt.show()
+
+    # Plot Figure 2: G_normal/G_uniform and R_normal/R_uniform
+    plt.figure(figsize=(10, 6))
+    plt.plot(N, ratio_G_normal_uniform, label="G (Normal / Uniform)", color='red', linestyle='-', marker='o')
+    plt.fill_between(N, ratio_G_normal_uniform - ratio_G_normal_uniform_ci, ratio_G_normal_uniform + ratio_G_normal_uniform_ci, color='red', alpha=0.2)
+    plt.plot(N, ratio_R_normal_uniform, label="R (Normal / Uniform)", color='green', linestyle='--', marker='o')
+    plt.fill_between(N, ratio_R_normal_uniform - ratio_R_normal_uniform_ci, ratio_R_normal_uniform + ratio_R_normal_uniform_ci, color='green', alpha=0.2)
+    plt.xlabel("Number of Nodes N")
+    plt.ylabel("Normal / Uniform Cost Ratio")
+    plt.title("Normal / Uniform Cost Ratio for Greedy and Reluctant")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("Normal_Uniform_Cost_Ratio.png", dpi=300)
+    plt.show()
+
+plot_cost_ratio()

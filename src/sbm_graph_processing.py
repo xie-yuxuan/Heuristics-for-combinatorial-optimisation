@@ -253,14 +253,14 @@ def load_graph_from_json(file_path):
 
 if __name__ == "__main__":
 
-    mode_number = 7
+    # mode_number = 7
     instance_number = 0
-    random_prob = 0.51
+    random_prob = 0
 
     seed = 1 + instance_number
     np.random.seed(seed)
 
-    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(10000, 2, t{mode_number}{instance_number}).json"
+    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\SBM(10000, 2, c).json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_w, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     g = []
@@ -324,13 +324,13 @@ if __name__ == "__main__":
             entry["cost_data_r"] = data_r
             entry["nmi_r"] = normalized_mutual_info_score(g_copy, g_optimised)
 
-        # ==== Greedy Random ====
-        if "cost_data_gr" not in entry:
-            graph_copy_gr = graph.copy()
-            greedy_random_state = SBMState(graph_copy_gr, num_groups, w)
-            graph_gr, data_gr, _, g_optimised = greedy_random_state.optimise("greedy_random", random_prob, None)
-            entry["cost_data_gr"] = data_gr
-            entry["nmi_gr"] = normalized_mutual_info_score(g_copy, g_optimised)
+        # # ==== Greedy Random ====
+        # if "cost_data_gr" not in entry:
+        #     graph_copy_gr = graph.copy()
+        #     greedy_random_state = SBMState(graph_copy_gr, num_groups, w)
+        #     graph_gr, data_gr, _, g_optimised = greedy_random_state.optimise("greedy_random", random_prob, None)
+        #     entry["cost_data_gr"] = data_gr
+        #     entry["nmi_gr"] = normalized_mutual_info_score(g_copy, g_optimised)
 
         # # ==== Reluctant Random ====
         # if "cost_data_rr" not in entry:

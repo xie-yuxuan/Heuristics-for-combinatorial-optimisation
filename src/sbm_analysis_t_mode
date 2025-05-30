@@ -53,6 +53,54 @@ def sbm_plot_final_ll_vs_mode(results_folder, num_nodes, num_groups, random_prob
     plt.savefig(f"plots/SBM({num_nodes}, {num_groups}, tX, {random_prob})_final_ll.png")
     plt.show()
 
+def sbm_plot_final_ll_vs_mode_SA(results_folder, num_nodes, num_groups, random_prob):
+    pattern = re.compile(rf"SBM\({num_nodes}, {num_groups}, t(\d+)0, {random_prob}\)_results\.json")
+    
+    mode_numbers = []
+    ll_values = {"gsa": [], "rsa": []}
+    colors = {"gsa": "brown", "rsa": "blue"}
+    
+    for file in os.listdir(results_folder):
+        match = pattern.match(file)
+        if match:
+            mode_number = int(match.group(1))
+            mode_numbers.append(mode_number)
+            
+            with open(os.path.join(results_folder, file), 'r') as f:
+                data = json.load(f)
+            
+            final_lls = {"gsa": [], "rsa": []}
+            
+            for key in data["cost_data"]:
+                # final_lls["g"].append(data["cost_data"][key]["cost_data_g"][-1])
+                # final_lls["r"].append(data["cost_data"][key]["cost_data_r"][-1])
+                # final_lls["gr"].append(data["cost_data"][key]["cost_data_gr"][-1])
+                # final_lls["rr"].append(data["cost_data"][key]["cost_data_rr"][-1])
+                final_lls["gsa"].append(data["cost_data"][key]["cost_data_gsa"][-1])    
+                final_lls["rsa"].append(data["cost_data"][key]["cost_data_rsa"][-1])
+            
+            for method in ll_values:
+                ll_values[method].append(np.mean(final_lls[method]))
+    
+    x_values = [mode_number_to_x_value(m) for m in mode_numbers]
+    sorted_indices = np.argsort(x_values)
+    x_values = np.array(x_values)[sorted_indices]
+    
+    for method in ll_values:
+        ll_values[method] = np.array(ll_values[method])[sorted_indices]
+    
+    plt.figure(figsize=(10, 6))
+    for method, label in zip(["gsa", "rsa"], ["Greedy SA", "Reluctant SA"]):
+        plt.plot(x_values, ll_values[method], marker='o', label=label, color=colors[method])
+    
+    plt.xlabel("x Value")
+    plt.ylabel("Average Final Log-Likelihood")
+    plt.title(f"Average Final LL vs x Value for SA (Nodes: {num_nodes}, Random Prob: {random_prob})")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"plots/SBM({num_nodes}, {num_groups}, tX, {random_prob})_final_ll_SA.png")
+    plt.show()
+
 def sbm_plot_final_nmi_vs_mode(results_folder, num_nodes, num_groups, random_prob):
     pattern = re.compile(rf"SBM\({num_nodes}, {num_groups}, t(\d+)0, {random_prob}\)_results\.json")
     
@@ -99,6 +147,55 @@ def sbm_plot_final_nmi_vs_mode(results_folder, num_nodes, num_groups, random_pro
     plt.savefig(f"plots/SBM({num_nodes}, {num_groups}, tX, {random_prob})_nmi.png")
     plt.show()
 
+def sbm_plot_final_nmi_vs_mode_SA(results_folder, num_nodes, num_groups, random_prob):
+    pattern = re.compile(rf"SBM\({num_nodes}, {num_groups}, t(\d+)0, {random_prob}\)_results\.json")
+    
+    mode_numbers = []
+    nmi_values = {"gsa": [], "rsa": []}
+    colors = {"gsa": "brown", "rsa": "blue"}
+    
+    for file in os.listdir(results_folder):
+        match = pattern.match(file)
+        if match:
+            mode_number = int(match.group(1))
+            mode_numbers.append(mode_number)
+            
+            with open(os.path.join(results_folder, file), 'r') as f:
+                data = json.load(f)
+            
+            final_nmis = {"gsa": [], "rsa": []}
+            
+            for key in data["cost_data"]:
+                # final_nmis["g"].append(data["cost_data"][key]["nmi_g"])
+                # final_nmis["r"].append(data["cost_data"][key]["nmi_r"])
+                # final_nmis["gr"].append(data["cost_data"][key]["nmi_gr"])
+                # final_nmis["rr"].append(data["cost_data"][key]["nmi_rr"])
+                final_nmis["gsa"].append(data["cost_data"][key]["nmi_gsa"])
+                final_nmis["rsa"].append(data["cost_data"][key]["nmi_rsa"])
+            
+            for method in nmi_values:
+                nmi_values[method].append(np.mean(final_nmis[method]))
+    
+    x_values = [mode_number_to_x_value(m) for m in mode_numbers]
+    sorted_indices = np.argsort(x_values)
+    x_values = np.array(x_values)[sorted_indices]
+    
+    for method in nmi_values:
+        nmi_values[method] = np.array(nmi_values[method])[sorted_indices]
+    
+    plt.figure(figsize=(10, 6))
+    for method, label in zip(["gsa", "rsa"], ["Greedy SA", "Reluctant SA"]):
+        plt.plot(x_values, nmi_values[method], marker='o', label=label, color=colors[method])
+    
+    plt.xlabel("x Value")
+    plt.ylabel("Average Final NMI")
+    plt.title(f"Average Final NMI vs x Value for SA (Nodes: {num_nodes}, Random Prob: {random_prob})")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"plots/SBM({num_nodes}, {num_groups}, tX, {random_prob})_nmi_SA.png")
+    plt.show()
+
+
 
     
 
@@ -106,7 +203,10 @@ if __name__ == "__main__":
     results_folder = r'C:\Projects\Heuristics for combinatorial optimisation\results'
 
     # sbm_plot_final_ll_vs_mode(results_folder, num_nodes=10000, num_groups=2, random_prob=0.05)
+    sbm_plot_final_ll_vs_mode_SA(results_folder, num_nodes=10000, num_groups=2, random_prob=0)
 
-    sbm_plot_final_nmi_vs_mode(results_folder, num_nodes=10000, num_groups=2, random_prob=0.05)
+    # sbm_plot_final_nmi_vs_mode(results_folder, num_nodes=10000, num_groups=2, random_prob=0.05)
+    
+    # sbm_plot_final_nmi_vs_mode_SA(results_folder, num_nodes=10000, num_groups=2, random_prob=0)
 
 

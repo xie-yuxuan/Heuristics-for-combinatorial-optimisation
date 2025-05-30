@@ -9,12 +9,13 @@ def extract_final_ll_vs_random_prob_random_greedy_and_reluctant(results_folder, 
     
     random_probs = []
     ll_values = {"gr": [], "rr": []}
-    
+    ll_stds = {"gr": [], "rr": []}
+
     for file in os.listdir(results_folder):
         match = pattern.match(file)
         if match:
-            random_prob = match.group(1)
-            random_probs.append(float(random_prob))
+            random_prob = float(match.group(1))
+            random_probs.append(random_prob)
             
             with open(os.path.join(results_folder, file), 'r') as f:
                 data = json.load(f)
@@ -30,87 +31,99 @@ def extract_final_ll_vs_random_prob_random_greedy_and_reluctant(results_folder, 
             for method in ll_values:
                 if final_lls[method]:
                     ll_values[method].append(np.mean(final_lls[method]))
+                    ll_stds[method].append(np.std(final_lls[method], ddof=1))
                 else:
-                    ll_values[method].append(np.nan)  # Handle missing data with NaN
-    
+                    ll_values[method].append(np.nan)
+                    ll_stds[method].append(np.nan)
+
     sorted_indices = np.argsort(random_probs)
     random_probs = np.array(random_probs)[sorted_indices]
     
     for method in ll_values:
         ll_values[method] = np.array(ll_values[method])[sorted_indices]
-    
+        ll_stds[method] = np.array(ll_stds[method])[sorted_indices]
+
     plt.figure(figsize=(10, 6))
     colors = {"gr": "orange", "rr": "purple"}
     for method, label in zip(["gr", "rr"], ["Greedy Random", "Reluctant Random"]):
-        plt.plot(random_probs, ll_values[method], marker='o', label=label, color=colors[method])
+        mean_vals = ll_values[method]
+        std_vals = ll_stds[method]
+        plt.plot(random_probs, mean_vals, marker='o', label=label, color=colors[method])
+        plt.fill_between(random_probs, mean_vals - 2 * std_vals, mean_vals + 2 * std_vals,
+                         color=colors[method], alpha=0.2, label=f"{label} ±2 SD")
 
-    plt.xlim(0, 1)
-    # include horizontal line from reluctant randomS
-    last_rr_idx = next(i for i in reversed(range(len(ll_values["rr"]))) if not np.isnan(ll_values["rr"][i]))
-    plt.axhline(y=ll_values["rr"][last_rr_idx], color=colors["rr"], linestyle='--', xmin=0.15, xmax=1)
-    
-    plt.xlabel("Random Prob")
+    # plt.xlim(0, 1)
+
+    # last_rr_idx = next(i for i in reversed(range(len(ll_values["rr"]))) if not np.isnan(ll_values["rr"][i]))
+    # plt.axhline(y=ll_values["rr"][last_rr_idx], color=colors["rr"], linestyle='--', xmin=0.15, xmax=1)
+
+    plt.xlabel("Random Probability")
     plt.ylabel("Average Final Log-Likelihood")
-    plt.title(f"Average Final LL vs Random Prob (Nodes: {num_nodes}, Groups: {num_groups}, Mode: {mode_number})")
+    plt.title(f"Average Final LL vs Random Probability\nSBM(N={num_nodes}, Groups={num_groups}, Mode={mode_number})")
     plt.legend()
-    plt.grid()
+    plt.grid(True)
+    plt.tight_layout()
     plt.savefig(f"plots/SBM({num_nodes}, {num_groups}, t{mode_number}0, X)_cost.png")
     plt.show()
 
 
 def extract_final_nmi_vs_random_prob_greedy_and_reluctant(results_folder, num_nodes, num_groups, mode_number):
+
     pattern = re.compile(rf"SBM\({num_nodes}, {num_groups}, t{mode_number}0, ([0-9.]+)\)_results\.json")
-    
+
     random_probs = []
     nmi_values = {"gr": [], "rr": []}
-    
+    nmi_stds = {"gr": [], "rr": []}
+
     for file in os.listdir(results_folder):
         match = pattern.match(file)
         if match:
-            random_prob = match.group(1)
-            random_probs.append(float(random_prob))
-            
+            random_prob = float(match.group(1))
+            random_probs.append(random_prob)
+
             with open(os.path.join(results_folder, file), 'r') as f:
                 data = json.load(f)
-            
+
             final_nmis = {"gr": [], "rr": []}
-            
+
             for key in data["cost_data"]:
                 if "nmi_gr" in data["cost_data"][key]:
                     final_nmis["gr"].append(data["cost_data"][key]["nmi_gr"])
                 if "nmi_rr" in data["cost_data"][key]:
                     final_nmis["rr"].append(data["cost_data"][key]["nmi_rr"])
-            
+
             for method in nmi_values:
                 if final_nmis[method]:
                     nmi_values[method].append(np.mean(final_nmis[method]))
+                    nmi_stds[method].append(np.std(final_nmis[method], ddof=1))
                 else:
                     nmi_values[method].append(np.nan)
+                    nmi_stds[method].append(np.nan)
 
     sorted_indices = np.argsort(random_probs)
     random_probs = np.array(random_probs)[sorted_indices]
-    
+
     for method in nmi_values:
         nmi_values[method] = np.array(nmi_values[method])[sorted_indices]
-    
+        nmi_stds[method] = np.array(nmi_stds[method])[sorted_indices]
+
     plt.figure(figsize=(10, 6))
     colors = {"gr": "orange", "rr": "purple"}
     for method, label in zip(["gr", "rr"], ["Greedy Random", "Reluctant Random"]):
-        plt.plot(random_probs, nmi_values[method], marker='o', label=label, color=colors[method])
-    
-    plt.xlim(0, 1)
-    # include horizontal line from reluctant random
-    last_rr_idx = next(i for i in reversed(range(len(nmi_values["rr"]))) if not np.isnan(nmi_values["rr"][i]))
-    plt.axhline(y=nmi_values["rr"][last_rr_idx], color=colors["rr"], linestyle='--', xmin=0.15, xmax=1)
-    
-    plt.xlabel("Random Prob")
-    plt.ylabel("Average Final NMI")
-    plt.title(f"Average Final NMI vs Random Prob (Nodes: {num_nodes}, Groups: {num_groups}, Mode: {mode_number})")
-    plt.legend()
-    plt.grid()
-    plt.savefig(f"plots/SBM({num_nodes}, {num_groups}, t{mode_number}0, X)_nmi.png")
-    plt.show()
+        mean_vals = nmi_values[method]
+        std_vals = nmi_stds[method]
+        plt.plot(random_probs, mean_vals, marker='o', label=label, color=colors[method])
+        plt.fill_between(random_probs, mean_vals - 1.5 * std_vals, mean_vals + 1.5 * std_vals,
+                         color=colors[method], alpha=0.2, label=f"{label} ±1.5 SD")
 
+    plt.xlabel("Random Probability")
+    plt.ylabel("Average Final NMI")
+    plt.title(f"Average Final NMI vs Random Probability\nSBM(N={num_nodes}, Groups={num_groups}, Mode={mode_number})")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    # plt.savefig(f"plots/SBM({num_nodes}, {num_groups}, t{mode_number}0, X)_nmi.png")
+    plt.show()
 
 def extract_num_higher_than_ground_truth_vs_random_prob(results_folder, num_nodes, num_groups, mode_number):
     pattern = re.compile(rf"SBM\({num_nodes}, {num_groups}, t{mode_number}0, ([0-9.]+)\)_results\.json")
@@ -171,8 +184,8 @@ def extract_num_higher_than_ground_truth_vs_random_prob(results_folder, num_node
 if __name__ == "__main__":
     results_folder = r'C:\Projects\Heuristics for combinatorial optimisation\results'
 
-    # extract_final_ll_vs_random_prob_random_greedy_and_reluctant(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)
+    extract_final_ll_vs_random_prob_random_greedy_and_reluctant(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)
 
     # extract_final_nmi_vs_random_prob_greedy_and_reluctant(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)
 
-    extract_num_higher_than_ground_truth_vs_random_prob(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)
+    # extract_num_higher_than_ground_truth_vs_random_prob(results_folder, num_nodes = 10000, num_groups = 2, mode_number = 7)

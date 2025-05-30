@@ -25,6 +25,14 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
     '''
     Draw graph on a given axis
     '''
+    plt.rcParams.update({
+        "font.size": 16,
+        "axes.labelsize": 16,
+        "xtick.labelsize": 16,
+        "ytick.labelsize": 16,
+        "legend.fontsize": 16,
+        "figure.titlesize": 16
+    })
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
 
     color_map_path = 'C:/Projects/Heuristics for combinatorial optimisation/Heuristics-for-combinatorial-optimisation/data/color_map.json'
@@ -71,7 +79,7 @@ def draw_graph(graph, pos, graph_name, iterations_taken, cost_data,
         horizontalalignment='right',
         verticalalignment='bottom', 
         transform=ax[0].transAxes,
-        fontsize=9, 
+        fontsize=14, 
         bbox=dict(facecolor='white', alpha=0.5, edgecolor='none')
         )
 

@@ -7,6 +7,10 @@ import numpy as np
 from matplotlib.sankey import Sankey
 from collections import Counter
 from networkx.readwrite import json_graph
+from collections import defaultdict
+from scipy.stats import linregress
+
+
 
 from utils import calc_cost
 
@@ -57,7 +61,7 @@ def sankey_basin_data(Sg, Sr):
     
     # Show the plot
 
-    plt.savefig(f"plots/{graph_name}_basin_sankey.png")
+    # plt.savefig(f"plots/{graph_name}_basin_sankey.png")
     plt.show()
 
 def heatmap_basin_data(Sg, Sr):
@@ -158,37 +162,49 @@ def plot_color_mapping(Sg, Sr):
 def plot_hist_color_mapping(Sg, Sr, Sgr1, Srr1, seed):
     Sum_count_greedy = [0] * (2 ** num_nodes)
     Sum_count_reluctant = [0] * (2 ** num_nodes)
-    Sum_count_greedy_random = [0] * (2 ** num_nodes)
-    Sum_count_reluctant_random = [0] * (2 ** num_nodes)
+    # Sum_count_greedy_random = [0] * (2 ** num_nodes)
+    # Sum_count_reluctant_random = [0] * (2 ** num_nodes)
 
     for final_g in Sg.values():
         Sum_count_greedy[int(final_g)] += 1
     for final_r in Sr.values():
         Sum_count_reluctant[int(final_r)] += 1
-    for final_gr in Sgr1.values():
-        Sum_count_greedy_random[int(final_gr)] += 1
-    for final_rr in Srr1.values():
-        Sum_count_reluctant_random[int(final_rr)] += 1
+    # for final_gr in Sgr1.values():
+    #     Sum_count_greedy_random[int(final_gr)] += 1
+    # for final_rr in Srr1.values():
+    #     Sum_count_reluctant_random[int(final_rr)] += 1
 
-    # Filter out zeros
-    Sum_count_greedy = [x for x in Sum_count_greedy if x != 0]
-    Sum_count_reluctant = [x for x in Sum_count_reluctant if x != 0]
-    Sum_count_greedy_random = [x for x in Sum_count_greedy_random if x != 0]
-    Sum_count_reluctant_random = [x for x in Sum_count_reluctant_random if x != 0]
+    filtered = {
+        'Greedy': [x for x in Sum_count_greedy if x != 0],
+        'Reluctant': [x for x in Sum_count_reluctant if x != 0],
+        # 'Greedy Random': [x for x in Sum_count_greedy_random if x != 0],
+        # 'Reluctant Random': [x for x in Sum_count_reluctant_random if x != 0],
+    }
+
+    for label, basin_sizes in filtered.items():
+        num_basins = len(basin_sizes)
+        largest_basin = max(basin_sizes)
+        small_basins = sum(1 for x in basin_sizes if x < 80000)
+
+        print(f"{label}:")
+        print(f"  Number of basins: {num_basins}")
+        print(f"  Largest basin size: {largest_basin}")
+        print(f"  Basins with size < 60000: {small_basins}")
+
 
     plt.figure(figsize=(10, 6))
 
     plt.hist(Sum_count_greedy, bins=len(Sum_count_greedy), color='red', alpha=0.5, label='Greedy')
     plt.hist(Sum_count_reluctant, bins=len(Sum_count_reluctant), color='green', alpha=0.5, label='Reluctant')
-    plt.hist(Sum_count_greedy_random, bins=len(Sum_count_greedy_random), color='purple', alpha=0.5, label='Greedy Random 0.1')
-    plt.hist(Sum_count_reluctant_random, bins=len(Sum_count_reluctant_random), color='orange', alpha=0.5, label='Reluctant Random 0.1')
+    # plt.hist(Sum_count_greedy_random, bins=len(Sum_count_greedy_random), color='purple', alpha=0.5, label='Greedy Random 0.1')
+    # plt.hist(Sum_count_reluctant_random, bins=len(Sum_count_reluctant_random), color='orange', alpha=0.5, label='Reluctant Random 0.1')
 
     plt.xlabel("Basin Size")
     plt.ylabel("Count")
     plt.title(f"Histogram of Basin Sizes for N={num_nodes}, k={regular_degree}, c={color_set_size}, seed={seed}")
     plt.legend()
 
-    plt.savefig(f"plots/{graph_name}_basin_hist.png")
+    # plt.savefig(f"plots/{graph_name}_basin_hist.png")
     
     plt.show()
 
@@ -203,7 +219,7 @@ def compute_basin_costs(basin_dict, graph):
         costs[final_coloring] = cost
     return list(basin_sizes.values()), list(costs.values())
 
-def plot_scatter_basin_cost(Sg, Sr, Sgr1, Srr1, Sgr3, Srr3, graph, seed):
+def plot_scatter_basin_cost(Sg, Sr, graph, seed):
 # def plot_scatter_basin_cost(Sg, Sr, graph, seed):
     plt.figure(figsize=(10, 6))
 
@@ -216,42 +232,46 @@ def plot_scatter_basin_cost(Sg, Sr, Sgr1, Srr1, Sgr3, Srr3, graph, seed):
     plt.scatter(sizes_r, costs_r, color='green', marker='o', alpha=0.5, label='Reluctant')
 
     # Compute and plot greedy random 0.1 (cross)
-    sizes_gr1, costs_gr1 = compute_basin_costs(Sgr1, graph)
-    plt.scatter(sizes_gr1, costs_gr1, color='purple', marker='x', alpha=0.5, label='Greedy Random 0.1')
+    # sizes_gr1, costs_gr1 = compute_basin_costs(Sgr1, graph)
+    # plt.scatter(sizes_gr1, costs_gr1, color='purple', marker='x', alpha=0.5, label='Greedy Random 0.1')
 
-    # Compute and plot reluctant random 0.1 (cross)
-    sizes_rr1, costs_rr1 = compute_basin_costs(Srr1, graph)
-    plt.scatter(sizes_rr1, costs_rr1, color='orange', marker='x', alpha=0.5, label='Reluctant Random 0.1')
+    # # Compute and plot reluctant random 0.1 (cross)
+    # sizes_rr1, costs_rr1 = compute_basin_costs(Srr1, graph)
+    # plt.scatter(sizes_rr1, costs_rr1, color='orange', marker='x', alpha=0.5, label='Reluctant Random 0.1')
 
-    # Compute and plot greedy random 0.3 (triangle)
-    sizes_gr3, costs_gr3 = compute_basin_costs(Sgr3, graph)
-    plt.scatter(sizes_gr3, costs_gr3, color='purple', marker='^', alpha=0.5, label='Greedy Random 0.3')
+    # # Compute and plot greedy random 0.3 (triangle)
+    # sizes_gr3, costs_gr3 = compute_basin_costs(Sgr3, graph)
+    # plt.scatter(sizes_gr3, costs_gr3, color='purple', marker='^', alpha=0.5, label='Greedy Random 0.3')
 
-    # Compute and plot reluctant random 0.3 (triangle)
-    sizes_rr3, costs_rr3 = compute_basin_costs(Srr3, graph)
-    plt.scatter(sizes_rr3, costs_rr3, color='orange', marker='^', alpha=0.5, label='Reluctant Random 0.3')
+    # # Compute and plot reluctant random 0.3 (triangle)
+    # sizes_rr3, costs_rr3 = compute_basin_costs(Srr3, graph)
+    # plt.scatter(sizes_rr3, costs_rr3, color='orange', marker='^', alpha=0.5, label='Reluctant Random 0.3')
 
     plt.xlabel("Basin Size")
     plt.ylabel("Cost Function")
-    plt.title(f"Cost Function against basin size for N={num_nodes}, d={regular_degree}, c={color_set_size}, seed={seed}")
+    plt.title(f"Cost Function against basin size for N={num_nodes}, k={regular_degree}, c={color_set_size}, seed={seed}")
     plt.legend()
     plt.tight_layout()
 
-    plt.savefig(f"plots/{graph_name}_basin_scatter.png")
+    # plt.savefig(f"plots/{graph_name}_basin_scatter.png")
     plt.show()
 
 def plot_scatter_all_seeds_for_config(results_folder, graph_folder, num_nodes, regular_degree, color_set_size):
+    plt.rcParams.update({
+        "font.size": 12,
+        "axes.labelsize": 12,
+        "xtick.labelsize": 12,
+        "ytick.labelsize": 12,
+        "legend.fontsize": 12,
+        "figure.titlesize": 12
+    })
     marker_map = {
-        1: 'o',  # circle
-        2: 's',  # square
-        3: '^',  # triangle
-        4: 'v',
-        5: 'D',
-        6: 'P',
-        7: '*',
+        1: 'o', 2: 's', 3: '^', 4: 'v', 5: 'D', 6: 'P', 7: '*'
     }
+    line_styles = ['-', '--', ':']
 
     plt.figure(figsize=(10, 6))
+    added_fit_labels = set()
 
     for file in os.listdir(results_folder):
         if not file.endswith("_basin_results.json"):
@@ -267,12 +287,13 @@ def plot_scatter_all_seeds_for_config(results_folder, graph_folder, num_nodes, r
                 config[1] != regular_degree or
                 config[2] != color_set_size
             ):
-                continue  # Skip files not matching config
+                continue
             _, _, _, seed = config
         except Exception:
-            continue  # Skip malformed filenames
+            continue
 
         marker = marker_map.get(seed, 'x')
+        linestyle = line_styles[(seed - 1) % len(line_styles)]
         result_path = os.path.join(results_folder, file)
         graph_path = os.path.join(graph_folder, f"{config}.json")
 
@@ -291,39 +312,102 @@ def plot_scatter_all_seeds_for_config(results_folder, graph_folder, num_nodes, r
         sizes_g, costs_g = compute_basin_costs(Sg, graph)
         sizes_r, costs_r = compute_basin_costs(Sr, graph)
 
-        plt.scatter(np.log(sizes_g), costs_g, color='red', marker=marker, alpha=0.5, label=f'Greedy Init {seed}')
-        plt.scatter(np.log(sizes_r), costs_r, color='green', marker=marker, alpha=0.5, label=f'Reluctant Init {seed}')
+        # Log-transform basin sizes
+        log_sizes_g = np.log10(sizes_g)
+        log_sizes_r = np.log10(sizes_r)
 
+        # Scatter plot
+        plt.scatter(sizes_g, costs_g, color='red', marker=marker, alpha=0.5, label=f'Greedy Init {seed}')
+        plt.scatter(sizes_r, costs_r, color='green', marker=marker, alpha=0.5, label=f'Reluctant Init {seed}')
+
+        # Fit regression
+        slope_g, intercept_g, r_g, _, _ = linregress(log_sizes_g, costs_g)
+        slope_r, intercept_r, r_r, _, _ = linregress(log_sizes_r, costs_r)
+
+        print(f"Seed {seed} – Greedy Fit: slope = {slope_g:.4f}, R² = {r_g**2:.4f}")
+        print(f"Seed {seed} – Reluctant Fit: slope = {slope_r:.4f}, R² = {r_r**2:.4f}")
+
+        x_range_g = np.linspace(min(log_sizes_g), max(log_sizes_g), 100)
+        x_range_r = np.linspace(min(log_sizes_r), max(log_sizes_r), 100)
+
+        label_g = f"Greedy Fit (Seed {seed})"
+        label_r = f"Reluctant Fit (Seed {seed})"
+
+        # Only add label once for legend deduplication
+        plt.plot(10 ** x_range_g, slope_g * x_range_g + intercept_g, color='red',
+                 linestyle=linestyle, label=label_g if label_g not in added_fit_labels else None)
+        added_fit_labels.add(label_g)
+
+        plt.plot(10 ** x_range_r, slope_r * x_range_r + intercept_r, color='green',
+                 linestyle=linestyle, label=label_r if label_r not in added_fit_labels else None)
+        added_fit_labels.add(label_r)
+
+    plt.xscale('log')
     plt.xlabel("Basin Size")
     plt.ylabel("Cost Function")
-    plt.title(f"Cost Function against Log Basin size for N={num_nodes}, d={regular_degree}, c={color_set_size}")
+    plt.title(f"Cost vs Basin Size for N={num_nodes}, k={regular_degree}, c={color_set_size}")
 
     # Deduplicate legend
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
-    plt.legend(by_label.values(), by_label.keys(), fontsize='small')
+    plt.legend(by_label.values(), by_label.keys(), fontsize='medium')
 
     plt.tight_layout()
     filename = f"plots/({num_nodes}, {regular_degree}, {color_set_size})_basin_results_all_init.png"
     # plt.savefig(filename)
     plt.show()
 
+def compute_basin_statistics(Sg, Sr):
+    """
+    Compute basin statistics separately for Greedy and Reluctant:
+    - Number of unique basins
+    - Median basin size
+    - % of initialisations in largest basin
+    - Gini index
+    """
+
+    def compute_stats(basin_map, label):
+        # Count how many times each basin was reached (via values in the mapping)
+        basin_counts = defaultdict(int)
+        for v in basin_map.values():
+            basin_id = str(v)
+            basin_counts[basin_id] += 1
+
+        basin_sizes = np.array(list(basin_counts.values()), dtype=int)
+        total = basin_sizes.sum()
+        largest = basin_sizes.max()
+        median = np.median(basin_sizes)
+        largest_pct = 100 * largest / total if total > 0 else 0
+
+        def gini(x):
+            x = np.sort(x)
+            n = len(x)
+            cumulative = np.cumsum(x)
+            return (n + 1 - 2 * np.sum(cumulative) / cumulative[-1]) / n
+
+        gini_index = gini(basin_sizes)
+
+        print(f"\n📊 {label} Basin Statistics")
+        print(f"• Total initialisations: {total}")
+        print(f"• Unique basins: {len(basin_sizes)}")
+        print(f"• Largest basin size: {largest} ({largest_pct:.2f}%)")
+        print(f"• Median basin size: {median}")
+        print(f"• Gini index: {gini_index:.4f}")
+
+    compute_stats(Sg, "Greedy")
+    compute_stats(Sr, "Reluctant")
+
 if __name__ == "__main__":
 
     num_nodes = 20
-    regular_degree = 10
+    regular_degree = 18
     color_set_size = 2
-    init = 1
+    init = 2
 
     graph_path = f"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\({num_nodes}, {regular_degree}, {color_set_size}, {init}).json"
     graph_folder = r'C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs'
 
     graph, graph_name, color_set_size, degree, num_nodes, gaussian_mean, gaussian_variance, initial_node_colors = load_graph_from_json(graph_path)
-
-    # results_path = f"C:\Projects\Heuristics for combinatorial optimisation\results\({num_nodes}, {regular_degree}, {color_set_size})_basin_results.json"
-
-    # with open(results_path, 'r') as f:
-    #     data = json.load(f)
 
     results_folder = r"C:\Projects\Heuristics for combinatorial optimisation\results"
     results_path = f"({num_nodes}, {regular_degree}, {color_set_size}, {init})_basin_results.json"
@@ -335,10 +419,10 @@ if __name__ == "__main__":
     basin_data = data['basin_data']
     Sg = basin_data['Sg']
     Sr = basin_data['Sr']
-    Sgr1 = basin_data['Sgr1']
-    Srr1 = basin_data['Srr1']
-    Sgr3 = basin_data['Sgr3']
-    Srr3 = basin_data['Srr3']
+    # Sgr1 = basin_data['Sgr1']
+    # Srr1 = basin_data['Srr1']
+    # Sgr3 = basin_data['Sgr3']
+    # Srr3 = basin_data['Srr3']
 
     # sankey_basin_data(Sg, Sr)
 
@@ -352,6 +436,13 @@ if __name__ == "__main__":
     # plot_scatter_basin_cost(Sg, Sr, graph, init)
 
     plot_scatter_all_seeds_for_config(results_folder, graph_folder, num_nodes, regular_degree, color_set_size)
+
+
+    # plot_hist_color_mapping(Sg, Sr, Sgr1, Srr1, init)
+
+    # compute_basin_statistics(Sg, Sr)
+
+
 
 
 

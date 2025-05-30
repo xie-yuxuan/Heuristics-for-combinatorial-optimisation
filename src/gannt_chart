@@ -1,0 +1,78 @@
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from datetime import datetime, timedelta
+
+# Define interpreted tasks for the project
+tasks = [
+    {"id": 1, "task": "Background Research and Initial Experiments", "start": "2024-09-01", "end": "2024-10-10"},
+    {"id": 2, "task": "Read Papers", "start": "2024-09-01", "end": "2025-05-20"},
+    {"id": 3, "task": "Graph Colouring implementation", "start": "2024-10-10", "end": "2024-11-13"},
+    {"id": 4, "task": "Graph Colouring optimisation", "start": "2024-10-10", "end": "2024-11-13"},
+    {"id": 5, "task": "Mini conference prep", "start": "2024-11-14", "end": "2024-11-27"},
+    {"id": 6, "task": "SBM implementation", "start": "2024-11-21", "end": "2025-02-26"},
+    {"id": 7, "task": "TMR writing", "start": "2025-01-01", "end": "2025-01-23"},
+    {"id": 8, "task": "Random optimisation", "start": "2025-02-27", "end": "2025-04-20"},
+    {"id": 9, "task": "Basin Analysis", "start": "2025-03-27", "end": "2025-04-20"},
+    {"id": 10, "task": "Simulated Annealing", "start": "2025-05-10", "end": "2025-05-25"},
+    {"id": 11, "task": "Report Writing & Refinement", "start": "2025-04-10", "end": "2025-05-25"}
+]
+
+# Convert date strings to datetime objects
+for task in tasks:
+    task["start_dt"] = datetime.strptime(task["start"], "%Y-%m-%d")
+    task["end_dt"] = datetime.strptime(task["end"], "%Y-%m-%d")
+
+# Plotting
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Draw horizontal bars
+bar_color = "#4F81BD"
+for i, task in enumerate(tasks):
+    ax.barh(
+        y=i,
+        width=(task["end_dt"] - task["start_dt"]).days,
+        left=task["start_dt"],
+        height=0.4,
+        align="center",
+        color=bar_color,
+        edgecolor="black"
+    )
+
+# Y-axis formatting
+ax.set_yticks(range(len(tasks)))
+ax.set_yticklabels([f"{task['id']}. {task['task']}" for task in tasks], fontsize=11)
+ax.invert_yaxis()
+
+# X-axis formatting
+ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+ax.xaxis.tick_top()
+ax.tick_params(axis='x', labelrotation=0, labelsize=11)
+
+# Grid for vertical month lines and horizontal task lines
+for i in range(len(tasks) + 1):
+    ax.axhline(i - 0.5, color='lightgray', linewidth=0.5)
+
+# Vertical grid lines at month changes
+start_date = min(task["start_dt"] for task in tasks)
+end_date = max(task["end_dt"] for task in tasks)
+current = start_date.replace(day=1)
+while current <= end_date:
+    ax.axvline(current, color='lightgray', linewidth=0.5)
+    next_month = current + timedelta(days=32)
+    current = next_month.replace(day=1)
+
+# Remove all borders
+for spine in ['right', 'left', 'top', 'bottom']:
+    ax.spines[spine].set_visible(False)
+
+# Remove axis titles
+ax.set_xlabel("")
+ax.set_ylabel("")
+
+
+# save plot
+fig.savefig("gantt_chart.png", dpi=300, bbox_inches="tight")
+
+plt.tight_layout()
+plt.show()

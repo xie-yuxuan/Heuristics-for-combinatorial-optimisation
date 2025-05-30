@@ -40,7 +40,7 @@ if __name__ == '__main__':
     random_prob = 0.05
     use_dynamic_w = True
 
-    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\wikipedia_map_of_science, a.json"
+    file_path = rf"C:\Projects\Heuristics for combinatorial optimisation\Heuristics-for-combinatorial-optimisation\data\graphs\political_books_network, a.json"
     graph, graph_name, num_nodes, num_groups, group_mode, initial_node_colors, ground_truth_w, ground_truth_log_likelihood = load_graph_from_json(file_path)
 
     g = []
@@ -109,9 +109,9 @@ if __name__ == '__main__':
 
                 n, m = np.zeros(num_groups), np.zeros((num_groups, num_groups))
                 for node in graph.nodes():
-                    n[g_copy2[node]] += 1
+                    n[g_final[node]] += 1
                 for u, v in graph.edges():
-                    m[g_copy2[v], g_copy2[u]] = m[g_copy2[u], g_copy2[v]] = m[g_copy2[u], g_copy2[v]] + 1
+                    m[g_final[v], g_final[u]] = m[g_final[u], g_final[v]] = m[g_final[u], g_final[v]] + 1
 
                 new_w = compute_w(n, m)
                 if np.allclose(new_w, current_w, atol=1e-6):
